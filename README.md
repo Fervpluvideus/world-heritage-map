@@ -33,8 +33,9 @@ An interactive global map for exploring historical sites and cultural heritage a
 ## 核心功能
 
 - 🌍 **全球古迹探索**：直接加载 Heritage Watch AI 发布的全球 PMTiles 数据，随地图移动和缩放自动更新。
-- 🏛️ **28 种古迹分类**：按类别、存续状态和遗产认定记录筛选，支持同类点位聚合及当前范围古迹列表。
-- 🗺️ **四大数据图层**：OSM 古迹、Wikidata 古迹、建筑轮廓、受损／已毁专题，可独立开启和关闭。
+- 🏛️ **30 种古迹分类**：按类别、存续状态和遗产认定记录筛选，支持同类点位聚合及当前范围古迹列表。
+- 🗺️ **古迹数据图层**：保留原有四个图层，增加开放各国遗产名录及边界、UNESCO 世界遗产、Pleiades 古代地名。
+- 🕰️ **历史地图叠加**：OpenHistoricalMap 按年份显示有时间信息的道路和建筑；Allmaps 按当前地图中心查找已配准老地图，David Rumsey 可从关联馆藏或原站 XYZ 链接导入，支持透明度调整。原图授权须逐幅核查。
 - 🔤 **中文优先与多语言**：优先展示可获得的中文名称，缺少中文时回退至英文或当地语言。
 - 📷 **图片与历史简介**：优先读取图层关联图片及 Wikidata 图片，补充维基百科代表图片和简介，提供原始资料链接与图片授权信息。
 - 🤖 **可选 DeepSeek 助手**：已有外文简介时直接翻译；缺乏资料时可联网搜索；维基百科加载期间也可主动开始联网查询。
@@ -50,11 +51,18 @@ An interactive global map for exploring historical sites and cultural heritage a
 
 地图加载、图片与简介检索依赖网络及第三方服务。DeepSeek API 请求可能产生费用，不配置密钥也能正常浏览地图。
 
+5. 在「图层 → 历史地图叠加」中选择 OHM 年份，或查询附近的已配准老地图。Rumsey 可由原站 Use in GIS apps → XYZ link 导入。
+
 ## 数据来源与许可
 
 | 来源 | 用途 | 许可或说明 |
 | --- | --- | --- |
 | [Heritage Watch AI](https://terria-catalog.prod.heritagewatch.ai/tools/) | 全球古迹矢量数据及建筑轮廓 | 按上游数据来源及许可使用 |
+| [UNESCO DataHub](https://data.unesco.org/explore/dataset/whc001/) | 世界遗产及分项坐标 | CC BY-SA 4.0；不自动复用第三方图像 |
+| [Pleiades](https://pleiades.stoa.org/downloads) | 古代地名及代表坐标 | CC BY 3.0，须保留贡献者署名 |
+| [OpenHistoricalMap](https://www.openhistoricalmap.org/copyright) | 历史矢量要素 | 通常 CC0，部分要素独立开放许可 |
+| [Allmaps](https://allmaps.org/data) | 地理配准与瓦片叠加 | 配准数据 CC0；原图另行授权 |
+| [David Rumsey Map Collection](https://www.davidrumsey.com/about/copyright-and-permissions) | 历史地图馆藏 | 逐幅核查原图及服务许可 |
 | [OpenStreetMap](https://www.openstreetmap.org/copyright) | 地理数据、古迹与受损对象 | ODbL 1.0 |
 | [Wikidata](https://www.wikidata.org/wiki/Wikidata:Licensing) | 古迹实体、名称、图片关联 | 结构化数据 CC0 |
 | [Wikipedia](https://en.wikipedia.org/wiki/Wikipedia:Copyrights) | 条目简介 | 按条目适用许可，通常为 CC BY-SA |
@@ -67,6 +75,7 @@ An interactive global map for exploring historical sites and cultural heritage a
 
 ## 数据局限与隐私
 
+- 新增各国名录仅展示上游标记为开放（licence_class=open）的记录；不同名录的具体许可与署名须以原始记录为准。Pleiades 采用代表坐标，不代表遗址真实精确位置；老地图可能存在配准误差。不同历史年代的现代底图仅用于参照。
 - 古迹数据不等于各国官方文物保护名录，可能存在遗漏、重复、名称或分类错误、位置偏差；受损／已毁图层还包含部分非古迹对象。
 - 中文译名可能并非正式名称，AI 生成内容不能代替原始史料或专业考证。请通过原始条目、来源链接及相关历史资料交叉核查。
 - 本项目不设账号系统。显示偏好及可选的 DeepSeek API Key 保存在本机浏览器 localStorage 中，密钥未加密；不应在公共设备保存。
@@ -75,7 +84,7 @@ An interactive global map for exploring historical sites and cultural heritage a
 
 ## 技术与本地运行
 
-基于 HTML、CSS、JavaScript、[MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) 与 [PMTiles](https://docs.protomaps.com/pmtiles/)，目前采用单文件静态网页，无需后端服务。
+基于 HTML、CSS、JavaScript、[MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) 与 [PMTiles](https://docs.protomaps.com/pmtiles/)，目前采用静态网页及独立图源模块，无需后端服务。
 
 ```bash
 git clone https://github.com/Fervpluvideus/world-heritage-map.git
