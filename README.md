@@ -8,7 +8,7 @@
 <p>跨越语言的边界，探索人类文明的共同记忆。</p>
 
 <a href="https://fervpluvideus.github.io/world-heritage-map/"><img alt="打开世界古迹图" src="https://img.shields.io/badge/在线探索-Live%20Map-28594d?style=for-the-badge"></a>
-<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.24" src="https://img.shields.io/badge/Version-0.24-8b704b?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.25" src="https://img.shields.io/badge/Version-0.25-8b704b?style=for-the-badge"></a>
 <a href="https://github.com/Fervpluvideus/world-heritage-map/issues"><img alt="反馈与建议" src="https://img.shields.io/badge/反馈与建议-Issues-526b63?style=for-the-badge"></a>
 
 <p><strong>全球古迹探索 · 中文统一展示 · 历史地图叠加</strong></p>
@@ -58,12 +58,14 @@
 - 可选 DeepSeek 助手：支持翻译外文简介、按需联网检索，以及当前视野内古迹名称的批量翻译。
 - 可开启随地图移动自动翻译，新进入视野的遗址名称分批更新，无需逐个点开详情。
 - AI 译名本地缓存，保留原名并标注未核实；后续获得可靠中文名称时优先使用来源数据中的中文名。
+- 联网介绍仅呈现与目标古迹相关的有来源资料；未找到可靠匹配时直接提示，不列出无关检索结果。
 
 ### 02 · 全球古迹探索
 
 - 接入全球 OSM 古迹、Wikidata 古迹、建筑轮廓、受损／已毁专题、各国开放遗产名录及其边界，以及 UNESCO 世界遗产、Pleiades 古代地名。
 - 提供 31 种古迹分类，支持类别、存续状态与遗产认定记录筛选、同类点位聚合及当前范围古迹列表。
-- 自动根据地图视野加载数据；图标冲突时优先显示有遗产认定记录或较完整资料的古迹。显示优先级不等于历史价值。
+- 支持普通关键词匹配和可选的 DeepSeek 语义匹配，搜索当前视野内已加载的记录，包括被聚合或遮挡的古迹。
+- 移动与缩放期间持续刷新古迹，对已加载瓦片进行屏幕边缘缓冲预计算；名称从缩放等级 9 起显示，保留防遮挡机制。图标冲突时优先显示有遗产认定记录或较完整资料的古迹。显示优先级不等于历史价值。
 - 支持原始记录链接、维基百科简介及关联图片，并保留可获得的图片作者与授权信息。
 
 ### 03 · 历史地图与地理对照
@@ -71,12 +73,12 @@
 - OpenHistoricalMap：按年份叠加具有时间信息的道路、建筑、水系等历史矢量要素。
 - Allmaps：根据地图中心查找已配准的历史地图，支持覆盖范围定位、透明度调整及瓦片加载反馈。
 - David Rumsey：支持 Allmaps 关联馆藏筛选，以及从原站导入可用的 XYZ 瓦片链接。并非整个馆藏都能直接叠加。
-- 独立的馆藏选择面板，支持卡片展开、地图切换动画及格式重试。
+- 独立的馆藏选择面板，支持卡片展开、地图切换动画及格式重试。底部操作栏可暂时隐藏、恢复或关闭历史地图叠加。
 
 ### 04 · 移动端体验
 
-- 城市与地点搜索、浏览器定位；无法自动定位时以沈阳为默认位置。
-- 可收起的顶部菜单、动画详情面板及固定关闭按钮。
+- 城市与地点搜索、右下角独立定位按钮；无法自动定位时以沈阳为默认位置。
+- 可收起的顶部菜单（古迹列表、历史地图、图层分类、AI 设置）、动画详情面板及固定关闭按钮。
 - 自动记忆古迹分类、图层、状态筛选及聚合等显示偏好。
 
 ## 使用指南
@@ -84,11 +86,12 @@
 | 想做什么 | 操作方式 |
 | --- | --- |
 | 浏览古迹 | 搜索地点或移动地图，点击古迹图标或聚合点 |
-| 寻找特定类型 | 展开图层及古迹分类菜单，选择所需类别 |
+| 寻找特定类型 | 展开图层分类菜单，选择所需类别 |
+| 搜索当前古迹 | 古迹列表 → 普通匹配或 AI 匹配 |
 | 查看历史资料 | 打开详情，查看关联图片、维基百科简介或原始记录 |
 | 翻译当前地图 | 在 AI 设置配置密钥与模型，然后点击「翻译当前地图名称」 |
 | 持续中文化 | 开启「随地图移动自动翻译」，可随时通过顶部停止按钮关闭 |
-| 查看历史矢量地图 | 图层 → 历史地图叠加 → OpenHistoricalMap，选择年份 |
+| 查看历史矢量地图 | 历史地图 → OpenHistoricalMap，选择年份 |
 | 叠加馆藏老地图 | 选择馆藏老地图 → 查找附近地图 → 核查原图授权 → 叠加到地图 |
 
 ## DeepSeek 使用与费用控制
@@ -102,6 +105,7 @@ AI 为可选功能，不影响基础地图使用。用户需自行提供 DeepSee
 | 自动请求上限 | 每次开启最多请求 1000 个名称，含重试；刷新网页后默认关闭 |
 | 失败处理 | 网络、限流与输出异常最多额外重试两次；密钥无效、余额不足等错误不反复请求 |
 | 缓存 | 最多保存 6000 条 AI 译名，已缓存或已有中文名称的记录不重复翻译 |
+| AI 列表匹配 | 单次最多 600 条已加载记录，主动调用，不联网搜索 |
 | 停止 | 翻译期间顶部提供停止按钮；终止后续请求，但已经提交的请求仍可能产生费用 |
 
 名称批量翻译仅调用模型，不进行联网搜索；古迹详情中的联网检索为独立的按需操作。所有 API 调用均可能产生费用。请勿将 AI 译名视为正式地名，也不要以 AI 生成的历史介绍替代原始资料。
@@ -139,7 +143,7 @@ AI 为可选功能，不影响基础地图使用。用户需自行提供 DeepSee
 
 ## 技术与本地运行
 
-基于 HTML、CSS、JavaScript、[MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) 与 [PMTiles](https://docs.protomaps.com/pmtiles/)，采用静态网页架构：`index.html` 负责地图及界面，`sources.js` 负责新增数据源和历史地图，`translate.js` 负责地图名称批量翻译。无需自建后端服务。
+基于 HTML、CSS、JavaScript、[MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) 与 [PMTiles](https://docs.protomaps.com/pmtiles/)，采用静态网页架构：`index.html` 负责地图及界面，`sources.js` 负责新增数据源和历史地图，`translate.js` 负责地图名称批量翻译，`list-search.js` 负责古迹列表普通搜索与 AI 匹配。无需自建后端服务。
 
 ```bash
 git clone https://github.com/Fervpluvideus/world-heritage-map.git
