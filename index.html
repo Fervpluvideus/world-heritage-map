@@ -364,7 +364,7 @@ function storeSet(k,v){try{if(v)localStorage.setItem(k,v);else localStorage.remo
 function dsStatus(t){$('dsStatus').textContent=t}
 function safeHttpUrl(s){try{const u=new URL(s);return ['https:','http:'].includes(u.protocol)?u.href:''}catch(e){return ''}}
 function shortText(s,max){return Array.from(String(s||'').trim()).slice(0,max).join('')}
-function openAISettings(){if($('panel').hidden)$('collapse').click();$('aiPanel').hidden=false;$('aiSettings').setAttribute('aria-expanded','true');$('aiPanel').scrollIntoView?.({block:'nearest'})}
+function openAISettings(){$('info').hidden=true;if($('panel').hidden)$('collapse').click();$('aiPanel').hidden=false;$('aiSettings').setAttribute('aria-expanded','true');$('aiPanel').scrollIntoView?.({block:'nearest'})}
 async function fetchJson(url,options={},ms=16000){
  const controller=new AbortController(),outer=options.signal;
  if(outer?.aborted)throw Error('查询已取消');
@@ -407,7 +407,7 @@ function setupDeepSeek(){
  dsKey=storeGet(DS_KEY_STORE);dsModel=storeGet(DS_MODEL_STORE);
  if(dsKey)$('dsKey').placeholder='************************';
  $('dsKey').onchange=saveDSKey;
- $('dsKey').oninput=()=>{clearTimeout(dsSaveTimer);dsSaveTimer=setTimeout(saveDSKey,1200)};
+ $('dsKey').onpaste=()=>{clearTimeout(dsSaveTimer);dsSaveTimer=setTimeout(saveDSKey,100)};
  $('dsKey').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();saveDSKey()}};
  $('dsRefresh').onclick=()=>{$('dsKey').value.trim()?saveDSKey():refreshModels()};
  $('dsModel').onchange=()=>{dsModel=$('dsModel').value;storeSet(DS_MODEL_STORE,dsModel)};
@@ -459,7 +459,7 @@ function sourceLinks(p,el){
  if(p.osm_type&&p.osm_id&&/^(node|way|relation)$/.test(p.osm_type)&&/^\d+$/.test(String(p.osm_id)))link(el,'OSM 原始条目','https://www.openstreetmap.org/'+p.osm_type+'/'+p.osm_id);
  const qid=getQid(p);if(qid)link(el,'Wikidata 原始条目','https://www.wikidata.org/wiki/'+qid);
 }
-function origName(p){return clean(p.label_local)||clean(p.name_local)||clean(p.name)||clean(p.label)||''}
+function origName(p){return clean(p.label_local)||clean(p.name_local)||(p.sourceLabel?.includes('维基古迹')?'':clean(p.name)||clean(p.label))||''}
 function refreshDetailName(p,head,original){
  head.textContent=label(p)||p.display||CAT[p.catKey]?.[0]||'未命名地点';
  const orig=origName(p);original.hidden=!orig||orig===head.textContent;original.textContent=original.hidden?'':orig;
@@ -505,7 +505,7 @@ async function lookupDeepSeek(p,signal,report){
 function addAISection(p,el,token,signal){
  const section=addText(el,'div','');section.className='detail-ai';
  addText(section,'h3','DeepSeek 联网资料');
- const btn=addText(section,'button',dsKey?'联网查询中文名称与简介':'配置 DeepSeek API');
+ const btn=addText(section,'button','DeepSeek 联网查询');
  const note=addText(section,'p','');note.className='hint';note.textContent=dsKey?'按需查询，可能产生 API 费用。':'输入自己的 API Key 后启用。';
  const output=addText(section,'div','');
  btn.onclick=async()=>{
