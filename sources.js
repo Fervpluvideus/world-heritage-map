@@ -137,7 +137,7 @@ function archiveViewer(id){return 'https://viewer.allmaps.org/?url='+encodeURICo
 function clearArchive(){
  if(map.getLayer('archive-overlay'))map.removeLayer('archive-overlay');
  if(map.getSource('archive-overlay'))map.removeSource('archive-overlay');
- archiveSelected=null;$('archiveRights').checked=false;$('archiveStatus').textContent='老地图已关闭。';
+ archiveSelected=null;$('archiveRights').checked=false;$('rumseyXYZRights').checked=false;$('archiveStatus').textContent='老地图已关闭。';
 }
 function overlayArchive(record){
  if(!$('archiveRights').checked||archiveSelected?.id!==record.id){$('archiveStatus').textContent='请先选择该地图、核查原图许可并勾选授权确认。';return}
@@ -175,7 +175,31 @@ async function searchArchive(manual=false){
   renderArchives(records);$('archiveStatus').textContent=records.length?'找到 '+records.length+' 幅已配准地图（请核查原图授权）。':kind==='rumsey'&&!manual?'本次附近查询未发现可识别的 Rumsey 馆藏；可使用原站目录或指定 IIIF 链接。':'未找到可识别的已配准地图。';
  }catch(e){if(generation===archiveSearchGeneration)$('archiveStatus').textContent='馆藏查询失败：'+String(e.message||e).slice(0,100)}
 }
+
+function rumseyXYZ(value){
+ const raw=String(value||'').trim();
+ if(!raw||raw.length>2000||/[\s<>"']/u.test(raw)||!['{z}','{x}','{y}'].every(k=>raw.includes(k)))return '';
+ if(/[{}]/.test(raw.replace(/\{[zxy]\}/g,'')))return '';
+ try{const u=new URL(raw.replace(/\{[zxy]\}/g,'0'));
+  if(u.protocol!=='https:'||u.username||u.password||u.port||!['maps.georeferencer.com','davidrumsey.georeferencer.com','davidrumsey.oldmapsonline.org'].includes(u.hostname))return '';
+  return raw;
+ }catch(e){return ''}
+}
+function importRumseyXYZ(){
+ const tile=rumseyXYZ($('rumseyXYZInput').value);
+ if(!tile){$('archiveStatus').textContent='请从 Rumsey 的 Use in GIS apps 复制完整 HTTPS XYZ 链接（包含 {z}/{x}/{y}）。';return}
+ if(!$('rumseyXYZRights').checked){$('archiveStatus').textContent='请先核查原图及瓦片服务使用许可，并勾选确认。';return}
+ try{
+  if(map.getLayer('archive-overlay'))map.removeLayer('archive-overlay');
+  if(map.getSource('archive-overlay'))map.removeSource('archive-overlay');
+  map.addSource('archive-overlay',{type:'raster',tiles:[tile],tileSize:256,minzoom:0,maxzoom:22,attribution:'<a href="https://www.davidrumsey.com/view/georeferenced-maps">David Rumsey Map Collection, David Rumsey Map Center, Stanford University Libraries</a>'});
+  map.addLayer({id:'archive-overlay',type:'raster',source:'archive-overlay',paint:{'raster-opacity':Number($('archiveOpacity').value)/100}},map.getLayer('agg-icons')?'agg-icons':undefined);
+  $('archiveStatus').textContent='已添加 Rumsey XYZ 图层；请移动至原图覆盖范围，实际显示取决于瓦片服务权限与网络。';
+  archiveSelected=null;$('archiveRights').checked=false;$('rumseyXYZRights').checked=false;setTopOpen(false);
+ }catch(e){$('archiveStatus').textContent='Rumsey 叠加失败：'+String(e.message||e)}
+}
 function initHistoryMaps(){
+ $('importRumseyXYZ').onclick=importRumseyXYZ;
  $('ohmToggle').onchange=()=>{try{setOHM()}catch(e){$('archiveStatus').textContent='OHM 加载失败：'+e.message}};
  $('ohmYear').onchange=$('ohmToggle').onchange;
  $('findArchive').onclick=()=>searchArchive(false);$('loadArchive').onclick=()=>searchArchive(true);$('clearArchive').onclick=clearArchive;
