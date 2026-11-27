@@ -48,7 +48,7 @@ header{position:fixed;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;m
 
 #historyPanel{overflow:hidden}#historyDock{position:fixed;left:8px;right:64px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:440px;z-index:3;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:var(--shadow);padding:7px 9px;font-size:11px}#historyDock[hidden],body:has(.sheet:not([hidden])) #historyDock{display:none!important}.historyDockActions{display:flex;gap:5px;margin-top:4px}.historyDockActions button{flex:1;font-size:11px;padding:6px 4px;white-space:nowrap}#historyClose{color:#a33c31}#historyDockTitle{color:var(--muted);font-weight:600}#archiveToast{bottom:calc(90px + env(safe-area-inset-bottom));z-index:2}body:has(.sheet:not([hidden])) #archiveToast{display:none!important}#locate{position:fixed;right:10px;bottom:calc(48px + env(safe-area-inset-bottom));z-index:2;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;padding:0;background:var(--paper);color:var(--accent);box-shadow:0 3px 14px #20342e33;border:1px solid var(--line)}#locate[aria-busy=true]{opacity:.65;animation:locatePulse .8s alternate infinite}body:has(.sheet:not([hidden])) #locate{display:none}@keyframes locatePulse{to{opacity:1}}#listSearchBox{flex:none;padding:9px 12px 8px;border-bottom:1px solid var(--line);background:var(--paper)}#listSearchForm{display:flex;gap:5px;align-items:center}#listQuery{flex:1;min-width:0;font-size:16px}#listSearchForm button{font-size:12px;flex:none;padding:8px 9px}.listMatchModes{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:7px}.listMatchModes label{display:flex;align-items:center;gap:3px;font-size:12px;padding:4px 6px;background:var(--soft);border-radius:7px}.listMatchModes button{margin-left:auto;font-size:11px;padding:4px 7px}#listSearchStatus{margin-top:6px;overflow-wrap:anywhere}#tools #categoryPanel{margin-bottom:8px}#aiPanel .mapTranslateRow{padding-top:5px}#panel .actions button{gap:3px}@media(max-width:350px){#panel .actions button{font-size:10px;gap:2px}#panel .actions .chevron{width:6px;height:6px}}@media(prefers-reduced-motion:reduce){#locate[aria-busy=true]{animation:none}}
 </style></head><body><noscript><main style="position:relative;z-index:5;padding:20px;background:#fffdf8"><h1>世界古迹图 · World Heritage Map</h1><p>面向中文用户的全球古迹探索地图，致力于统一古迹名称与历史资料的中文展示。探索历史建筑、考古遗址、城堡、废墟及文化遗产，支持中文名称匹配、可选 AI 翻译、原始资料查询与历史地图叠加。</p><p>交互地图需要启用 JavaScript 和 WebGL。<a href="https://github.com/Fervpluvideus/world-heritage-map">查看项目说明和数据来源</a>。</p></main></noscript><div id="map"></div><button id="locate" type="button" disabled aria-label="定位到当前位置" title="定位到当前位置"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg></button><aside id="historyDock" hidden><span id="historyDockTitle">历史地图</span><div class="historyDockActions"><button id="historyVisibility" type="button" aria-pressed="false">暂时隐藏地图</button><button id="historyClose" type="button">关闭叠加</button></div></aside><aside id="archiveToast" hidden role="status"><div id="archiveToastText"></div><div class="archiveToastActions"><a id="archiveToastLink" target="_blank" rel="noopener noreferrer" hidden>原图</a><button id="archiveToastHide" type="button">隐藏提示</button><button id="archiveToastClose" type="button">关闭老地图</button></div></aside><header><div class="topline"><h1>世界古迹图 <small>0.25-dev</small></h1><button id="mapTranslateTopStop" type="button" hidden aria-label="停止地图翻译">停止翻译</button><button id="collapse" aria-expanded="true" aria-controls="panel"><span id="collapseText">收起</span><span class="chevron" aria-hidden="true"></span></button></div><div id="mapTranslateToast" hidden><div class="translateStatusLine"><div id="mapTranslateToastText" role="status"></div><button id="mapTranslateStop" type="button" hidden>停止</button><button id="mapTranslateHide" type="button" aria-label="隐藏翻译提示">×</button></div><progress id="mapTranslateProgress" max="1" value="0" aria-label="翻译进度"></progress></div><div id="panel"><div id="panelScroll"><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button id="nearby" disabled>古迹列表</button><button id="historyMenu" aria-expanded="false" aria-controls="historyPanel">历史地图 <span class="chevron" aria-hidden="true"></span></button><button id="more" aria-expanded="false" aria-controls="tools">图层分类 <span class="chevron" aria-hidden="true"></span></button><button id="aiSettings" aria-expanded="false" aria-controls="aiPanel">AI 设置 <span class="chevron" aria-hidden="true"></span></button></div><div id="tools" hidden><div class="menuSection"><div class="filters" id="officialFilters"></div><div class="filters" id="extraFilters"></div><div id="extraStatus" class="hint" role="status"></div><div id="tileStatus" class="hint" role="status">连接原版瓦片…</div><button id="retryTiles">重新连接</button><label class="hint"><input type="checkbox" id="aggregateToggle" checked> 同类点位聚合</label><p class="hint">图层、分类、状态和聚合设置会自动保存在本机。各国名录仅显示 licence_class=open 的记录。Pleiades 代表坐标不等于遗址精确位置。图标重叠时优先显示有遗产认定记录及较完整资料的古迹；放大后可查看更多记录。受损／已毁专题包含非古迹对象，可单独关闭。原始数据由 Heritage Watch AI 提供。</p><button id="resetMapPrefs" type="button">恢复默认显示</button><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版地图</a></div><section id="categoryPanel"><button id="categoryToggle" type="button" aria-expanded="false" aria-controls="categoryBody"><span>古迹分类与图例</span><span id="categoryCount"></span><span class="chevron" aria-hidden="true"></span></button><div id="categoryBody" hidden><div class="categoryContent"><div class="catActions"><button id="allCats" type="button">全选</button><button id="noCats" type="button">清空</button></div><div id="categoryGrid"></div><div class="autoline"><label>存续状态</label><select id="conditionFilter"><option value="all">全部</option><option value="gone">已毁／拆除／移除</option><option value="damaged">受损</option><option value="ruined">废墟／残迹</option><option value="unknown">未标明损毁</option></select></div><div class="autoline"><label>遗产认定记录</label><select id="designationFilter"><option value="all">全部</option><option value="yes">有记录</option><option value="no">未见记录</option></select></div><p class="hint">红环：已毁／移除；橙环：受损；棕环：废墟；绿环：有遗产认定记录。同组成员状态不一致时不显示外环；无外环不等于完好。</p></div></div></section></div><div id="historyPanel" hidden><div class="menuSection historical"><h3>历史地图叠加</h3><label class="historyCheck"><input id="ohmToggle" type="checkbox"> OpenHistoricalMap 历史矢量地图</label><div class="autoline"><label for="ohmYear">年份（负数为公元前）</label><input id="ohmYear" type="number" min="-3000" max="2026" step="1" value="1900"></div><p class="hint">按原始起止年份筛选，现代底图仅作参照。<a href="https://www.openhistoricalmap.org/copyright" target="_blank" rel="noopener">OHM 来源与许可</a></p><hr><button id="archiveOpen" type="button" class="historyPrimary">选择馆藏老地图 <span aria-hidden="true">›</span></button><p class="hint">查找 Allmaps／David Rumsey 已配准地图，或手动导入。支持覆盖范围定位及透明度调整。</p></div></div><div id="aiPanel" hidden><div class="mapTranslateRow"><button id="mapTranslate" type="button">译 · 翻译当前地图名称</button><span id="mapTranslateStatus" class="hint" role="status">按需调用 DeepSeek</span><button id="mapTranslateMenuStop" type="button" hidden>停止</button></div><div class="mapFollowRow"><label><input type="checkbox" id="mapTranslateFollow"> 随地图移动自动翻译</label><span id="mapTranslateFollowStatus" class="hint">持续翻译已关闭</span></div><div class="menuSection"><label for="dsKey">DeepSeek API Key</label><input id="dsKey" type="password" autocomplete="off" spellcheck="false" placeholder="输入密钥（自动保存）"><div class="autoline"><label for="dsModel">模型</label><select id="dsModel" disabled><option value="">尚未获取模型</option></select></div><div class="catActions"><button id="mapTranslateAI" type="button">翻译当前地图</button><button id="mapTranslateClear" type="button">清除 AI 译名</button></div><div class="catActions"><button id="dsRefresh" type="button">刷新模型</button><button id="dsClear" type="button">清除密钥</button></div><p id="dsStatus" role="status" class="hint"></p><p class="hint">密钥保存在本机浏览器 localStorage（未加密），仅向 DeepSeek 官方 API 发送，不提交到 GitHub。请使用专用低额度密钥，不在公用设备保存。翻译只调用模型；没有维基百科简介时才调用搜索。API 请求可能产生费用。</p><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek API Key</a></div></div><div class="autoline"><span id="status" role="status">正在加载地图…</span><span id="officialCount"></span></div></div></div></header><section id="archivePicker" class="sheet" aria-label="选择历史地图" hidden><div class="sheetBar"><h2>历史地图馆藏</h2><button id="archivePickerClose" class="sheetClose" aria-label="关闭历史地图选择">×</button></div><div class="sheetScroll archivePickerScroll"><p class="hint">按当前地图中心查找已配准的老地图。</p><div class="archiveSearchRow"><select id="archiveKind" aria-label="地图馆藏"><option value="all">Allmaps 全部馆藏</option><option value="rumsey">David Rumsey 馆藏</option></select><button id="findArchive" type="button" class="historyPrimary">查找附近地图</button></div><div class="archiveResultHeader"><strong>地图选择</strong><span id="archiveResultCount">尚未查询</span></div><p id="archiveStatus" class="hint" role="status">请先查找地图并核查原图授权。</p><div id="archiveResults"></div><div class="archiveControls"><div class="autoline"><label for="archiveOpacity">老地图透明度</label><input type="range" id="archiveOpacity" min="0" max="100" value="65"><span id="archiveOpacityValue">65%</span></div><button id="clearArchive" type="button">关闭老地图</button></div><button id="archiveAdvancedToggle" class="archiveAdvancedToggle" aria-expanded="false" aria-controls="archiveAdvanced">手动导入与馆藏来源 <span class="chevron" aria-hidden="true"></span></button><div id="archiveAdvanced" hidden><div class="archiveAdvancedInner"><input id="archiveInput" placeholder="Allmaps 地图 ID／链接或 IIIF URL"><button id="loadArchive" type="button">查找指定地图</button><p class="hint">Rumsey 原站若提供 Use in GIS apps → XYZ link，可直接导入。</p><input id="rumseyXYZInput" placeholder="Rumsey Georeferencer XYZ 链接"><label class="historyCheck"><input id="rumseyXYZRights" type="checkbox"> 已核查原图与瓦片服务许可</label><button id="importRumseyXYZ" type="button">导入 Rumsey XYZ</button><p class="hint"><a href="https://www.davidrumsey.com/view/georeferenced-maps" target="_blank" rel="noopener">Rumsey 原站目录</a> · <a href="https://allmaps.org/" target="_blank" rel="noopener">Allmaps</a>。Rumsey 筛选仅覆盖 Allmaps 中已关联的馆藏。</p></div></div></div></section><section id="listPanel" class="sheet" aria-label="古迹列表" hidden><div class="sheetBar"><h2 id="listTitle">当前范围古迹</h2><button id="listClose" class="sheetClose" aria-label="关闭古迹列表">×</button></div><div id="listSearchBox"><form id="listSearchForm"><input id="listQuery" type="search" maxlength="160" placeholder="搜索名称、原名或类别" aria-label="搜索古迹"><button id="listSearchSubmit" type="submit">搜索</button><button id="listSearchClear" type="button">清空</button></form><div class="listMatchModes"><label><input type="radio" name="listMode" value="normal" checked> 普通匹配</label><label><input type="radio" name="listMode" value="ai"> AI 匹配</label><button id="listSearchStop" type="button" hidden>取消 AI</button></div><p id="listSearchStatus" class="hint" role="status">搜索当前视野已加载的古迹。</p></div><div id="listRows" class="sheetScroll"></div></section><section id="info" class="sheet" aria-label="古迹详情" hidden><div class="sheetBar"><span class="sheetCaption">古迹详情</span><button id="close" class="sheetClose" aria-label="关闭古迹详情">×</button></div><div id="detail" class="sheetScroll"></div></section>
-<script src="sources.js?v=025"></script><script src="translate.js?v=024"></script><script src="list-search.js?v=025"></script>
+<script src="sources.js?v=0252"></script><script src="translate.js?v=024"></script><script src="list-search.js?v=025"></script>
 <script>
 'use strict';const $=id=>document.getElementById(id),status=t=>$('status').textContent=t;const groups={heritage:['文保','#b5762b'],historic:['古迹','#9c4b32'],ruins:['遗址','#a8753a'],military:['军事','#6a7552'],industry:['工业交通','#65718e'],memorial:['纪念','#8c6e9d'],religion:['宗教','#427e9a'],museum:['博物馆','#39816d'],other:['其他','#727272']};const types={archaeological_site:'考古遗址',castle:'城堡',fort:'堡垒',fortification:'防御工事',citywalls:'城墙',city_gate:'城门',ruins:'废墟',battlefield:'古战场',memorial:'纪念设施',monument:'纪念碑',tomb:'墓葬',manor:'庄园',building:'历史建筑',mine:'历史矿井',railway:'历史铁路',locomotive:'历史机车',ship:'历史船舶',aircraft:'历史飞机',tank:'历史坦克',cannon:'历史火炮',boundary_stone:'界碑',milestone:'里程碑',wayside_cross:'路旁十字架',wayside_shrine:'路旁神龛',church:'教堂',monastery:'修道院',museum:'博物馆',place_of_worship:'宗教场所',lighthouse:'灯塔',yes:'是'};
 let map,proto,ready=false,detailToken=0;const empty=()=>({type:'FeatureCollection',features:[]});const simpleNames=['name:zh-Hans','name:zh-hans','name:zh-CN','name:zh-cn','name:zh-SG','name_zh_hans','name_zh-Hans','name_zh_cn','name:zh_cn','name:zh-hans-cn','label_zh_hans','label_zh_cn','label:zh-Hans','label:zh-cn','label:zh-hans'];
@@ -312,7 +312,7 @@ async function hwConnect(d){
     if(!hwPointLayers.some(x=>x.id===id))hwPointLayers.push({id,d,source,sourceLayer:layer});
    }
   }
-  x.state='ready';if(map.getLayer('agg-icons'))map.moveLayer('agg-icons');
+  x.state='ready';invalidateTileFeatures(source);if(map.getLayer('agg-icons'))map.moveLayer('agg-icons');
  }catch(e){
   for(const id of x.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);
   const s='hw-'+d.id;if(map.getSource(s))map.removeSource(s);
@@ -334,25 +334,36 @@ function hwInit(){
  map.on('error',e=>{const d=hwDefs.find(d=>'hw-'+d.id===e.sourceId);if(d){const state=hwStates.get(d.id);if(state&&state.state==='ready')state.needsRetry=true;status('图层请求异常');$('tileStatus').textContent=d.title+'瓦片请求失败：'+String(e.error?.message||'网络错误').slice(0,160)+'；可重试或切换图层。'}});
  hwVisibility();hwStart();
 }
-function hwViewFeatures(){
+
+const tileFeatureCache=new Map();
+function invalidateTileFeatures(sourceId){if(!sourceId){tileFeatureCache.clear();return}for(const key of tileFeatureCache.keys())if(key.startsWith(sourceId+'|'))tileFeatureCache.delete(key)}
+function loadedTileFeatures(source,sourceLayer){
+ const key=source+'|'+sourceLayer,now=Date.now(),old=tileFeatureCache.get(key),ttl=map.isMoving()?400:1200;
+ if(old&&now-old.at<ttl)return old.features;
+ const features=map.querySourceFeatures(source,{sourceLayer});tileFeatureCache.set(key,{at:now,features});return features;
+}
+function hwViewFeatures(pad=0){
  if(!ready||map.getZoom()<5)return [];
- const out=[],seen=new Set(),c=map.getCenter(),size=map.getContainer();
+ const out=[],seen=new Set(),c=map.getCenter(),size=map.getContainer(),b=map.getBounds();
+ const dx=(b.getEast()-b.getWest())*pad*2/Math.max(1,size.clientWidth),dy=(b.getNorth()-b.getSouth())*pad*2/Math.max(1,size.clientHeight);
+ const west=b.getWest()-dx,east=b.getEast()+dx,south=b.getSouth()-dy,north=b.getNorth()+dy;
  for(const {id,d,source,sourceLayer} of hwPointLayers){
   if(!hwEnabled(d)||!map.getLayer(id)||!map.getSource(source))continue;
-  for(const f of map.querySourceFeatures(source,{sourceLayer})){
+  for(const f of loadedTileFeatures(source,sourceLayer)){
    if(f.geometry.type!=='Point')continue;
    if(d.inventory&&!openInventory(f.properties||{}))continue;
    let [x,y]=f.geometry.coordinates;
    if(!Number.isFinite(x)||!Number.isFinite(y))continue;
    x+=360*Math.round((c.lng-x)/360);
-   const xy=map.project([x,y]);if(xy.x<0||xy.y<0||xy.x>size.clientWidth||xy.y>size.clientHeight)continue;
+   if(x<west||x>east||y<south||y>north)continue;
+   const xy=map.project([x,y]);if(xy.x< -pad||xy.y< -pad||xy.x>size.clientWidth+pad||xy.y>size.clientHeight+pad)continue;
    const p=hwProperties(f.properties||{},d,{lat:y,lng:x});
    if(!passesCategory(p))continue;
    const k=d.id+'|'+(p.rid||(d.inventory&&p.id?String(p.source||'')+'|'+String(p.id):'')||p.id||p.qid||p.wikidata||p.display+'|'+[x,y].map(v=>v.toFixed(6)).join(','));
-   if(seen.has(k))continue;seen.add(k);out.push({geometry:{type:'Point',coordinates:[x,y]},properties:p});
+   if(seen.has(k))continue;seen.add(k);out.push({geometry:{type:'Point',coordinates:[x,y]},properties:p,xy});
   }
  }
- return out.concat(extraVisibleFeatures(c,size));
+ return out.concat(extraVisibleFeatures(c,size,pad));
 }
 
 let nameTimer,nameBusy=false,lastNameView='',nameRetryAt=0,nameViewIds=new Set(),nameViewWiki=new Set();
@@ -485,12 +496,12 @@ async function startLocation(){
  }catch(e){}
 }
 
-function init(){if(!window.maplibregl){status('地图组件加载失败，请检查网络或浏览器。');return}try{if(window.pmtiles){proto=new pmtiles.Protocol({metadata:true});maplibregl.addProtocol('pmtiles',proto.tile)}map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[123.4315,41.8057],zoom:13,localIdeographFontFamily:'sans-serif',attributionControl:false});map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');map.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:['<a href="https://data.unesco.org/explore/dataset/whc001/">UNESCO (CC BY-SA 4.0)</a>','<a href="https://pleiades.stoa.org/credits">Pleiades contributors (CC BY 3.0)</a>','<a href="https://terria-catalog.prod.heritagewatch.ai/tools/">Heritage Watch AI</a>','<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap (ODbL)</a>','<a href="https://www.wikidata.org/">Wikidata (CC0)</a>']}),'bottom-right');map.on('error',e=>{if(!ready)status('底图尚未加载，请检查网络。');else if(e.error)console.warn(e.error)});map.on('load',()=>{for(const l of map.getStyle().layers){if(l.type!=='symbol'||!l.layout?.['text-field']||!l['source-layer']||!['place','transportation_name','water_name','poi','mountain_peak','park'].includes(l['source-layer']))continue;try{map.setLayoutProperty(l.id,'text-field',nameExpression({fallback:l.layout['text-field']}))}catch(e){console.warn(l.id,e)}}ready=true;installAggregation();$('nearby').disabled=false;$('locate').disabled=false;status('在线古迹地图');hwInit();initExtraSources();map.on('movestart',autoTranslationMoveStart);map.on('moveend',()=>{queueAggregation();scheduleAutoTranslation()});map.on('resize',queueAggregation);map.on('idle',()=>{queueAggregation();scheduleNames()});startLocation();});}catch(e){status('地图初始化失败：'+e.message)}}
+function init(){if(!window.maplibregl){status('地图组件加载失败，请检查网络或浏览器。');return}try{if(window.pmtiles){proto=new pmtiles.Protocol({metadata:true});maplibregl.addProtocol('pmtiles',proto.tile)}map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[123.4315,41.8057],zoom:13,localIdeographFontFamily:'sans-serif',attributionControl:false});map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');map.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:['<a href="https://data.unesco.org/explore/dataset/whc001/">UNESCO (CC BY-SA 4.0)</a>','<a href="https://pleiades.stoa.org/credits">Pleiades contributors (CC BY 3.0)</a>','<a href="https://terria-catalog.prod.heritagewatch.ai/tools/">Heritage Watch AI</a>','<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap (ODbL)</a>','<a href="https://www.wikidata.org/">Wikidata (CC0)</a>']}),'bottom-right');map.on('error',e=>{if(!ready)status('底图尚未加载，请检查网络。');else if(e.error)console.warn(e.error)});map.on('load',()=>{for(const l of map.getStyle().layers){if(l.type!=='symbol'||!l.layout?.['text-field']||!l['source-layer']||!['place','transportation_name','water_name','poi','mountain_peak','park'].includes(l['source-layer']))continue;try{map.setLayoutProperty(l.id,'text-field',nameExpression({fallback:l.layout['text-field']}))}catch(e){console.warn(l.id,e)}}ready=true;installAggregation();$('nearby').disabled=false;$('locate').disabled=false;status('在线古迹地图');hwInit();initExtraSources();map.on('movestart',autoTranslationMoveStart);map.on('move',()=>queueAggregation());map.on('moveend',()=>{invalidateTileFeatures();queueAggregation(true);scheduleAutoTranslation()});map.on('resize',()=>queueAggregation(true));map.on('sourcedata',e=>{if(e.sourceId?.startsWith('hw-')&&e.sourceDataType==='content'){invalidateTileFeatures(e.sourceId);queueAggregation()}});map.on('idle',()=>{queueAggregation();scheduleNames()});startLocation();});}catch(e){status('地图初始化失败：'+e.message)}}
 
 let lastAutoTranslationSignature='';
 let aggTimer=0, aggSignature='', aggregateMembers=new Map(), visibleRows=[], aggregateRows=[], aggListKey=null;
 const distPixels=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-function groupRadius(z,mobile){return z<12?64:z<15?52:z<17?40:z<19?30:22}
+function groupRadius(z,mobile){return Math.max(22,64-(z-10)*4)}
 function groupPoints(rows,z,mobile,enabled=true){
  const radius=groupRadius(z,mobile)*(mobile?1:.85), bins=new Map(), groups=[];
  // Greedy nearest existing anchor, in spatial buckets; same category only.
@@ -507,7 +518,7 @@ function groupPoints(rows,z,mobile,enabled=true){
  }
  return groups;
 }
-function pointKey(f){const p=f.properties,xy=f.geometry.coordinates;return (p.sourceLabel||'')+'|'+(p.osm_type&&p.osm_id?'osm/'+p.osm_type+'/'+p.osm_id:p.qid||p.wikidata||p.id||p.display||'unknown')+'|'+xy.map(x=>Number(x).toFixed(6)).join(',')}
+function pointKey(f){if(f._pointKey)return f._pointKey;const p=f.properties,xy=f.geometry.coordinates;return (p.sourceLabel||'')+'|'+(p.osm_type&&p.osm_id?'osm/'+p.osm_type+'/'+p.osm_id:p.qid||p.wikidata||p.id||p.display||'unknown')+'|'+xy.map(x=>Number(x).toFixed(6)).join(',')}
 
 function heritageImportance(p){
  if(p.sourceId==='unesco')return 0;
@@ -523,17 +534,19 @@ function heritageImportance(p){
  if(hasName)return 5;
  return 6;
 }
-function compareHeritage(a,b){return heritageImportance(a.properties)-heritageImportance(b.properties)||pointKey(a).localeCompare(pointKey(b))}
+function compareHeritage(a,b){return (a._importance??heritageImportance(a.properties))-(b._importance??heritageImportance(b.properties))||pointKey(a).localeCompare(pointKey(b))}
 function symbolPriority(p,count){return heritageImportance(p)*2+(count>1?0:1)}
-const LABEL_MIN_ZOOM=12;
+const LABEL_MIN_ZOOM=9;
+const AGGREGATION_BUFFER=100;let aggCost=0,aggListDirty=false;
 function heritageMapLabel(p,count){const name=label(p)||'';const category=CAT[p.catKey]?.[0]||'未命名古迹';if(count>1)return name?name+' 等 '+count+' 处':category+' · '+count+' 处';return name||category}
-function queueAggregation(){if(!ready||aggTimer)return;aggTimer=setTimeout(()=>{aggTimer=0;rebuildAggregation()},100)}
+function queueAggregation(urgent=false){if(!ready)return;if(aggTimer){if(urgent!==true)return;clearTimeout(aggTimer);aggTimer=0}const delay=urgent===true?30:map.isMoving()?Math.max(140,Math.min(350,aggCost*3)):85;aggTimer=setTimeout(()=>{aggTimer=0;const start=Date.now();try{rebuildAggregation()}finally{aggCost=Date.now()-start}},delay)}
 function rebuildAggregation(){
- if(!ready||map.isMoving()||!map.getSource('heritage-aggregate'))return;
+ if(!ready||!map.getSource('heritage-aggregate'))return;
  const size=map.getContainer(),w=size.clientWidth,h=size.clientHeight,z=map.getZoom();
- const rows=hwViewFeatures().map(f=>({...f,xy:map.project(f.geometry.coordinates)})).filter(f=>f.xy.x>=0&&f.xy.x<=w&&f.xy.y>=0&&f.xy.y<=h);
- rows.sort(compareHeritage);
- const groups=groupPoints(rows,z,w<800,$('aggregateToggle').checked);
+ const buffered=hwViewFeatures(AGGREGATION_BUFFER);for(const f of buffered){f._pointKey=pointKey(f);f._importance=heritageImportance(f.properties)}
+ const inView=f=>f.xy.x>=0&&f.xy.x<=w&&f.xy.y>=0&&f.xy.y<=h;
+ buffered.sort((a,b)=>Number(inView(b))-Number(inView(a))||compareHeritage(a,b));const rows=buffered.filter(inView);
+ const groups=groupPoints(buffered,z,w<800,$('aggregateToggle').checked);
  const next=new Map(),out=[];
  for(const g of groups){
   const a=g.anchor,p=a.properties,cat=p.catKey||'other',count=g.members.length,k=pointKey(a)+'|'+cat;
@@ -541,20 +554,22 @@ function rebuildAggregation(){
   const state=states.size===1?[...states][0]:'';
   const display=label(p)||p.display||CAT[cat]?.[0]||'未命名地点';
   next.set(k,g.members);
-  out.push({type:'Feature',geometry:a.geometry,properties:{key:k,cat,count,icon:'cat-'+cat+(state?'-'+state:''),display,mapLabel:heritageMapLabel(p,count),countText:count>1?String(count):'',priority:symbolPriority(p,count)}});
+  out.push({type:'Feature',geometry:a.geometry,properties:{key:k,cat,count,icon:'cat-'+cat+(state?'-'+state:''),display,mapLabel:heritageMapLabel(p,count),countText:count>1?String(count):'',priority:(a._importance??heritageImportance(p))*2+(count>1?0:1)}});
  }
- const sig=JSON.stringify(out);
- visibleRows=rows;aggregateRows=out;aggregateMembers=next;if(aggListKey!==null&&!next.has(aggListKey)){aggListKey=null;if(sheetIsOpen('listPanel'))renderList()}
- $('officialCount').textContent=z<5?'放大查看古迹':rows.length+' 条记录 · '+out.length+' 组';
- if(sig!==aggSignature){aggSignature=sig;map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});if(sheetIsOpen('listPanel'))renderList()}scheduleNames();if(autoTranslation)scheduleAutoTranslation();
+ const sig=JSON.stringify(out),moving=map.isMoving(),visibleGroups=groups.reduce((n,g)=>n+(inView(g.anchor)?1:0),0);
+ const viewChanged=rows.length!==visibleRows.length||rows.some((f,i)=>pointKey(f)!==pointKey(visibleRows[i]));
+ visibleRows=rows;aggregateRows=out;aggregateMembers=next;if(aggListKey!==null&&!next.has(aggListKey)){aggListKey=null;aggListDirty=true}
+ const countText=z<5?'放大查看古迹':rows.length+' 条记录 · '+visibleGroups+' 组';if($('officialCount').textContent!==countText)$('officialCount').textContent=countText;
+ if(sig!==aggSignature){aggSignature=sig;map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});aggListDirty=true}if(viewChanged)aggListDirty=true;
+ if(!moving){if(aggListDirty&&sheetIsOpen('listPanel'))renderList();aggListDirty=false;scheduleNames();if(autoTranslation)scheduleAutoTranslation()}
 }
 function installAggregation(){
  map.addSource('heritage-aggregate',{type:'geojson',data:empty()});
  // Collision avoidance applies to every category in a single symbol layer.
  map.addLayer({id:'agg-icons',type:'symbol',source:'heritage-aggregate',minzoom:5,layout:{
-  'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],5,0.60,11,0.75,15,1.04,18,1.30],
-  'icon-allow-overlap':false,'icon-ignore-placement':false,'icon-padding':3,'symbol-sort-key':['get','priority'],
-  'text-field':['step',['zoom'],['get','countText'],LABEL_MIN_ZOOM,['get','mapLabel']],'text-font':baseFont(),'text-size':12,'text-anchor':'top','text-offset':[0,1.1],'text-max-width':10,'text-padding':2,'text-optional':true,'text-allow-overlap':false
+  'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],5,0.66,11,0.84,15,1.15,18,1.42],
+  'icon-allow-overlap':false,'icon-ignore-placement':false,'icon-padding':2,'symbol-sort-key':['get','priority'],
+  'text-field':['step',['zoom'],['get','countText'],LABEL_MIN_ZOOM,['get','mapLabel']],'text-font':baseFont(),'text-size':['interpolate',['linear'],['zoom'],5,12,9,13.5,15,14.5,19,15.5],'text-anchor':'top','text-offset':[0,1.13],'text-max-width':11,'text-padding':2,'text-optional':true,'text-allow-overlap':false
  },paint:{'text-color':'#26332d','text-halo-color':'#fff','text-halo-width':2}});
  map.on('click','agg-icons',e=>{const key=e.features[0].properties.key,rows=aggregateMembers.get(key)||[];if(rows.length===1)showDetail(rows[0].properties);else if(rows.length){aggListKey=key;openList();renderList()}});
  $('aggregateToggle').onchange=()=>{saveMapPrefs();aggSignature='';queueAggregation()};
