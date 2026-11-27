@@ -18,7 +18,7 @@ An interactive global map for exploring historical sites and cultural heritage a
 
 **文明各有其语言，而人类共享其历史。**
 
-[![版本](https://img.shields.io/badge/version-0.22-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
+[![版本](https://img.shields.io/badge/version-0.23-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
 [![GitHub Issues](https://img.shields.io/github/issues/Fervpluvideus/world-heritage-map)](https://github.com/Fervpluvideus/world-heritage-map/issues)
 
@@ -38,7 +38,7 @@ An interactive global map for exploring historical sites and cultural heritage a
 - 🕰️ **历史地图叠加**：OpenHistoricalMap 按年份显示有时间信息的道路和建筑；Allmaps 按当前地图中心查找已配准老地图，David Rumsey 可从关联馆藏或原站 XYZ 链接导入，提供独立的动画馆藏选择面板，支持透明度调整、覆盖范围定位、瓦片加载反馈及格式重试。原图授权须逐幅核查。
 - 🔤 **中文优先与多语言**：优先展示可获得的中文名称，缺少中文时回退至英文或当地语言。
 - 📷 **图片与历史简介**：优先读取图层关联图片及 Wikidata 图片，补充维基百科代表图片和简介，提供原始资料链接与图片授权信息。
-- 🤖 **可选 DeepSeek 助手**：已有外文简介时直接翻译；缺乏资料时可联网搜索；维基百科加载期间也可主动开始联网查询。支持一键批量翻译当前视野内尚无中文名的遗址，每批30条、单次最多1000条；译名本地缓存，官方中文名优先，AI 译名保留原名并注明未核实。
+- 🤖 **可选 DeepSeek 助手**：已有外文简介时直接翻译；缺乏资料时可联网搜索；维基百科加载期间也可主动开始联网查询。支持一键批量翻译当前视野内尚无中文名的遗址，每批30条、单次最多1000条；译名本地缓存，官方中文名优先，AI 译名保留原名并注明未核实。可主动开启随地图移动自动翻译（缩放等级12起，本次开启最多请求1000个名称，刷新后关闭），停稳后分批更新。翻译状态整合进顶部栏，详情面板打开时隐藏，完成后自动收起。
 - 📍 **地点搜索与定位**：支持城市和地点搜索；已授权的浏览器可自动定位，其他情况下默认显示沈阳。
 - 📱 **移动端交互**：可收起菜单、带动画的详情面板、固定关闭按钮，自动记忆图层、分类和筛选设置。
 
