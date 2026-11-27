@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f7f4eb"><title>世界古迹图 · 中文探索版</title><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css"><script src="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js"></script><script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script><style>
 *{box-sizing:border-box}body{margin:0;color:#29332d;font:14px system-ui,sans-serif;background:#f7f4eb}#map{position:fixed;inset:0}header{position:fixed;top:12px;left:12px;right:12px;max-width:480px;background:#fffcf5;border:1px solid #dad8cc;border-radius:15px;padding:13px;box-shadow:0 3px 20px #0002;z-index:2}h1{margin:0;font-size:20px;letter-spacing:1px}small{color:#626d65}button,input,select{font:inherit;border:1px solid #c7ccc3;border-radius:9px;background:white;color:inherit;padding:9px;min-width:0}button{cursor:pointer}button.primary{background:#28594d;color:white;border:0;font-weight:600}button:disabled{opacity:.55}form,.actions{display:flex;gap:7px;margin-top:9px}form input{flex:1}.filters{display:flex;gap:5px;overflow:auto;padding:8px 0 0}.filters label{white-space:nowrap;background:#eceee7;border-radius:8px;padding:5px 8px;font-size:12px;display:flex;align-items:center;gap:4px}.filters input{accent-color:#28594d;margin:0}#status{font-size:12px;margin-top:8px;line-height:1.4}#tools{display:none;margin-top:9px;max-height:32vh;overflow:auto}#tools.open{display:block}#tools input{width:100%;margin:5px 0}#places{max-height:25vh;overflow:auto}#places button{display:block;text-align:left;width:100%;margin-top:3px}#info{position:fixed;bottom:33px;left:12px;right:12px;max-width:480px;background:#fffcf5;z-index:3;box-shadow:0 2px 18px #0003;border-radius:15px;padding:15px;max-height:43vh;overflow:auto}#info[hidden]{display:none}#info h2{font-size:19px;margin:0 25px 5px 0}#info p{margin:8px 0;overflow-wrap:anywhere}#info a{color:#216b60;display:inline-block;margin:5px 12px 5px 0}#close{float:right;padding:3px 8px}.maplibregl-ctrl-top-right{top:260px}.hint{font-size:12px;color:#626d65}.sw{display:inline-block;border-radius:50%;width:8px;height:8px}#attribution{position:fixed;bottom:0;left:0;background:#fffcf5e8;font-size:10px;z-index:2;padding:3px 6px;max-width:65%;overflow:hidden}#attribution a{color:#315a4e} @media(min-width:800px){header{width:390px}.maplibregl-ctrl-top-right{top:8px}}
- .autoline{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#536458}.autoline input{accent-color:#28594d;vertical-align:middle}#listPanel{position:fixed;bottom:34px;left:12px;right:12px;max-width:480px;background:#fffcf5;border:1px solid #dad8cc;border-radius:15px;padding:12px;z-index:3;max-height:48vh;overflow:auto;box-shadow:0 3px 20px #0003}#listPanel[hidden]{display:none}#listPanel h2{font-size:17px;margin:4px 0 10px}#listClose{float:right}#listRows button{display:block;width:100%;text-align:left;margin:4px 0;padding:10px}#listRows small{display:block;margin-top:4px}.filters{scrollbar-width:thin}header{padding:10px}.maplibregl-ctrl-top-right{top:282px}@media(min-width:800px){.maplibregl-ctrl-top-right{top:8px}}#tileStatus{margin-top:6px;line-height:1.4;overflow-wrap:anywhere}#officialFilters{flex-wrap:wrap;overflow:visible}#legacyUI[hidden],button[hidden]{display:none!important}#officialCount{font-size:11px}#retryTiles{font-size:12px}#categoryPanel{margin-top:7px;border:1px solid #dedfd5;border-radius:9px;padding:6px 8px;font-size:12px}#categoryPanel summary{cursor:pointer;font-weight:600}#categoryCount{font-weight:400;color:#626d65}.catActions{display:flex;gap:6px;margin:7px 0}.catActions button{padding:4px 12px}#categoryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;max-height:28vh;overflow:auto}#categoryGrid label{display:flex;align-items:center;gap:5px;padding:4px 2px;min-width:0}#categoryGrid input{accent-color:#28594d;margin:0}#categoryGrid img{width:22px;height:22px;flex:none}#categoryGrid span{overflow-wrap:anywhere}header{max-height:65vh;overflow:auto}header{padding:9px;max-height:48dvh;overflow:auto;top:max(8px,env(safe-area-inset-top));left:8px;right:8px}.topline{display:flex;align-items:center;justify-content:space-between;gap:8px}.topline h1{font-size:17px;white-space:nowrap}.topline h1 small{font-size:10px;font-weight:400;letter-spacing:0}.topline button{padding:6px 8px;font-size:12px}#panel[hidden],#tools[hidden]{display:none!important}#tools:not([hidden]){display:block;max-height:23dvh;overflow:auto}#tools input{width:auto;margin:0}#tools button{padding:5px 8px;margin:5px 5px 0 0}#tools label{display:inline-flex;align-items:center;gap:4px}#panel .actions{margin-top:6px}#panel .actions button{flex:1;padding:7px;font-size:13px}#panel form{margin-top:6px}#panel form input,#panel form button{padding:8px}#panel .autoline{font-size:11px;gap:5px;margin-top:5px}#panel #status{margin:0;max-width:55%;font-size:11px}#officialCount{white-space:nowrap}#categoryPanel{margin-top:6px}#categoryGrid{max-height:22dvh}.maplibregl-ctrl-top-right{top:8px!important}.maplibregl-ctrl-bottom-right .maplibregl-ctrl{margin-bottom:max(8px,env(safe-area-inset-bottom))}.maplibregl-ctrl-attrib{max-width:calc(100vw - 25px);font-size:10px}#listPanel,#info{bottom:42px;max-height:55dvh} @media(min-width:800px){header{width:370px;max-height:80vh}.maplibregl-ctrl-top-right{top:8px!important}}@media(max-width:799px){.maplibregl-ctrl-top-right{display:none}}#aiPanel[hidden]{display:none!important}#aiPanel{padding:9px 0;border-bottom:1px solid #dedfd5}#aiPanel>label{display:block;font-size:12px;margin-bottom:4px}#dsKey{width:100%;font-size:13px}#dsModel{flex:1;max-width:75%;padding:6px}#aiPanel p{margin:5px 0}#detail .detail-original{font-size:13px;color:#626d65;margin:2px 0 8px}#detail .detail-meta{font-size:12px;color:#59675d;line-height:1.5;margin:6px 0}#detail .detail-wiki{font-size:14px;line-height:1.6;white-space:pre-line;margin:10px 0}#detail .detail-links{font-size:12px;display:flex;flex-wrap:wrap;gap:4px 10px;margin:8px 0}#detail .detail-links a{margin:0}#detail .detail-ai{border-top:1px solid #dedfd5;margin-top:10px;padding-top:9px}#detail .detail-ai h3{font-size:14px;margin:0 0 6px}#detail .detail-ai p{line-height:1.6;white-space:pre-line;font-size:14px}#detail .detail-ai button{padding:7px 10px;font-size:12px}#detail .detail-ai .hint{font-size:11px;color:#68746a}#detail h2{line-height:1.3}#detail .detail-links[hidden],#detail .detail-wiki[hidden],#detail .detail-original[hidden],#detail .detail-ai[hidden]{display:none!important}</style></head><body><div id="map"></div><header><div class="topline"><h1>世界古迹图 <small>0.12</small></h1><button id="collapse" aria-expanded="true" aria-controls="panel">收起 ▲</button></div><div id="panel"><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button id="locate">定位</button><button id="nearby" disabled>古迹列表</button><button id="more" aria-expanded="false">图层 ▾</button><button id="aiSettings" aria-expanded="false">AI 设置</button></div><div id="tools" hidden><div class="filters" id="officialFilters"></div><div id="tileStatus" class="hint" role="status">连接原版瓦片…</div><button id="retryTiles">重新连接</button><label class="hint"><input type="checkbox" id="aggregateToggle" checked> 同类点位聚合</label><p class="hint">图标按类型聚合，放大后展开。点击聚合点查看全部成员。原始数据由 Heritage Watch AI 提供。</p><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版地图</a></div><div id="aiPanel" hidden><label for="dsKey">DeepSeek API Key</label><input id="dsKey" type="password" autocomplete="off" spellcheck="false" placeholder="输入密钥（自动保存）"><div class="autoline"><label for="dsModel">模型</label><select id="dsModel" disabled><option value="">尚未获取模型</option></select></div><div class="catActions"><button id="dsRefresh" type="button">刷新模型</button><button id="dsClear" type="button">清除密钥</button></div><p id="dsStatus" role="status" class="hint"></p><p class="hint">密钥保存在本机浏览器 localStorage（未加密），仅向 DeepSeek 官方 API 发送，不提交到 GitHub。请使用专用低额度密钥，不在公用设备保存。翻译只调用模型；没有维基百科简介时才调用搜索。API 请求可能产生费用。</p><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek API Key</a></div><details id="categoryPanel"><summary>古迹分类与图例 <span id="categoryCount"></span></summary><div class="catActions"><button id="allCats" type="button">全选</button><button id="noCats" type="button">清空</button></div><div id="categoryGrid"></div><div class="autoline"><label>存续状态</label><select id="conditionFilter"><option value="all">全部</option><option value="gone">已毁／拆除／移除</option><option value="damaged">受损</option><option value="ruined">废墟／残迹</option><option value="unknown">未标明损毁</option></select></div><div class="autoline"><label>遗产认定记录</label><select id="designationFilter"><option value="all">全部</option><option value="yes">有记录</option><option value="no">未见记录</option></select></div><p class="hint">红环：已毁／移除；橙环：受损；棕环：废墟；绿环：有遗产认定记录。同组成员状态不一致时不显示外环；无外环不等于完好。</p></details><div class="autoline"><span id="status" role="status">正在加载地图…</span><span id="officialCount"></span></div></div></header><section id="listPanel" hidden><button id="listClose">关闭</button><h2 id="listTitle">当前范围古迹</h2><div id="listRows"></div></section><section id="info" hidden><button id="close" aria-label="关闭">×</button><div id="detail"></div></section>
+ .autoline{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#536458}.autoline input{accent-color:#28594d;vertical-align:middle}#listPanel{position:fixed;bottom:34px;left:12px;right:12px;max-width:480px;background:#fffcf5;border:1px solid #dad8cc;border-radius:15px;padding:12px;z-index:3;max-height:48vh;overflow:auto;box-shadow:0 3px 20px #0003}#listPanel[hidden]{display:none}#listPanel h2{font-size:17px;margin:4px 0 10px}#listClose{float:right}#listRows button{display:block;width:100%;text-align:left;margin:4px 0;padding:10px}#listRows small{display:block;margin-top:4px}.filters{scrollbar-width:thin}header{padding:10px}.maplibregl-ctrl-top-right{top:282px}@media(min-width:800px){.maplibregl-ctrl-top-right{top:8px}}#tileStatus{margin-top:6px;line-height:1.4;overflow-wrap:anywhere}#officialFilters{flex-wrap:wrap;overflow:visible}#legacyUI[hidden],button[hidden]{display:none!important}#officialCount{font-size:11px}#retryTiles{font-size:12px}#categoryPanel{margin-top:7px;border:1px solid #dedfd5;border-radius:9px;padding:6px 8px;font-size:12px}#categoryPanel summary{cursor:pointer;font-weight:600}#categoryCount{font-weight:400;color:#626d65}.catActions{display:flex;gap:6px;margin:7px 0}.catActions button{padding:4px 12px}#categoryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;max-height:28vh;overflow:auto}#categoryGrid label{display:flex;align-items:center;gap:5px;padding:4px 2px;min-width:0}#categoryGrid input{accent-color:#28594d;margin:0}#categoryGrid img{width:22px;height:22px;flex:none}#categoryGrid span{overflow-wrap:anywhere}header{max-height:65vh;overflow:auto}header{padding:9px;max-height:48dvh;overflow:auto;top:max(8px,env(safe-area-inset-top));left:8px;right:8px}.topline{display:flex;align-items:center;justify-content:space-between;gap:8px}.topline h1{font-size:17px;white-space:nowrap}.topline h1 small{font-size:10px;font-weight:400;letter-spacing:0}.topline button{padding:6px 8px;font-size:12px}#panel[hidden],#tools[hidden]{display:none!important}#tools:not([hidden]){display:block;max-height:23dvh;overflow:auto}#tools input{width:auto;margin:0}#tools button{padding:5px 8px;margin:5px 5px 0 0}#tools label{display:inline-flex;align-items:center;gap:4px}#panel .actions{margin-top:6px}#panel .actions button{flex:1;padding:7px;font-size:13px}#panel form{margin-top:6px}#panel form input,#panel form button{padding:8px}#panel .autoline{font-size:11px;gap:5px;margin-top:5px}#panel #status{margin:0;max-width:55%;font-size:11px}#officialCount{white-space:nowrap}#categoryPanel{margin-top:6px}#categoryGrid{max-height:22dvh}.maplibregl-ctrl-top-right{top:8px!important}.maplibregl-ctrl-bottom-right .maplibregl-ctrl{margin-bottom:max(8px,env(safe-area-inset-bottom))}.maplibregl-ctrl-attrib{max-width:calc(100vw - 25px);font-size:10px}#listPanel,#info{bottom:42px;max-height:55dvh} @media(min-width:800px){header{width:370px;max-height:80vh}.maplibregl-ctrl-top-right{top:8px!important}}@media(max-width:799px){.maplibregl-ctrl-top-right{display:none}}#aiPanel[hidden]{display:none!important}#aiPanel{padding:9px 0;border-bottom:1px solid #dedfd5}#aiPanel>label{display:block;font-size:12px;margin-bottom:4px}#dsKey{width:100%;font-size:13px}#dsModel{flex:1;max-width:75%;padding:6px}#aiPanel p{margin:5px 0}#detail .detail-original{font-size:13px;color:#626d65;margin:2px 0 8px}#detail .detail-meta{font-size:12px;color:#59675d;line-height:1.5;margin:6px 0}#detail .detail-wiki{font-size:14px;line-height:1.6;white-space:pre-line;margin:10px 0}#detail .detail-links{font-size:12px;display:flex;flex-wrap:wrap;gap:4px 10px;margin:8px 0}#detail .detail-links a{margin:0}#detail .detail-ai{border-top:1px solid #dedfd5;margin-top:10px;padding-top:9px}#detail .detail-ai h3{font-size:14px;margin:0 0 6px}#detail .detail-ai p{line-height:1.6;white-space:pre-line;font-size:14px}#detail .detail-ai button{padding:7px 10px;font-size:12px}#detail .detail-ai .hint{font-size:11px;color:#68746a}#detail h2{line-height:1.3}#detail .detail-links[hidden],#detail .detail-wiki[hidden],#detail .detail-original[hidden],#detail .detail-ai[hidden]{display:none!important}#detail .detail-photo{margin:9px 0 12px}#detail .detail-photo[hidden]{display:none!important}#detail .detail-photo a.photo-open{display:block;margin:0}#detail .detail-photo img{display:block;width:100%;max-height:235px;object-fit:contain;background:#edece5;border-radius:9px}#detail .detail-photo figcaption{font-size:11px;line-height:1.45;color:#626d65;margin-top:5px;overflow-wrap:anywhere}#detail .detail-photo figcaption a{font-size:11px;margin:0 6px 0 0}</style></head><body><div id="map"></div><header><div class="topline"><h1>世界古迹图 <small>0.13-dev</small></h1><button id="collapse" aria-expanded="true" aria-controls="panel">收起 ▲</button></div><div id="panel"><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button id="locate">定位</button><button id="nearby" disabled>古迹列表</button><button id="more" aria-expanded="false">图层 ▾</button><button id="aiSettings" aria-expanded="false">AI 设置</button></div><div id="tools" hidden><div class="filters" id="officialFilters"></div><div id="tileStatus" class="hint" role="status">连接原版瓦片…</div><button id="retryTiles">重新连接</button><label class="hint"><input type="checkbox" id="aggregateToggle" checked> 同类点位聚合</label><p class="hint">图层、分类、状态和聚合设置会自动保存在本机。受损／已毁专题包含非古迹对象，可单独关闭。原始数据由 Heritage Watch AI 提供。</p><button id="resetMapPrefs" type="button">恢复默认显示</button><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版地图</a></div><div id="aiPanel" hidden><label for="dsKey">DeepSeek API Key</label><input id="dsKey" type="password" autocomplete="off" spellcheck="false" placeholder="输入密钥（自动保存）"><div class="autoline"><label for="dsModel">模型</label><select id="dsModel" disabled><option value="">尚未获取模型</option></select></div><div class="catActions"><button id="dsRefresh" type="button">刷新模型</button><button id="dsClear" type="button">清除密钥</button></div><p id="dsStatus" role="status" class="hint"></p><p class="hint">密钥保存在本机浏览器 localStorage（未加密），仅向 DeepSeek 官方 API 发送，不提交到 GitHub。请使用专用低额度密钥，不在公用设备保存。翻译只调用模型；没有维基百科简介时才调用搜索。API 请求可能产生费用。</p><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek API Key</a></div><details id="categoryPanel"><summary>古迹分类与图例 <span id="categoryCount"></span></summary><div class="catActions"><button id="allCats" type="button">全选</button><button id="noCats" type="button">清空</button></div><div id="categoryGrid"></div><div class="autoline"><label>存续状态</label><select id="conditionFilter"><option value="all">全部</option><option value="gone">已毁／拆除／移除</option><option value="damaged">受损</option><option value="ruined">废墟／残迹</option><option value="unknown">未标明损毁</option></select></div><div class="autoline"><label>遗产认定记录</label><select id="designationFilter"><option value="all">全部</option><option value="yes">有记录</option><option value="no">未见记录</option></select></div><p class="hint">红环：已毁／移除；橙环：受损；棕环：废墟；绿环：有遗产认定记录。同组成员状态不一致时不显示外环；无外环不等于完好。</p></details><div class="autoline"><span id="status" role="status">正在加载地图…</span><span id="officialCount"></span></div></div></header><section id="listPanel" hidden><button id="listClose">关闭</button><h2 id="listTitle">当前范围古迹</h2><div id="listRows"></div></section><section id="info" hidden><button id="close" aria-label="关闭">×</button><div id="detail"></div></section>
 <script>
 'use strict';const $=id=>document.getElementById(id),status=t=>$('status').textContent=t;const groups={heritage:['文保','#b5762b'],historic:['古迹','#9c4b32'],ruins:['遗址','#a8753a'],military:['军事','#6a7552'],industry:['工业交通','#65718e'],memorial:['纪念','#8c6e9d'],religion:['宗教','#427e9a'],museum:['博物馆','#39816d'],other:['其他','#727272']};const types={archaeological_site:'考古遗址',castle:'城堡',fort:'堡垒',fortification:'防御工事',citywalls:'城墙',city_gate:'城门',ruins:'废墟',battlefield:'古战场',memorial:'纪念设施',monument:'纪念碑',tomb:'墓葬',manor:'庄园',building:'历史建筑',mine:'历史矿井',railway:'历史铁路',locomotive:'历史机车',ship:'历史船舶',aircraft:'历史飞机',tank:'历史坦克',cannon:'历史火炮',boundary_stone:'界碑',milestone:'里程碑',wayside_cross:'路旁十字架',wayside_shrine:'路旁神龛',church:'教堂',monastery:'修道院',museum:'博物馆',place_of_worship:'宗教场所',lighthouse:'灯塔',yes:'是'};
 let map,proto,ready=false,detailToken=0;const empty=()=>({type:'FeatureCollection',features:[]});const simpleNames=['name:zh-Hans','name:zh-hans','name:zh-CN','name:zh-cn','name:zh-SG','name_zh_hans','name_zh-Hans','name_zh_cn','name:zh_cn','name:zh-hans-cn','label_zh_hans','label_zh_cn','label:zh-Hans','label:zh-cn','label:zh-hans'];
@@ -29,7 +29,7 @@ const hwDefs=[
  {id:'osm',title:'OSM 古迹',file:'osm-heritage-planet.pmtiles',layers:['osm'],kind:'point',color:'#a35b23',license:'© OpenStreetMap contributors, ODbL 1.0',enabled:true},
  {id:'wiki',title:'维基古迹',file:'wikidata-heritage.pmtiles',layers:['wikidata'],kind:'point',color:'#7544aa',license:'Wikidata, CC0 1.0',enabled:true},
  {id:'shapes',title:'建筑轮廓',file:'osm-heritage-planet-shapes.pmtiles',layers:['shapes'],kind:'shape',color:'#a35b23',license:'© OpenStreetMap contributors, ODbL 1.0',enabled:true},
- {id:'damage',title:'受损／已毁',file:'osm-damage-planet.pmtiles',layers:['shapes','damage'],kind:'mixed',color:'#c94c37',license:'© OpenStreetMap contributors, ODbL 1.0',enabled:false}
+ {id:'damage',title:'受损／已毁',file:'osm-damage-planet.pmtiles',layers:['shapes','damage'],kind:'mixed',color:'#c94c37',license:'© OpenStreetMap contributors, ODbL 1.0',enabled:true}
 ];
 
 const CAT={
@@ -63,7 +63,25 @@ const CAT={
  vehicle:['历史车辆／船舶／飞机','#526b91','M3 15h18l-3 5H6l-3-5 M12 4v11 M12 5l6 7h-6']
 };
 
-const catSelected=new Set(Object.keys(CAT)),catInputs=new Map(),catSpecs=[];
+
+const PREF_KEY='heritage.map.preferences.v1';
+function readPrefs(){try{const p=JSON.parse(storeGet(PREF_KEY)||'{}');return p&&typeof p==='object'&&!Array.isArray(p)?p:{}}catch(e){return {}}}
+const prefs=readPrefs();
+function prefEnabled(section,key){return prefs[section]?.[key]!==false}
+function writePrefs(){storeSet(PREF_KEY,JSON.stringify(prefs))}
+function saveMapPrefs(){
+ prefs.categories=Object.fromEntries(Object.keys(CAT).map(k=>[k,catSelected.has(k)]));
+ prefs.layers=Object.fromEntries(hwDefs.map(d=>[d.id,hwControls.has(d.id)?hwEnabled(d):prefEnabled('layers',d.id)]));
+ prefs.condition=$('conditionFilter').value;prefs.designation=$('designationFilter').value;prefs.aggregate=$('aggregateToggle').checked;writePrefs();
+}
+function restoreMapPrefs(){
+ const set=(id,value,allowed)=>{if(allowed.includes(value))$(id).value=value};
+ set('conditionFilter',prefs.condition,['all','gone','damaged','ruined','unknown']);
+ set('designationFilter',prefs.designation,['all','yes','no']);
+ $('aggregateToggle').checked=prefs.aggregate!==false;
+}
+const catSelected=new Set(Object.keys(CAT).filter(k=>prefEnabled('categories',k))),catInputs=new Map(),catSpecs=[];
+
 const rules={"historic":{"palace":"palace","castle":"castle","manor":"manor","defense":"fort|fortress|fortification|citywalls|city_walls|city_gate|bunker|defensive_wall|rampart","tomb":"tomb|grave|cemetery|burial_site|mausoleum|necropolis|tumulus","archaeology":"archaeological_site|stone_circle|menhir|standing_stone|megalith|petroglyph|rock_art","cross":"wayside_cross","shrine":"wayside_shrine","marker":"boundary_stone|milestone","monument":"memorial|monument|statue|obelisk","battlefield":"battlefield|tank|cannon","church":"church|cathedral|chapel|monastery|abbey|basilica","mosque":"mosque","synagogue":"synagogue","pagoda":"pagoda|stupa","temple":"temple","industry":"mine|mine_shaft|mine_adit|quarry|industrial|industrial_heritage|technical_monument|factory|windmill|watermill","transport":"railway|railway_station|roman_road","vehicle":"locomotive|aircraft|ship|wreck|shipwreck","bridge":"bridge|aqueduct","lighthouse":"lighthouse","tower":"tower","museum":"museum","garden":"garden|historic_garden"},"building":{"castle":"castle","palace":"palace","manor":"manor","defense":"bunker","church":"church|cathedral|chapel|monastery","mosque":"mosque","synagogue":"synagogue","temple":"temple","pagoda":"pagoda|stupa","shrine":"shrine","museum":"museum","industry":"industrial|factory","transport":"train_station|railway_station","tower":"tower"},"other":{"lighthouse":"lighthouse|man_made=lighthouse"},"man_made":{"lighthouse":"lighthouse","tower":"tower"},"tourism":{"museum":"museum"},"cls":{"castle":"q23413|castle","palace":"q16560|palace","defense":"fortification|fort|fortress|city walls","tomb":"q39614|cemetery|tomb|grave|mausoleum|tumulus","archaeology":"q839954|archaeological site|archaeological_site","church":"q16970|church building|church|cathedral|monastery|chapel","mosque":"q32815|mosque","synagogue":"q34627|synagogue","pagoda":"pagoda|stupa","temple":"q44539|temple","shrine":"shrine","monument":"q4989906|q5003624|monument|memorial|statue","museum":"q33506|museum","bridge":"q12280|bridge|aqueduct","lighthouse":"q39715|lighthouse","industry":"industrial heritage|mine|factory|windmill|watermill","transport":"railway station|railway","battlefield":"battlefield","manor":"manor house|manor","tower":"tower","garden":"garden|historic garden","religion":"place of worship|religious building","ruins":"ruins|ruin","building":"historic building|historical building|building"}};
 const normCat=v=>String(v??'').toLowerCase();
 const hasCatValue=v=>!['','0','false','no','none','unknown'].includes(normCat(v));
@@ -146,7 +164,7 @@ function installCatIcons(){
   const cv=catIcon(key);if(!map.hasImage('cat-'+key))map.addImage('cat-'+key,cv.getContext('2d').getImageData(0,0,48,48),{pixelRatio:2});
   for(const [state,color] of Object.entries({gone:'#b64e40',damaged:'#e59b20',ruined:'#967052',designated:'#25845b'})){const v=catIcon(key,color),id='cat-'+key+'-'+state;if(!map.hasImage(id))map.addImage(id,v.getContext('2d').getImageData(0,0,48,48),{pixelRatio:2})}
   const lab=document.createElement('label'),input=document.createElement('input'),img=document.createElement('img'),span=document.createElement('span');
-  input.type='checkbox';input.checked=true;img.src=cv.toDataURL();img.alt='';span.textContent=CAT[key][0];lab.append(input,img,span);$('categoryGrid').append(lab);catInputs.set(key,input);
+  input.type='checkbox';input.checked=catSelected.has(key);img.src=cv.toDataURL();img.alt='';span.textContent=CAT[key][0];lab.append(input,img,span);$('categoryGrid').append(lab);catInputs.set(key,input);
   input.onchange=()=>{input.checked?catSelected.add(key):catSelected.delete(key);applyCats()};
  }
  $('allCats').onclick=()=>{for(const [k,i] of catInputs){i.checked=true;catSelected.add(k)}applyCats()};
@@ -154,7 +172,7 @@ function installCatIcons(){
  applyCats();
 }
 function applyCats(){
- $('categoryCount').textContent=catSelected.size+'/'+Object.keys(CAT).length;
+ saveMapPrefs();$('categoryCount').textContent=catSelected.size+'/'+Object.keys(CAT).length;
  if(!ready)return;
  for(const spec of catSpecs)if(map.getLayer(spec.id))map.setFilter(spec.id,catFilter(spec.d,spec.geometry));
  queueAggregation();
@@ -222,11 +240,11 @@ async function hwStart(){
  finally{hwLoading=false;$('retryTiles').disabled=false;hwStatus()}
 }
 function hwInit(){
- try{console.info('Category fixture tests:',runCategoryTests());installCatIcons()}catch(e){console.warn('Category icons unavailable',e)}for(const d of hwDefs){
-  const l=document.createElement('label'),i=document.createElement('input'),dot=document.createElement('span');i.type='checkbox';i.checked=d.enabled;dot.className='sw';dot.style.background=d.color;l.append(i,dot,d.title);$('officialFilters').append(l);hwControls.set(d.id,i);
-  i.onchange=()=>{hwVisibility();hwStatus();if(i.checked)hwConnect(d);updateCount();scheduleNames()};
+ restoreMapPrefs();try{console.info('Category fixture tests:',runCategoryTests());installCatIcons()}catch(e){console.warn('Category icons unavailable',e)}for(const d of hwDefs){
+  const l=document.createElement('label'),i=document.createElement('input'),dot=document.createElement('span');i.type='checkbox';i.checked=prefEnabled('layers',d.id);dot.className='sw';dot.style.background=d.color;l.append(i,dot,d.title);$('officialFilters').append(l);hwControls.set(d.id,i);
+  i.onchange=()=>{saveMapPrefs();hwVisibility();hwStatus();if(i.checked)hwConnect(d);updateCount();scheduleNames()};
  }
- $('retryTiles').onclick=()=>hwStart();
+ $('retryTiles').onclick=()=>hwStart();$('resetMapPrefs').onclick=()=>{for(const d of hwDefs){const i=hwControls.get(d.id);if(i)i.checked=true}for(const [k,i] of catInputs){i.checked=true;catSelected.add(k)}$('conditionFilter').value='all';$('designationFilter').value='all';$('aggregateToggle').checked=true;saveMapPrefs();applyCats();hwVisibility();hwStatus();hwStart()};
  map.on('error',e=>{const d=hwDefs.find(d=>'hw-'+d.id===e.sourceId);if(d){const state=hwStates.get(d.id);if(state&&state.state==='ready')state.needsRetry=true;status('图层请求异常');$('tileStatus').textContent=d.title+'瓦片请求失败：'+String(e.error?.message||'网络错误').slice(0,160)+'；可重试或切换图层。'}});
  hwVisibility();hwStart();
 }
@@ -335,7 +353,7 @@ function installAggregation(){
   'text-field':['step',['zoom'],['get','countText'],15,['case',['>', ['get','count'],1],['get','countText'],['get','display']]],'text-font':baseFont(),'text-size':10,'text-anchor':'top','text-offset':[0,1.15],'text-optional':true,'text-allow-overlap':false
  },paint:{'text-color':'#26332d','text-halo-color':'#fff','text-halo-width':1.7}});
  map.on('click','agg-icons',e=>{const key=e.features[0].properties.key,rows=aggregateMembers.get(key)||[];if(rows.length===1)showDetail(rows[0].properties);else if(rows.length){aggListKey=key;$('info').hidden=true;$('listPanel').hidden=false;renderList()}});
- $('aggregateToggle').onchange=()=>{aggSignature='';queueAggregation()};
+ $('aggregateToggle').onchange=()=>{saveMapPrefs();aggSignature='';queueAggregation()};
 }
 function viewFeatures(){return visibleRows}
 function updateCount(){queueAggregation()}
@@ -355,7 +373,7 @@ $('collapse').onclick=()=>{const hide=!$('panel').hidden;$('panel').hidden=hide;
 function testGrouping(){const f=(x,y,c)=>({xy:{x,y},properties:{catKey:c}});const a=[f(0,0,'castle'),f(5,3,'castle'),f(6,4,'church'),f(150,0,'castle')];const g=groupPoints(a,15,true,true);if(g.length!==3||g[0].members.length!==2||groupPoints(a,15,true,false).length!==4)throw Error('aggregation test failed')}
 testGrouping();
 function addText(el,tag,txt){const x=document.createElement(tag);x.textContent=txt;el.append(x);return x}function link(el,title,url){const a=addText(el,'a',title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a}
-const WIKI_CACHE=new Map(), AI_CACHE=new Map();
+const WIKI_CACHE=new Map(), AI_CACHE=new Map(), PHOTO_CACHE=new Map();
 const DS_BASE='https://api.deepseek.com';
 const DS_KEY_STORE='heritage.ds.key.v1',DS_MODEL_STORE='heritage.ds.model.v1';
 let dsKey='',dsModel='',dsModels=[],dsGeneration=0,dsSaveTimer,detailRequest=null;
@@ -434,27 +452,89 @@ async function getWikiInfo(p,signal){
  if(WIKI_CACHE.has(key))return WIKI_CACHE.get(key);
  let obj=null,wdFailed=false;
  if(qid)try{
-  const q=new URLSearchParams({action:'wbgetentities',ids:qid,props:'labels|sitelinks',languages:LANGS,format:'json',origin:'*'});
+  const q=new URLSearchParams({action:'wbgetentities',ids:qid,props:'labels|sitelinks|claims',languages:LANGS,format:'json',origin:'*'});
   const d=await fetchJson('https://www.wikidata.org/w/api.php?'+q,{signal},14000);
   obj=d.entities?.[qid]||null;
   if(obj?.labels){languageCache.set(qid,extractLanguage(obj.labels));while(languageCache.size>NAME_CACHE_MAX)languageCache.delete(languageCache.keys().next().value);refreshNameLayers()}
  }catch(e){if(signal?.aborted)throw e;wdFailed=true}
- let failed=wdFailed;
+ const imageFiles=entityImageFiles(obj);let failed=wdFailed;
  for(const candidate of wikiCandidates(p,obj).slice(0,4)){
   const {lang,title}=candidate,host='https://'+lang+'.wikipedia.org';
   try{
-   const q=new URLSearchParams({action:'query',prop:'extracts|info|pageprops',titles:title,redirects:'1',exintro:'1',explaintext:'1',exchars:'850',inprop:'url',format:'json',formatversion:'2',origin:'*'});
+   const q=new URLSearchParams({action:'query',prop:'extracts|info|pageprops|pageimages',piprop:'name',pilicense:'free',titles:title,redirects:'1',exintro:'1',explaintext:'1',exchars:'850',inprop:'url',format:'json',formatversion:'2',origin:'*'});
    if(lang==='zh')q.set('variant','zh-cn');
    const d=await fetchJson(host+'/w/api.php?'+q,{signal},14000);
    const page=d.query?.pages?.[0],intro=clean(page?.extract);
-   if(!page||page.missing||page.pageprops?.disambiguation!==undefined||!intro)continue;
-   const value={intro,lang,title:page.title||title,url:safeHttpUrl(page.fullurl)||host+'/wiki/'+encodeURIComponent((page.title||title).replace(/ /g,'_'))};
+   if(!page||page.missing||page.pageprops?.disambiguation!==undefined)continue;
+   if(page.pageimage)imageFiles.push(page.pageimage);if(!intro)continue;
+   const value={intro,lang,title:page.title||title,imageFiles,url:safeHttpUrl(page.fullurl)||host+'/wiki/'+encodeURIComponent((page.title||title).replace(/ /g,'_'))};
    WIKI_CACHE.set(key,value);if(WIKI_CACHE.size>200)WIKI_CACHE.delete(WIKI_CACHE.keys().next().value);return value;
   }catch(e){if(signal?.aborted)throw e;failed=true}
  }
- if(!failed)WIKI_CACHE.set(key,null);
- return failed?{unavailable:true}:null;
+ const value=imageFiles.length?{imageFiles,unavailable:failed}:failed?{unavailable:true}:null;
+ if(!failed){WIKI_CACHE.set(key,value);while(WIKI_CACHE.size>200)WIKI_CACHE.delete(WIKI_CACHE.keys().next().value)}return value;
 }
+
+function commonsFileName(value){
+ let s=clean(value);if(!s)return '';
+ if(/^https?:\/\//i.test(s)){
+  try{const u=new URL(s);if(u.hostname==='commons.wikimedia.org'&&/^\/wiki\/(?:File:|Special:FilePath\/)/i.test(u.pathname))s=decodeURIComponent(u.pathname.replace(/^\/wiki\/(?:File:|Special:FilePath\/)/i,''));
+   else if(u.hostname==='upload.wikimedia.org'&&/^\/wikipedia\/commons\/[0-9a-f]\/[0-9a-f]{2}\//i.test(u.pathname))s=decodeURIComponent(u.pathname.split('/').pop());
+   else return '';
+  }catch(e){return ''}
+ }
+ s=s.replace(/^(?:File|Image):/i,'').trim();
+ if(!s||s.length>300||/[|<>\r\n]/.test(s)||!/\.(?:jpe?g|png|webp|gif|tiff?|svg)$/i.test(s))return '';
+ return s.replace(/_/g,' ');
+}
+function entityImageFiles(obj){
+ const claims=Array.isArray(obj?.claims?.P18)?obj.claims.P18:[];
+ return claims.filter(c=>c.rank!=='deprecated').sort((a,b)=>Number(b.rank==='preferred')-Number(a.rank==='preferred')).map(c=>commonsFileName(c.mainsnak?.datavalue?.value)).filter(Boolean).slice(0,5);
+}
+function directImageFiles(p){
+ return [p.img,p.image,p['wikimedia_commons']].map(commonsFileName).filter(Boolean);
+}
+function trustedPhotoUrl(value){
+ try{const u=new URL(value);return u.protocol==='https:'&&u.hostname==='upload.wikimedia.org'&&u.pathname.startsWith('/wikipedia/commons/')?u.href:''}catch(e){return ''}
+}
+function plainMetadata(value){return shortText(String(value||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' '),180)}
+async function commonsPhoto(file,signal){
+ const filename=commonsFileName(file);if(!filename)return null;
+ if(PHOTO_CACHE.has(filename))return PHOTO_CACHE.get(filename);
+ const params=new URLSearchParams({action:'query',titles:'File:'+filename,prop:'imageinfo',iiprop:'url|mime|size|extmetadata',iiurlwidth:'720',iiextmetadatafilter:'Artist|Credit|LicenseShortName|LicenseUrl|UsageTerms|AttributionRequired',redirects:'1',format:'json',formatversion:'2',origin:'*'});
+ const data=await fetchJson('https://commons.wikimedia.org/w/api.php?'+params,{signal},14000);
+ const page=data.query?.pages?.[0],i=page?.imageinfo?.[0],m=i?.extmetadata||{};
+ let photo=null;
+ if(i&&String(i.mime||'').startsWith('image/')){
+  const url=trustedPhotoUrl(i.thumburl)||(Number(i.size)<1000000?trustedPhotoUrl(i.url):'');
+  const title=page.title||'File:'+filename;
+  const fileUrl='https://commons.wikimedia.org/wiki/'+encodeURIComponent(title.replace(/ /g,'_'));
+  const license=plainMetadata(m.LicenseShortName?.value||m.UsageTerms?.value);
+  const author=plainMetadata(m.Artist?.value||m.Credit?.value),licenseUrl=safeHttpUrl(m.LicenseUrl?.value);
+  // Skip files whose reuse terms cannot be displayed.
+  if(url&&license)photo={url,fileUrl,title,license,licenseUrl,author};
+ }
+ PHOTO_CACHE.set(filename,photo);while(PHOTO_CACHE.size>160)PHOTO_CACHE.delete(PHOTO_CACHE.keys().next().value);return photo;
+}
+async function firstPhoto(files,signal){
+ for(const file of [...new Set(files.map(commonsFileName).filter(Boolean))].slice(0,6)){
+  if(signal?.aborted)return null;
+  try{const p=await commonsPhoto(file,signal);if(p)return p}catch(e){if(signal?.aborted)return null}
+ }
+ return null;
+}
+function showPhoto(figure,photo,token){
+ if(token!==detailToken||!photo)return;
+ figure.replaceChildren();
+ const a=link(figure,'',photo.fileUrl);a.className='photo-open';a.setAttribute('aria-label','查看 Wikimedia Commons 原始图片及授权');
+ const img=document.createElement('img');img.alt=photo.title.replace(/^File:/i,'');img.loading='lazy';img.decoding='async';img.referrerPolicy='no-referrer';a.append(img);
+ const cap=addText(figure,'figcaption','');link(cap,'Wikimedia Commons',photo.fileUrl);
+ if(photo.author)addText(cap,'span','作者：'+photo.author+' · ');
+ if(photo.licenseUrl)link(cap,photo.license,photo.licenseUrl);else addText(cap,'span',photo.license);
+ img.onerror=()=>{if(token===detailToken)figure.hidden=true};
+ img.src=photo.url;figure.hidden=false;
+}
+
 function sourceLinks(p,el){
  if(p.osm_type&&p.osm_id&&/^(node|way|relation)$/.test(p.osm_type)&&/^\d+$/.test(String(p.osm_id)))link(el,'OSM 原始条目','https://www.openstreetmap.org/'+p.osm_type+'/'+p.osm_id);
  const qid=getQid(p);if(qid)link(el,'Wikidata 原始条目','https://www.wikidata.org/wiki/'+qid);
@@ -595,13 +675,15 @@ function showDetail(p){
  const condition={gone:'已毁／拆除／移除',damaged:'受损',ruined:'废墟／残迹'}[p.conditionKey];if(condition)parts.push(condition);
  if(p.hasDesignation)parts.push('有遗产认定记录'+(clean(p.heritage)?'：'+p.heritage:''));
  meta.textContent=parts.join(' · ');
+ const figure=addText(el,'figure','');figure.className='detail-photo';figure.hidden=true;
+ const directPhoto=firstPhoto(directImageFiles(p),signal);directPhoto.then(photo=>showPhoto(figure,photo,token));
  const wiki=addText(el,'p','');wiki.className='detail-wiki';wiki.hidden=true;
  const refs=addText(el,'div','');refs.className='detail-links';sourceLinks(p,refs);refs.hidden=!refs.children.length;
  const hasWiki=!!(getQid(p)||parseWikiTag(p.wikipedia));const configureAI=addAISection(p,el,token,signal,hasWiki);
  if(hasWiki){
   wiki.hidden=false;wiki.textContent='正在获取维基百科简介…';
   getWikiInfo(p,signal).then(info=>{
-   if(token!==detailToken)return;refreshDetailName(p,head,original);if(info?.lang==='zh'&&clean(info.title)&&!chinese(p)){head.textContent=info.title;const orig=origName(p);original.hidden=!orig||orig===head.textContent;original.textContent=original.hidden?'':orig}configureAI(info);
+   if(token!==detailToken)return;directPhoto.then(async existing=>{if(!existing&&token===detailToken){const photo=await firstPhoto(info?.imageFiles||[],signal);showPhoto(figure,photo,token)}});refreshDetailName(p,head,original);if(info?.lang==='zh'&&clean(info.title)&&!chinese(p)){head.textContent=info.title;const orig=origName(p);original.hidden=!orig||orig===head.textContent;original.textContent=original.hidden?'':orig}configureAI(info);
    if(info?.intro){wiki.textContent=info.intro;link(refs,info.lang==='zh'?'中文维基百科':info.lang==='en'?'英文维基百科':'维基百科（'+info.lang+'）',info.url);refs.hidden=false;const license=addText(refs,'span','简介：CC BY-SA');license.className='hint'}
    else{wiki.hidden=true;if(info?.unavailable)console.warn('Wikipedia unavailable')}
   }).catch(e=>{if(token===detailToken){wiki.hidden=true;configureAI({unavailable:true})}});
