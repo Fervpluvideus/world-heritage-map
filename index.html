@@ -1,6 +1,6 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f7f4eb"><title>世界古迹图 · 中文探索版</title><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css"><script src="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js"></script><script src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script><style>
 *{box-sizing:border-box}body{margin:0;color:#29332d;font:14px system-ui,sans-serif;background:#f7f4eb}#map{position:fixed;inset:0}header{position:fixed;top:12px;left:12px;right:12px;max-width:480px;background:#fffcf5;border:1px solid #dad8cc;border-radius:15px;padding:13px;box-shadow:0 3px 20px #0002;z-index:2}h1{margin:0;font-size:20px;letter-spacing:1px}small{color:#626d65}button,input,select{font:inherit;border:1px solid #c7ccc3;border-radius:9px;background:white;color:inherit;padding:9px;min-width:0}button{cursor:pointer}button.primary{background:#28594d;color:white;border:0;font-weight:600}button:disabled{opacity:.55}form,.actions{display:flex;gap:7px;margin-top:9px}form input{flex:1}.filters{display:flex;gap:5px;overflow:auto;padding:8px 0 0}.filters label{white-space:nowrap;background:#eceee7;border-radius:8px;padding:5px 8px;font-size:12px;display:flex;align-items:center;gap:4px}.filters input{accent-color:#28594d;margin:0}#status{font-size:12px;margin-top:8px;line-height:1.4}#tools{display:none;margin-top:9px;max-height:32vh;overflow:auto}#tools.open{display:block}#tools input{width:100%;margin:5px 0}#places{max-height:25vh;overflow:auto}#places button{display:block;text-align:left;width:100%;margin-top:3px}#info{position:fixed;bottom:33px;left:12px;right:12px;max-width:480px;background:#fffcf5;z-index:3;box-shadow:0 2px 18px #0003;border-radius:15px;padding:15px;max-height:43vh;overflow:auto}#info[hidden]{display:none}#info h2{font-size:19px;margin:0 25px 5px 0}#info p{margin:8px 0;overflow-wrap:anywhere}#info a{color:#216b60;display:inline-block;margin:5px 12px 5px 0}#close{float:right;padding:3px 8px}.maplibregl-ctrl-top-right{top:260px}.hint{font-size:12px;color:#626d65}.sw{display:inline-block;border-radius:50%;width:8px;height:8px}#attribution{position:fixed;bottom:0;left:0;background:#fffcf5e8;font-size:10px;z-index:2;padding:3px 6px;max-width:65%;overflow:hidden}#attribution a{color:#315a4e} @media(min-width:800px){header{width:390px}.maplibregl-ctrl-top-right{top:8px}}
- .autoline{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#536458}.autoline input{accent-color:#28594d;vertical-align:middle}#listPanel{position:fixed;bottom:34px;left:12px;right:12px;max-width:480px;background:#fffcf5;border:1px solid #dad8cc;border-radius:15px;padding:12px;z-index:3;max-height:48vh;overflow:auto;box-shadow:0 3px 20px #0003}#listPanel[hidden]{display:none}#listPanel h2{font-size:17px;margin:4px 0 10px}#listClose{float:right}#listRows button{display:block;width:100%;text-align:left;margin:4px 0;padding:10px}#listRows small{display:block;margin-top:4px}.filters{scrollbar-width:thin}header{padding:10px}.maplibregl-ctrl-top-right{top:282px}@media(min-width:800px){.maplibregl-ctrl-top-right{top:8px}}</style></head><body><div id="map"></div><header><h1>世界古迹图 <small style="font-size:11px">探索版 0.4</small></h1><small>在线古迹探索 · 中文优先 · 移动地图自动加载</small><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button class="primary" id="load" style="flex:1" disabled>补充查询古迹</button><button id="locate">定位</button><button id="more">设置</button><button id="nearby" disabled>列表</button></div><div class="filters" id="filters"></div><div class="autoline"><label><input type="checkbox" id="auto" checked> 自动补充古迹</label><span id="count"></span></div><div id="status" role="status">正在加载底图…</div><div id="tools"><p class="hint">底图兴趣点随地图加载；详细 OSM 数据在街区范围自动查询。关闭自动补充可减少网络请求。查询缓存仅保存在当前页面。</p><div class="hint">可添加拥有合法访问权限的公开矢量 PMTiles 直链；尚未预接 Heritage Watch AI 瓦片。外部图层不参与上面的分类过滤。</div><input id="tileurl" placeholder="https://…/heritage.pmtiles"><button id="addtile">添加在线图层</button><div id="extra"></div><p class="hint">名称缺失时保留原文；点击古迹可查询 Wikidata 中文资料。数据来自社区，不代表官方文保认定。</p><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版 Heritage Watch AI</a></div></header><section id="listPanel" hidden><button id="listClose">关闭</button><h2>当前范围古迹</h2><div id="listRows"></div></section><section id="info" hidden><button id="close" aria-label="关闭">×</button><div id="detail"></div></section><div id="attribution"><a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors (ODbL)</a> · <a href="https://openfreemap.org/" target="_blank">OpenFreeMap</a></div>
+ .autoline{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#536458}.autoline input{accent-color:#28594d;vertical-align:middle}#listPanel{position:fixed;bottom:34px;left:12px;right:12px;max-width:480px;background:#fffcf5;border:1px solid #dad8cc;border-radius:15px;padding:12px;z-index:3;max-height:48vh;overflow:auto;box-shadow:0 3px 20px #0003}#listPanel[hidden]{display:none}#listPanel h2{font-size:17px;margin:4px 0 10px}#listClose{float:right}#listRows button{display:block;width:100%;text-align:left;margin:4px 0;padding:10px}#listRows small{display:block;margin-top:4px}.filters{scrollbar-width:thin}header{padding:10px}.maplibregl-ctrl-top-right{top:282px}@media(min-width:800px){.maplibregl-ctrl-top-right{top:8px}}</style></head><body><div id="map"></div><header><h1>世界古迹图 <small style="font-size:11px">探索版 0.5</small></h1><small>在线古迹探索 · 中文优先 · 双独立数据库</small><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button class="primary" id="load" style="flex:1" disabled>补充查询古迹</button><button id="locate">定位</button><button id="more">设置</button><button id="nearby" disabled>列表</button></div><div class="filters" id="filters"></div><div class="autoline"><label><input type="checkbox" id="auto"> 自动补充古迹</label><span id="count"></span></div><div class="autoline"><label for="sourceMode">数据源</label><select id="sourceMode" style="flex:1;padding:5px"><option value="auto">自动：OSM → 维基数据</option><option value="wiki">维基数据（绕过 Overpass）</option><option value="osm">仅 OSM 古迹</option></select></div><div id="status" role="status">正在加载底图…</div><div id="tools"><p class="hint">底图兴趣点随地图加载。详细数据可手动查询；也可启用自动补充。维基数据只显示具有遗产认定记录的条目，并非完整 OSM 数据。查询缓存仅保存在当前页面。</p><div class="hint">可添加拥有合法访问权限的公开矢量 PMTiles 直链；尚未预接 Heritage Watch AI 瓦片。外部图层不参与上面的分类过滤。</div><input id="tileurl" placeholder="https://…/heritage.pmtiles"><button id="addtile">添加在线图层</button><div id="extra"></div><p class="hint">名称缺失时保留原文；点击古迹可查询 Wikidata 中文资料。数据来自社区，不代表官方文保认定。</p><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版 Heritage Watch AI</a></div></header><section id="listPanel" hidden><button id="listClose">关闭</button><h2>当前范围古迹</h2><div id="listRows"></div></section><section id="info" hidden><button id="close" aria-label="关闭">×</button><div id="detail"></div></section><div id="attribution"><a href="https://www.openstreetmap.org/copyright" target="_blank">© OpenStreetMap contributors (ODbL)</a> · <a href="https://openfreemap.org/" target="_blank">OpenFreeMap</a> · <a href="https://www.wikidata.org/" target="_blank">Wikidata (CC0)</a></div>
 <script>
 'use strict';const $=id=>document.getElementById(id),status=t=>$('status').textContent=t;const groups={heritage:['文保','#b5762b'],historic:['古迹','#9c4b32'],ruins:['遗址','#a8753a'],military:['军事','#6a7552'],industry:['工业交通','#65718e'],memorial:['纪念','#8c6e9d'],religion:['宗教','#427e9a'],museum:['博物馆','#39816d'],other:['其他','#727272']};const types={archaeological_site:'考古遗址',castle:'城堡',fort:'堡垒',fortification:'防御工事',citywalls:'城墙',city_gate:'城门',ruins:'废墟',battlefield:'古战场',memorial:'纪念设施',monument:'纪念碑',tomb:'墓葬',manor:'庄园',building:'历史建筑',mine:'历史矿井',railway:'历史铁路',locomotive:'历史机车',ship:'历史船舶',aircraft:'历史飞机',tank:'历史坦克',cannon:'历史火炮',boundary_stone:'界碑',milestone:'里程碑',wayside_cross:'路旁十字架',wayside_shrine:'路旁神龛',church:'教堂',monastery:'修道院',museum:'博物馆',place_of_worship:'宗教场所',lighthouse:'灯塔',yes:'是'};
 const selected=new Set(Object.keys(groups).filter(k=>!['religion','museum'].includes(k)));for(const [k,[n,c]] of Object.entries(groups)){const l=document.createElement('label'),i=document.createElement('input'),s=document.createElement('span');i.type='checkbox';i.checked=selected.has(k);s.className='sw';s.style.background=c;l.append(i,s,n);$('filters').append(l);i.onchange=()=>{i.checked?selected.add(k):selected.delete(k);applyFilter()}}let map,proto,ready=false,busy=false,features=[],detailToken=0,extraN=0;const empty=()=>({type:'FeatureCollection',features:[]});const names=['name:zh-Hans','name:zh-hans','name:zh_cn','name_zh_cn','name_zh_hant','name:zh-CN','name:zh','name_zh','name_zh_hans','name:zh-Hant','name_zh-Hans','name_zh-Hant'];function clean(v){return typeof v==='string'&&v.trim()?v.trim():''}function chinese(p){return names.map(k=>clean(p[k])).find(Boolean)||''}function label(p){return chinese(p)||clean(p.name_zh_hant)||clean(p.name)||clean(p.label)||clean(p.name_en)||clean(p['name:en'])||''}function type(p){return p.historic||p.amenity||p.tourism||p.man_made||p.type||p.kind||p.category||''}function group(p){const h=p.historic||'';if(/fort|battlefield|citywalls|city_gate|tank|cannon|bunker/.test(h))return'military';if(/mine|railway|locomotive|ship|aircraft|technical|industrial/.test(h))return'industry';if(/ruins|archaeological|tomb/.test(h)||p.ruins==='yes'||p.building==='ruins')return'ruins';if(/memorial|monument|boundary_stone|milestone/.test(h))return'memorial';if(h)return'historic';if(p.heritage)return'heritage';if(p.amenity==='place_of_worship'||p.building==='church'||p.building==='cathedral')return'religion';if(p.tourism==='museum')return'museum';return'other'}
@@ -22,9 +22,9 @@ function installPreview(){
  previewInstalled=true;
  map.on('click','preview-points',e=>{if(map.queryRenderedFeatures(e.point,{layers:['local-points']}).length)return;const p=e.features[0].properties;showDetail({...p,kind:p.subclass||p.class,display:label(p)||types[p.subclass]||'底图兴趣点'});addText($('detail'),'p','来源：OpenFreeMap 底图兴趣点（非完整古迹数据库）。')});
 }
-function baseFont(){const l=map.getStyle().layers.find(x=>x.type==='symbol'&&Array.isArray(x.layout?.['text-font'])&&x.layout['text-font'].every(v=>typeof v==='string')&&!['literal','get','case','match','step','interpolate'].includes(x.layout['text-font'][0]));return l?.layout['text-font']||['Noto Sans Regular']}function init(){if(!window.maplibregl){status('地图组件加载失败，请检查网络或浏览器。');return}try{if(window.pmtiles){proto=new pmtiles.Protocol({metadata:true});maplibregl.addProtocol('pmtiles',proto.tile)}map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[12.49,41.89],zoom:14,localIdeographFontFamily:'sans-serif',attributionControl:true});map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');map.on('error',e=>{if(!ready)status('底图尚未加载，请检查网络。');else if(e.error)console.warn(e.error)});map.on('load',()=>{for(const l of map.getStyle().layers){if(l.type!=='symbol'||!l.layout?.['text-field']||!l['source-layer']||!['place','transportation_name','water_name','poi','mountain_peak','park'].includes(l['source-layer']))continue;try{map.setLayoutProperty(l.id,'text-field',['coalesce',...names.map(k=>['get',k]),['get','name'],['get','name:en'],['get','name_en'],l.layout['text-field']])}catch(e){console.warn(l.id,e)}}map.addSource('local-heritage',{type:'geojson',data:empty()});map.addLayer({id:'local-points',type:'circle',source:'local-heritage',paint:{'circle-color':['get','color'],'circle-radius':['interpolate',['linear'],['zoom'],11,3,16,6],'circle-stroke-width':1,'circle-stroke-color':'#fff'}});map.addLayer({id:'local-labels',type:'symbol',source:'local-heritage',minzoom:14,layout:{'text-field':['get','display'],'text-font':baseFont(),'text-size':12,'text-offset':[0,1],'text-anchor':'top'},paint:{'text-color':'#38423a','text-halo-color':'#fff','text-halo-width':1.5}});map.on('click','local-points',e=>showDetail(e.features[0].properties));ready=true;$('load').disabled=false;try{installPreview()}catch(e){console.warn('Preview layer',e)}$('nearby').disabled=false;status('底图已就绪。放大至街区自动补充古迹。');map.on('moveend',()=>{updateCount();if(!$('listPanel').hidden)renderList();scheduleLoad()});map.on('idle',()=>updateCount());scheduleLoad();});}catch(e){status('地图初始化失败：'+e.message)}}
+function baseFont(){const l=map.getStyle().layers.find(x=>x.type==='symbol'&&Array.isArray(x.layout?.['text-font'])&&x.layout['text-font'].every(v=>typeof v==='string')&&!['literal','get','case','match','step','interpolate'].includes(x.layout['text-font'][0]));return l?.layout['text-font']||['Noto Sans Regular']}function init(){if(!window.maplibregl){status('地图组件加载失败，请检查网络或浏览器。');return}try{if(window.pmtiles){proto=new pmtiles.Protocol({metadata:true});maplibregl.addProtocol('pmtiles',proto.tile)}map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[12.49,41.89],zoom:14,localIdeographFontFamily:'sans-serif',attributionControl:true});map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');map.on('error',e=>{if(!ready)status('底图尚未加载，请检查网络。');else if(e.error)console.warn(e.error)});map.on('load',()=>{for(const l of map.getStyle().layers){if(l.type!=='symbol'||!l.layout?.['text-field']||!l['source-layer']||!['place','transportation_name','water_name','poi','mountain_peak','park'].includes(l['source-layer']))continue;try{map.setLayoutProperty(l.id,'text-field',['coalesce',...names.map(k=>['get',k]),['get','name'],['get','name:en'],['get','name_en'],l.layout['text-field']])}catch(e){console.warn(l.id,e)}}map.addSource('local-heritage',{type:'geojson',data:empty()});map.addLayer({id:'local-points',type:'circle',source:'local-heritage',paint:{'circle-color':['get','color'],'circle-radius':['interpolate',['linear'],['zoom'],11,3,16,6],'circle-stroke-width':1,'circle-stroke-color':'#fff'}});map.addLayer({id:'local-labels',type:'symbol',source:'local-heritage',minzoom:14,layout:{'text-field':['get','display'],'text-font':baseFont(),'text-size':12,'text-offset':[0,1],'text-anchor':'top'},paint:{'text-color':'#38423a','text-halo-color':'#fff','text-halo-width':1.5}});map.on('click','local-points',e=>showDetail(e.features[0].properties));ready=true;$('load').disabled=false;try{installPreview()}catch(e){console.warn('Preview layer',e)}$('nearby').disabled=false;status('底图已就绪；可选择数据源并点击补充查询。');map.on('moveend',()=>{updateCount();if(!$('listPanel').hidden)renderList();scheduleLoad()});map.on('idle',()=>updateCount());scheduleLoad();});}catch(e){status('地图初始化失败：'+e.message)}}
 const queryCache=new Map(), MAX_CACHE=24, TTL=30*60*1000;
-let autoTimer, activeRequest=null, lastStart=0, lastCoverage=null;
+let autoTimer, activeRequest=null, lastStart=0, lastCoverage=null,lastCoverageKey='',retryAfter=0;
 function viewBox(){const b=map.getBounds();return [Math.max(-85,b.getSouth()),b.getWest(),Math.min(85,b.getNorth()),b.getEast()]}
 function containsBox(a,b){return a&&a[0]<=b[0]&&a[1]<=b[1]&&a[2]>=b[2]&&a[3]>=b[3]}
 function queryBox(b){const dy=(b[2]-b[0])*.22,dx=(b[3]-b[1])*.22;return [Math.max(-85,b[0]-dy),Math.max(-180,b[1]-dx),Math.min(85,b[2]+dy),Math.min(180,b[3]+dx)]}
@@ -49,13 +49,13 @@ function renderList(){const el=$('listRows');el.replaceChildren();const rows=vie
 }
 $('nearby').onclick=()=>{$('listPanel').hidden=!$('listPanel').hidden;if(!$('listPanel').hidden){$('info').hidden=true;renderList()}};
 $('listClose').onclick=()=>$('listPanel').hidden=true;
-function scheduleLoad(){
- clearTimeout(autoTimer);if(!ready||busy||!$('auto').checked)return;
- const b=viewBox();if(containsBox(lastCoverage,b))return;
+function queryKey(){return $('sourceMode').value+'|'+['religion','museum','other'].filter(x=>selected.has(x)).join(',')}function scheduleLoad(){
+ clearTimeout(autoTimer);if(!ready||busy||!$('auto').checked||Date.now()<retryAfter)return;
+ const b=viewBox();if(lastCoverageKey===queryKey()&&containsBox(lastCoverage,b))return;
  if(!queryAllowed(b,true)){status('底图古迹随地图加载；放大至街区（14级）自动补充。');return}
- autoTimer=setTimeout(()=>loadHeritage(true),Math.max(1200,8000-(Date.now()-lastStart)));
+ autoTimer=setTimeout(()=>loadHeritage(true),Math.max(1800,20000-(Date.now()-lastStart)));
 }
-$('auto').onchange=()=>{clearTimeout(autoTimer);if($('auto').checked)scheduleLoad()};
+$('auto').onchange=()=>{clearTimeout(autoTimer);if($('auto').checked)scheduleLoad()};$('sourceMode').onchange=()=>{clearTimeout(autoTimer);activeRequest?.abort();lastCoverage=null;retryAfter=0;status('已切换数据源；点击补充查询。');};
 async function getOverpass(url,q,parent){
  const ctl=new AbortController(),abort=()=>ctl.abort();if(parent.signal.aborted)throw Error('查询已取消');
  parent.signal.addEventListener('abort',abort,{once:true});
@@ -70,30 +70,69 @@ function convertElements(elements){return elements.flatMap(o=>{
  const p=o.tags||{},g=group(p),t=type(p);
  return [{type:'Feature',geometry:{type:'Point',coordinates:[lon,lat]},properties:{...p,osm_id:o.id,osm_type:o.type,group:g,color:groups[g][1],display:label(p)||types[t]||groups[g][0],lat,lon,sourceLabel:'OSM 详细数据'}}]
 })}
+async function getWikiHeritage(box,parent){
+ const ctl=new AbortController(),abort=()=>ctl.abort();
+ if(parent.signal.aborted)throw Error('查询已取消');
+ parent.signal.addEventListener('abort',abort,{once:true});
+ const timer=setTimeout(abort,22000);
+ const [s,w,n,e]=box.map(x=>x.toFixed(5));
+ const q='SELECT DISTINCT ?item ?coord ?itemLabel WHERE { SERVICE wikibase:box { ?item wdt:P625 ?coord . bd:serviceParam wikibase:cornerWest "Point('+w+' '+s+')"^^geo:wktLiteral . bd:serviceParam wikibase:cornerEast "Point('+e+' '+n+')"^^geo:wktLiteral . } ?item wdt:P1435 ?designation . SERVICE wikibase:label { bd:serviceParam wikibase:language "zh-hans,zh,zh-hant,en,mul" . } } LIMIT 1500';
+ try{
+  const url='https://query.wikidata.org/sparql?'+new URLSearchParams({query:q,format:'json'});
+  const res=await fetch(url,{signal:ctl.signal,headers:{Accept:'application/sparql-results+json'}});
+  if(!res.ok)throw Error('Wikidata HTTP '+res.status);
+  const rows=(await res.json()).results?.bindings;
+  if(!Array.isArray(rows))throw Error('Wikidata 响应格式异常');
+  const found=new Map();
+  for(const row of rows){
+   const id=row.item?.value?.split('/').pop(),m=/^Point\(\s*(-?[\d.]+)\s+(-?[\d.]+)\s*\)$/i.exec(row.coord?.value||'');
+   if(!id||!/^Q\d+$/.test(id)||!m||found.has(id))continue;
+   const x=Number(m[1]),y=Number(m[2]);if(!Number.isFinite(x)||!Number.isFinite(y)||x< -180||x>180||y< -90||y>90)continue;
+   const name=row.itemLabel?.value||id;
+   found.set(id,{type:'Feature',geometry:{type:'Point',coordinates:[x,y]},properties:{name,display:name,wikidata:id,group:'heritage',kind:'文化遗产',color:groups.heritage[1],lat:y,lon:x,sourceLabel:'Wikidata · 遗产认定记录（P1435）'}});
+  }
+  return {features:[...found.values()],limited:rows.length>=1500};
+ }catch(e){if(ctl.signal.aborted&&!parent.signal.aborted)throw Error('Wikidata 22秒超时');throw e}
+ finally{clearTimeout(timer);parent.signal.removeEventListener('abort',abort)}
+}
 function useResult(entry,b){
- features=entry.features;lastCoverage=entry.limited?null:entry.box;applyFilter();
+ features=entry.features;lastCoverage=entry.limited?null:entry.box;lastCoverageKey=entry.key;applyFilter();
  const shown=features.filter(f=>selected.has(f.properties.group)&&inView(f,b)).length;
- status('当前范围 '+shown+' 个详细古迹（已选分类）'+(entry.limited?'；达到返回上限，请放大。':'。另有底图兴趣点。'));
+ status(entry.source+'：当前范围显示 '+shown+' 项'+(entry.limited?'（达到上限，请放大）':'')+(entry.source==='Wikidata'?'；仅含遗产认定记录，需开启「文保」分类。':'；另有底图兴趣点。')+(entry.fallback?' OSM 暂不可用。':''));
 }
 async function loadHeritage(automatic=false){
  if(!ready||busy)return;clearTimeout(autoTimer);
- const b=viewBox();if(!queryAllowed(b,automatic)){if(!automatic)status('查询范围过大，请放大到城市街区（至少12级）。');return}
- for(const [key,entry] of queryCache){if(Date.now()-entry.time>TTL){queryCache.delete(key);continue}if(!entry.limited&&containsBox(entry.box,b)){useResult(entry,b);return}}
- const box=queryBox(b),bbox=box.map(x=>x.toFixed(5)).join(',');
- const q='[out:json][timeout:12];(nwr[historic]('+bbox+');nwr[heritage]('+bbox+');nwr[ruins=yes]('+bbox+');nwr[building=ruins]('+bbox+');nwr[amenity=place_of_worship]('+bbox+');nwr[tourism=museum]('+bbox+');nwr[man_made=lighthouse]('+bbox+'););out center 4000;';
- busy=true;lastStart=Date.now();const parent=new AbortController();activeRequest=parent;$('load').textContent='取消补充查询';
- let entry, errors=[];
- try{
- const urls=['https://overpass.private.coffee/api/interpreter','https://overpass-api.de/api/interpreter'];
- for(let i=0;i<urls.length&&!parent.signal.aborted;i++){
-  status((automatic?'自动':'手动')+'补充古迹 '+(i+1)+'/2（最多15秒）；底图仍可浏览。');
-  try{const elements=await getOverpass(urls[i],q,parent);entry={box,features:convertElements(elements),time:Date.now(),limited:elements.length>=4000};break}catch(e){errors.push(e.message)}
+ const b=viewBox(),mode=$('sourceMode').value,key=queryKey();
+ if(!queryAllowed(b,automatic)){if(!automatic)status('请放大至城市街区后查询（至少12级）。');return}
+ for(const [id,entry] of queryCache){
+  if(Date.now()-entry.time>(entry.fallback?120000:TTL)){queryCache.delete(id);continue}
+  if(entry.key===key&&!entry.limited&&containsBox(entry.box,b)){useResult(entry,b);return}
  }
- if(parent.signal.aborted){status('已取消；保留已加载古迹。');return}
- if(!entry)throw Error(errors.join(' / '));
- queryCache.set(bbox,entry);while(queryCache.size>MAX_CACHE)queryCache.delete(queryCache.keys().next().value);
- const current=viewBox();if(containsBox(box,current)){useResult(entry,current)}else{status('上一范围已缓存；移动后可重新补充。')}
- }catch(e){status('详细数据暂不可用：'+e.message+'。底图古迹仍可浏览；可手动重试。')}
+ const box=queryBox(b),bbox=box.map(x=>x.toFixed(5)).join(',');
+ const tags=['[historic]','[heritage]','[ruins=yes]','[building=ruins]'];
+ if(selected.has('religion'))tags.push('[amenity=place_of_worship]');
+ if(selected.has('museum'))tags.push('[tourism=museum]');
+ if(selected.has('other'))tags.push('[man_made=lighthouse]');
+ const q='[out:json][timeout:12];('+tags.map(t=>'nwr'+t+'('+bbox+');').join('')+');out center 4000;';
+ busy=true;lastStart=Date.now();const parent=new AbortController();activeRequest=parent;$('load').textContent='取消补充查询';
+ let entry,errors=[];
+ try{
+  if(mode!=='wiki'){
+   const urls=['https://overpass.private.coffee/api/interpreter','https://overpass-api.de/api/interpreter'];
+   for(let i=0;i<urls.length&&!parent.signal.aborted;i++){
+    status('OSM 数据源 '+(i+1)+'/2（最多15秒）；底图仍可浏览。');
+    try{const elements=await getOverpass(urls[i],q,parent);entry={box,features:convertElements(elements),time:Date.now(),limited:elements.length>=4000,source:'OSM',key};break}catch(e){errors.push(new URL(urls[i]).hostname+': '+e.message)}
+   }
+  }
+  if(!entry&&mode!=='osm'&&!parent.signal.aborted){
+   status(mode==='wiki'?'正在查询 Wikidata（最多22秒）…':'OSM 不可用，切换独立 Wikidata 数据库…');
+   try{const d=await getWikiHeritage(box,parent);entry={...d,box,time:Date.now(),source:'Wikidata',key,fallback:mode!=='wiki'}}catch(e){errors.push(e.message)}
+  }
+  if(parent.signal.aborted){status('已停止旧请求；可使用当前数据源重新查询。');return}
+  if(!entry)throw Error(errors.join(' / '));
+  queryCache.set(key+'|'+bbox,entry);while(queryCache.size>MAX_CACHE)queryCache.delete(queryCache.keys().next().value);
+  const current=viewBox();if(containsBox(box,current)){useResult(entry,current)}else{status('上一范围已缓存；移动后可重新查询。')}
+ }catch(e){retryAfter=Date.now()+60000;status('数据服务失败：'+e.message+'。保留底图与已有点位；可切换数据源。')}
  finally{busy=false;activeRequest=null;$('load').textContent='补充查询古迹';if(entry&&!containsBox(box,viewBox()))scheduleLoad()}
 }
 $('load').onclick=()=>{if(busy){activeRequest?.abort();return}loadHeritage(false)};
