@@ -1,26 +1,84 @@
-# 世界古迹图 · 中文探索版 0.1
+# 🌏 世界古迹图 | World Heritage Map
 
-单文件网页，无需安装应用、下载地图或 API 密钥。尚未部署，也没有在联网浏览器实测；需要网络和支持 WebGL 的浏览器。
+**循地理之迹，寻人类文明之忆。**
 
-## 使用
-- 电脑：打开 index.html。若浏览器限制 file:// 的跨域请求，在目录运行 `python -m http.server 8000`，访问 http://localhost:8000/。
-- 手机：推荐将 index.html 上传到 GitHub Pages，访问网页后添加到桌面。安卓本地文件预览可能禁止脚本或跨域请求。
-- GitHub Pages：新建公开仓库，上传 index.html（放在根目录），Settings → Pages → Deploy from a branch → main / (root) → Save。以 GitHub 实际显示的站点地址为准。
-- 初始位置为罗马。缩放至城市街区范围，点击“查询当前区域古迹”。勾选类别可筛选当前已加载的对象。移动地图后需要再次查询。点古迹查看原名、类别和链接；有 Wikidata 编号时可以手动查询中文名称和简介。
+一个面向历史爱好者、旅行者与文化遗产探索者的全球交互式历史地图。以开放地理数据为基础，在地图中发现散落于世界各地的古迹、遗址、历史建筑与文明记忆。
 
-## 数据和限制
-- 底图：OpenFreeMap Liberty，OSM 衍生数据。按可用中文名称字段优先显示，缺失时底图回退英文、当地语言。保留数据来源与署名。
-- 古迹：Overpass API 按可见范围在线查询 OSM 的 historic、heritage、ruins、部分宗教及博物馆等标签；不等于 Heritage Watch AI 的完整数据或官方文保名录。每次最多返回 10000 个对象，可能被服务限流或超时；仅供个人低频交互使用，不适合批量抓取。
-- 地名搜索：Nominatim，仅在手动提交时请求。地理位置仅在用户主动授权后用于地图定位。
-- Wikidata：按单个 QID 查询中文标签与简介（未自动改写所有点位；没有中文资料时保留原文）。没有接入机器翻译服务。
-- 设置中可添加公开、具有访问授权、支持 CORS 和 HTTP Range 的矢量 PMTiles URL，自动识别图层；没有预接 Heritage Watch AI 的直链（未能核实）。外部图层不参与本地分类过滤，名称字段兼容性需实测。
-- 本项目不存储账号或私密数据，查询会发送给对应第三方服务。第三方服务可用性、访问条款和更新由各提供者决定。
+An interactive global map for exploring historical sites and cultural heritage, combining open geographic data, multilingual information and optional AI assistance.
 
-## 资料与许可
-- https://www.openstreetmap.org/copyright （OSM 数据 ODbL）
-- https://openfreemap.org/quick_start/
-- https://wiki.openstreetmap.org/wiki/Overpass_API
-- https://operations.osmfoundation.org/policies/nominatim/
-- https://www.wikidata.org/wiki/Wikidata:Licensing （Wikidata 结构化数据 CC0）
-- https://docs.protomaps.com/pmtiles/maplibre
-- https://terria-catalog.prod.heritagewatch.ai/tools/ （原项目，仅作参考/入口）
+[![版本](https://img.shields.io/badge/version-0.16-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
+[![GitHub Issues](https://img.shields.io/github/issues/Fervpluvideus/world-heritage-map)](https://github.com/Fervpluvideus/world-heritage-map/issues)
+
+## 在线使用 | Live Map
+
+**[打开世界古迹图](https://fervpluvideus.github.io/world-heritage-map/)**
+
+网站采用 GitHub Pages 托管。若账号更名后链接暂不可用，请以仓库 Settings → Pages 中显示的地址为准。
+
+支持手机和电脑，无需安装、注册或下载地图。基本地图功能无需 API Key；AI 功能为可选项。
+
+## 核心功能
+
+- 🌍 **全球古迹探索**：直接加载 Heritage Watch AI 发布的全球 PMTiles 数据，随地图移动和缩放自动更新。
+- 🏛️ **28 种古迹分类**：按类别、存续状态和遗产认定记录筛选，支持同类点位聚合及当前范围古迹列表。
+- 🗺️ **四大数据图层**：OSM 古迹、Wikidata 古迹、建筑轮廓、受损／已毁专题，可独立开启和关闭。
+- 🔤 **中文优先与多语言**：优先展示可获得的中文名称，缺少中文时回退至英文或当地语言。
+- 📷 **图片与历史简介**：优先读取图层关联图片及 Wikidata 图片，补充维基百科代表图片和简介，提供原始资料链接与图片授权信息。
+- 🤖 **可选 DeepSeek 助手**：已有外文简介时直接翻译；缺乏资料时可联网搜索；维基百科加载期间也可主动开始联网查询。
+- 📍 **地点搜索与定位**：支持城市和地点搜索；已授权的浏览器可自动定位，其他情况下默认显示沈阳。
+- 📱 **移动端交互**：可收起菜单、带动画的详情面板、固定关闭按钮，自动记忆图层、分类和筛选设置。
+
+## 如何使用
+
+1. 打开地图，搜索城市或使用定位，缩放至感兴趣的区域。
+2. 点击古迹图标或聚合点查看详情，也可通过「古迹列表」浏览当前范围内的记录。
+3. 在「图层」和「古迹分类与图例」中按需要选择数据与类别。
+4. 如需 AI 翻译或联网资料，在「AI 设置」中填写自己的 DeepSeek API Key 并选择可用模型。
+
+地图加载、图片与简介检索依赖网络及第三方服务。DeepSeek API 请求可能产生费用，不配置密钥也能正常浏览地图。
+
+## 数据来源与许可
+
+| 来源 | 用途 | 许可或说明 |
+| --- | --- | --- |
+| [Heritage Watch AI](https://terria-catalog.prod.heritagewatch.ai/tools/) | 全球古迹矢量数据及建筑轮廓 | 按上游数据来源及许可使用 |
+| [OpenStreetMap](https://www.openstreetmap.org/copyright) | 地理数据、古迹与受损对象 | ODbL 1.0 |
+| [Wikidata](https://www.wikidata.org/wiki/Wikidata:Licensing) | 古迹实体、名称、图片关联 | 结构化数据 CC0 |
+| [Wikipedia](https://en.wikipedia.org/wiki/Wikipedia:Copyrights) | 条目简介 | 按条目适用许可，通常为 CC BY-SA |
+| [Wikimedia Commons](https://commons.wikimedia.org/) | 古迹图片 | 以每个文件的作者、署名与授权为准 |
+| [OpenFreeMap](https://openfreemap.org/) | Liberty 矢量底图 | 遵循底图及其上游数据的署名要求 |
+| [Nominatim](https://operations.osmfoundation.org/policies/nominatim/) | 地点搜索 | 遵循服务使用政策 |
+| [DeepSeek](https://platform.deepseek.com/) | 可选翻译与联网资料整理 | 用户自备密钥，遵循服务条款 |
+
+本项目是独立的地图探索工具，并非 Heritage Watch AI、Wikimedia 或其他数据提供者的官方产品。
+
+## 数据局限与隐私
+
+- 古迹数据不等于各国官方文物保护名录，可能存在遗漏、重复、名称或分类错误、位置偏差；受损／已毁图层还包含部分非古迹对象。
+- 中文译名可能并非正式名称，AI 生成内容不能代替原始史料或专业考证。请通过原始条目、来源链接及相关历史资料交叉核查。
+- 本项目不设账号系统。显示偏好及可选的 DeepSeek API Key 保存在本机浏览器 localStorage 中，密钥未加密；不应在公共设备保存。
+- 地图、地名、维基资料与 AI 查询会向相应第三方服务发出请求。定位需浏览器授权；位置用于地图居中，加载相应区域地图也会产生网络请求。
+- 建议使用专用、低额度的 DeepSeek 密钥，并在不再使用时清除。
+
+## 技术与本地运行
+
+基于 HTML、CSS、JavaScript、[MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) 与 [PMTiles](https://docs.protomaps.com/pmtiles/)，目前采用单文件静态网页，无需后端服务。
+
+```bash
+git clone https://github.com/Fervpluvideus/world-heritage-map.git
+cd world-heritage-map
+python -m http.server 8000
+```
+
+浏览器访问 `http://localhost:8000/`。需要网络与支持 WebGL 的现代浏览器。浏览器定位功能还受安全上下文及权限限制。
+
+## 反馈与贡献
+
+欢迎通过 [Issues](https://github.com/Fervpluvideus/world-heritage-map/issues) 提交功能建议、错误反馈与数据纠错线索。涉及具体古迹时，建议附上位置、原始条目链接及可核查资料。
+
+仓库源码公开可见；目前尚未设置独立的软件许可证。第三方数据和图片继续适用其各自的授权条款。
+
+---
+
+**历史不只存在于书页，也留在我们脚下的土地上。**
