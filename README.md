@@ -1,10 +1,22 @@
 # 🌏 世界古迹图 | World Heritage Map
 
-**循地理之迹，寻人类文明之忆。**
+**跨越语言的边界，探索人类文明的共同记忆。**
 
-一个面向历史爱好者、旅行者与文化遗产探索者的全球交互式历史地图。以开放地理数据为基础，在地图中发现散落于世界各地的古迹、遗址、历史建筑与文明记忆。
+An interactive global map for exploring historical sites and cultural heritage across language barriers.
 
-An interactive global map for exploring historical sites and cultural heritage, combining open geographic data, multilingual information and optional AI assistance.
+## 项目初衷
+
+世界各地拥有数量庞大的历史建筑、文化遗产与考古遗址。然而，许多古迹的名称及相关资料主要以当地语言记录，尤其是知名度较低的地方性遗迹，往往缺乏其他语言的译名与介绍。这使得跨语言、跨地域的历史探索面临诸多障碍。
+
+世界古迹图正是基于这一问题而创建。
+
+本项目以开放地理数据为基础，整合 Heritage Watch AI、OpenStreetMap、Wikidata、Wikipedia 等数据与知识来源，通过多语言名称匹配、维基百科资料关联以及 DeepSeek API 翻译与联网检索，尽可能实现全球古迹信息的语言统一，同时保留原始名称、资料来源与相关链接，便于进一步查证与探索。
+
+目前以简体中文作为主要展示语言，未来计划逐步支持更多语言，让不同语言背景的使用者都能够更加便捷地了解世界各地的历史与文化遗产。
+
+本项目希望降低语言与信息壁垒，让历史探索不再局限于熟悉的国家、地区与文化。
+
+**文明各有其语言，而人类共享其历史。**
 
 [![版本](https://img.shields.io/badge/version-0.16-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
