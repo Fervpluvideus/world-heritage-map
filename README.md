@@ -18,7 +18,7 @@ An interactive global map for exploring historical sites and cultural heritage a
 
 **文明各有其语言，而人类共享其历史。**
 
-[![版本](https://img.shields.io/badge/version-0.18-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
+[![版本](https://img.shields.io/badge/version-0.19-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
 [![GitHub Issues](https://img.shields.io/github/issues/Fervpluvideus/world-heritage-map)](https://github.com/Fervpluvideus/world-heritage-map/issues)
 
