@@ -18,7 +18,7 @@ An interactive global map for exploring historical sites and cultural heritage a
 
 **文明各有其语言，而人类共享其历史。**
 
-[![版本](https://img.shields.io/badge/version-0.20-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
+[![版本](https://img.shields.io/badge/version-0.21-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
 [![GitHub Issues](https://img.shields.io/github/issues/Fervpluvideus/world-heritage-map)](https://github.com/Fervpluvideus/world-heritage-map/issues)
 
@@ -33,9 +33,9 @@ An interactive global map for exploring historical sites and cultural heritage a
 ## 核心功能
 
 - 🌍 **全球古迹探索**：直接加载 Heritage Watch AI 发布的全球 PMTiles 数据，随地图移动和缩放自动更新。
-- 🏛️ **30 种古迹分类**：按类别、存续状态和遗产认定记录筛选，支持同类点位聚合及当前范围古迹列表。
+- 🏛️ **31 种古迹分类**：按类别、存续状态和遗产认定记录筛选，支持同类点位聚合及当前范围古迹列表。
 - 🗺️ **古迹数据图层**：保留原有四个图层，增加开放各国遗产名录及边界、UNESCO 世界遗产、Pleiades 古代地名。
-- 🕰️ **历史地图叠加**：OpenHistoricalMap 按年份显示有时间信息的道路和建筑；Allmaps 按当前地图中心查找已配准老地图，David Rumsey 可从关联馆藏或原站 XYZ 链接导入，支持透明度调整。原图授权须逐幅核查。
+- 🕰️ **历史地图叠加**：OpenHistoricalMap 按年份显示有时间信息的道路和建筑；Allmaps 按当前地图中心查找已配准老地图，David Rumsey 可从关联馆藏或原站 XYZ 链接导入，支持透明度调整、覆盖范围定位、瓦片加载反馈及格式重试。原图授权须逐幅核查。
 - 🔤 **中文优先与多语言**：优先展示可获得的中文名称，缺少中文时回退至英文或当地语言。
 - 📷 **图片与历史简介**：优先读取图层关联图片及 Wikidata 图片，补充维基百科代表图片和简介，提供原始资料链接与图片授权信息。
 - 🤖 **可选 DeepSeek 助手**：已有外文简介时直接翻译；缺乏资料时可联网搜索；维基百科加载期间也可主动开始联网查询。
