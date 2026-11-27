@@ -20,7 +20,7 @@ header{position:fixed;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;m
 @media(min-width:800px){header{width:410px;right:auto;left:12px;top:12px}#panelScroll{max-height:calc(82vh - 58px)}.sheet{width:460px;left:auto;right:12px;bottom:38px;max-height:78vh}}
 @media(max-width:799px){.maplibregl-ctrl-top-right{display:none}}@media(max-width:350px){.topline h1{font-size:16px}.topline h1 small{font-size:9px}#panel .actions button{font-size:11px;gap:3px}#categoryGrid label{font-size:11px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-</style></head><body><div id="map"></div><header><div class="topline"><h1>世界古迹图 <small>0.18</small></h1><button id="collapse" aria-expanded="true" aria-controls="panel"><span id="collapseText">收起</span><span class="chevron" aria-hidden="true"></span></button></div><div id="panel"><div id="panelScroll"><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button id="locate">定位</button><button id="nearby" disabled>古迹列表</button><button id="more" aria-expanded="false" aria-controls="tools">图层 <span class="chevron" aria-hidden="true"></span></button><button id="aiSettings" aria-expanded="false" aria-controls="aiPanel">AI 设置 <span class="chevron" aria-hidden="true"></span></button></div><div id="tools" hidden><div class="menuSection"><div class="filters" id="officialFilters"></div><div id="tileStatus" class="hint" role="status">连接原版瓦片…</div><button id="retryTiles">重新连接</button><label class="hint"><input type="checkbox" id="aggregateToggle" checked> 同类点位聚合</label><p class="hint">图层、分类、状态和聚合设置会自动保存在本机。图标重叠时优先显示有遗产认定记录及较完整资料的古迹；放大后可查看更多记录。受损／已毁专题包含非古迹对象，可单独关闭。原始数据由 Heritage Watch AI 提供。</p><button id="resetMapPrefs" type="button">恢复默认显示</button><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版地图</a></div></div><div id="aiPanel" hidden><div class="menuSection"><label for="dsKey">DeepSeek API Key</label><input id="dsKey" type="password" autocomplete="off" spellcheck="false" placeholder="输入密钥（自动保存）"><div class="autoline"><label for="dsModel">模型</label><select id="dsModel" disabled><option value="">尚未获取模型</option></select></div><div class="catActions"><button id="dsRefresh" type="button">刷新模型</button><button id="dsClear" type="button">清除密钥</button></div><p id="dsStatus" role="status" class="hint"></p><p class="hint">密钥保存在本机浏览器 localStorage（未加密），仅向 DeepSeek 官方 API 发送，不提交到 GitHub。请使用专用低额度密钥，不在公用设备保存。翻译只调用模型；没有维基百科简介时才调用搜索。API 请求可能产生费用。</p><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek API Key</a></div></div><section id="categoryPanel"><button id="categoryToggle" type="button" aria-expanded="false" aria-controls="categoryBody"><span>古迹分类与图例</span><span id="categoryCount"></span><span class="chevron" aria-hidden="true"></span></button><div id="categoryBody" hidden><div class="categoryContent"><div class="catActions"><button id="allCats" type="button">全选</button><button id="noCats" type="button">清空</button></div><div id="categoryGrid"></div><div class="autoline"><label>存续状态</label><select id="conditionFilter"><option value="all">全部</option><option value="gone">已毁／拆除／移除</option><option value="damaged">受损</option><option value="ruined">废墟／残迹</option><option value="unknown">未标明损毁</option></select></div><div class="autoline"><label>遗产认定记录</label><select id="designationFilter"><option value="all">全部</option><option value="yes">有记录</option><option value="no">未见记录</option></select></div><p class="hint">红环：已毁／移除；橙环：受损；棕环：废墟；绿环：有遗产认定记录。同组成员状态不一致时不显示外环；无外环不等于完好。</p></div></div></section><div class="autoline"><span id="status" role="status">正在加载地图…</span><span id="officialCount"></span></div></div></div></header><section id="listPanel" class="sheet" aria-label="古迹列表" hidden><div class="sheetBar"><h2 id="listTitle">当前范围古迹</h2><button id="listClose" class="sheetClose" aria-label="关闭古迹列表">×</button></div><div id="listRows" class="sheetScroll"></div></section><section id="info" class="sheet" aria-label="古迹详情" hidden><div class="sheetBar"><span class="sheetCaption">古迹详情</span><button id="close" class="sheetClose" aria-label="关闭古迹详情">×</button></div><div id="detail" class="sheetScroll"></div></section>
+</style></head><body><div id="map"></div><header><div class="topline"><h1>世界古迹图 <small>0.19</small></h1><button id="collapse" aria-expanded="true" aria-controls="panel"><span id="collapseText">收起</span><span class="chevron" aria-hidden="true"></span></button></div><div id="panel"><div id="panelScroll"><form id="search"><input id="query" placeholder="搜索城市或地点" required><button>搜索</button></form><div id="places"></div><div class="actions"><button id="locate">定位</button><button id="nearby" disabled>古迹列表</button><button id="more" aria-expanded="false" aria-controls="tools">图层 <span class="chevron" aria-hidden="true"></span></button><button id="aiSettings" aria-expanded="false" aria-controls="aiPanel">AI 设置 <span class="chevron" aria-hidden="true"></span></button></div><div id="tools" hidden><div class="menuSection"><div class="filters" id="officialFilters"></div><div id="tileStatus" class="hint" role="status">连接原版瓦片…</div><button id="retryTiles">重新连接</button><label class="hint"><input type="checkbox" id="aggregateToggle" checked> 同类点位聚合</label><p class="hint">图层、分类、状态和聚合设置会自动保存在本机。图标重叠时优先显示有遗产认定记录及较完整资料的古迹；放大后可查看更多记录。受损／已毁专题包含非古迹对象，可单独关闭。原始数据由 Heritage Watch AI 提供。</p><button id="resetMapPrefs" type="button">恢复默认显示</button><a href="https://terria-catalog.prod.heritagewatch.ai/tools/" target="_blank" rel="noopener">原版地图</a></div></div><div id="aiPanel" hidden><div class="menuSection"><label for="dsKey">DeepSeek API Key</label><input id="dsKey" type="password" autocomplete="off" spellcheck="false" placeholder="输入密钥（自动保存）"><div class="autoline"><label for="dsModel">模型</label><select id="dsModel" disabled><option value="">尚未获取模型</option></select></div><div class="catActions"><button id="dsRefresh" type="button">刷新模型</button><button id="dsClear" type="button">清除密钥</button></div><p id="dsStatus" role="status" class="hint"></p><p class="hint">密钥保存在本机浏览器 localStorage（未加密），仅向 DeepSeek 官方 API 发送，不提交到 GitHub。请使用专用低额度密钥，不在公用设备保存。翻译只调用模型；没有维基百科简介时才调用搜索。API 请求可能产生费用。</p><a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek API Key</a></div></div><section id="categoryPanel"><button id="categoryToggle" type="button" aria-expanded="false" aria-controls="categoryBody"><span>古迹分类与图例</span><span id="categoryCount"></span><span class="chevron" aria-hidden="true"></span></button><div id="categoryBody" hidden><div class="categoryContent"><div class="catActions"><button id="allCats" type="button">全选</button><button id="noCats" type="button">清空</button></div><div id="categoryGrid"></div><div class="autoline"><label>存续状态</label><select id="conditionFilter"><option value="all">全部</option><option value="gone">已毁／拆除／移除</option><option value="damaged">受损</option><option value="ruined">废墟／残迹</option><option value="unknown">未标明损毁</option></select></div><div class="autoline"><label>遗产认定记录</label><select id="designationFilter"><option value="all">全部</option><option value="yes">有记录</option><option value="no">未见记录</option></select></div><p class="hint">红环：已毁／移除；橙环：受损；棕环：废墟；绿环：有遗产认定记录。同组成员状态不一致时不显示外环；无外环不等于完好。</p></div></div></section><div class="autoline"><span id="status" role="status">正在加载地图…</span><span id="officialCount"></span></div></div></div></header><section id="listPanel" class="sheet" aria-label="古迹列表" hidden><div class="sheetBar"><h2 id="listTitle">当前范围古迹</h2><button id="listClose" class="sheetClose" aria-label="关闭古迹列表">×</button></div><div id="listRows" class="sheetScroll"></div></section><section id="info" class="sheet" aria-label="古迹详情" hidden><div class="sheetBar"><span class="sheetCaption">古迹详情</span><button id="close" class="sheetClose" aria-label="关闭古迹详情">×</button></div><div id="detail" class="sheetScroll"></div></section>
 <script>
 'use strict';const $=id=>document.getElementById(id),status=t=>$('status').textContent=t;const groups={heritage:['文保','#b5762b'],historic:['古迹','#9c4b32'],ruins:['遗址','#a8753a'],military:['军事','#6a7552'],industry:['工业交通','#65718e'],memorial:['纪念','#8c6e9d'],religion:['宗教','#427e9a'],museum:['博物馆','#39816d'],other:['其他','#727272']};const types={archaeological_site:'考古遗址',castle:'城堡',fort:'堡垒',fortification:'防御工事',citywalls:'城墙',city_gate:'城门',ruins:'废墟',battlefield:'古战场',memorial:'纪念设施',monument:'纪念碑',tomb:'墓葬',manor:'庄园',building:'历史建筑',mine:'历史矿井',railway:'历史铁路',locomotive:'历史机车',ship:'历史船舶',aircraft:'历史飞机',tank:'历史坦克',cannon:'历史火炮',boundary_stone:'界碑',milestone:'里程碑',wayside_cross:'路旁十字架',wayside_shrine:'路旁神龛',church:'教堂',monastery:'修道院',museum:'博物馆',place_of_worship:'宗教场所',lighthouse:'灯塔',yes:'是'};
 let map,proto,ready=false,detailToken=0;const empty=()=>({type:'FeatureCollection',features:[]});const simpleNames=['name:zh-Hans','name:zh-hans','name:zh-CN','name:zh-cn','name:zh-SG','name_zh_hans','name_zh-Hans','name_zh_cn','name:zh_cn','name:zh-hans-cn','label_zh_hans','label_zh_cn','label:zh-Hans','label:zh-cn','label:zh-hans'];
@@ -34,7 +34,36 @@ function clean(v){return typeof v==='string'&&v.trim()?v.trim():''}
 function firstName(p,keys){return keys.map(k=>clean(p[k])).find(Boolean)||''}
 function getQid(p){return [p.wikidata,p.qid,p.QID,p.id].find(v=>typeof v==='string'&&/^Q\d+$/.test(v))||''}
 function cachedNames(p){return languageCache.get(getQid(p))||{}}
-function chinese(p){const c=cachedNames(p),w=parseWikiTag(p.wikipedia);return firstName(p,simpleNames)||c.simple||firstName(p,genericChinese)||c.generic||firstName(p,traditionalNames)||c.traditional||c.wikiChinese||(w?.lang==='zh'?w.title:'')||wikiNameCache.get(wikiNameKey(w))||''}
+
+function originalCountry(p){return firstName(p,['addr:country','country_code','countryCode','iso2','ISO_A2','country']).toUpperCase()}
+function chineseLocalRegion(p){
+ const country=originalCountry(p);
+ if(['CN','CHN','TW','TWN','HK','HKG','MO','MAC','SG','SGP','CHINA','TAIWAN','HONG KONG','MACAU','MACAO','SINGAPORE'].includes(country))return true;
+ if(country)return false;
+ if(!Number.isFinite(p.lat)||!Number.isFinite(p.lon))return false;
+ const y=p.lat,x=((p.lon+180)%360+360)%360-180;
+ // Conservative interior language-region hints, not country boundaries.
+ return (x>=105&&x<=120.5&&y>=22&&y<=40.5)||
+  (x>=118&&x<=124.4&&y>=40.5&&y<=43.5)||
+  (x>=125&&x<=132&&y>=44.5&&y<=48)||
+  (x>=120&&x<=122&&y>=22&&y<=25.3)||
+  (x>=113.7&&x<=114.5&&y>=22.1&&y<=22.6)||
+  (x>=103.6&&x<=104.1&&y>=1.2&&y<=1.5);
+}
+function originalChinese(p){
+ const declared=firstName(p,['name:language','name_lang','label_lang','name_language']).toLowerCase();
+ if(/^(ja|ko|vi)(?:[-_]|$)/.test(declared))return '';
+ const nonChineseCountry=['JP','JPN','KR','KOR','KP','PRK','VN','VNM','JAPAN','SOUTH KOREA','NORTH KOREA','VIETNAM'].includes(originalCountry(p));
+ for(const k of ['label_local','name_local','name','label']){
+  const s=clean(p[k]);if(!s||!/\p{Script=Han}/u.test(s)||/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(s))continue;
+  if(/^(zh|cmn|yue)(?:[-_]|$)/.test(declared))return s;
+  // Distinctive simplified forms; shared Japanese shinjitai are not evidence.
+  if(!nonChineseCountry&&/[东书车门广龙马鸟鱼岛县乡镇遗馆铁桥庙汉语华为乐园阳阴辽传纪]/u.test(s))return s;
+  if(chineseLocalRegion(p))return s;
+ }
+ return '';
+}
+function chinese(p){const c=cachedNames(p),w=parseWikiTag(p.wikipedia);return firstName(p,simpleNames)||firstName(p,genericChinese)||firstName(p,traditionalNames)||originalChinese(p)||c.simple||c.generic||c.traditional||c.wikiChinese||(w?.lang==='zh'?w.title:'')||wikiNameCache.get(wikiNameKey(w))||''}
 function label(p){const c=cachedNames(p);return chinese(p)||firstName(p,englishNames)||c.english||firstName(p,originalNames)||''}
 function fieldExpr(keys){return keys.flatMap(k=>[['case',['!=',['to-string',['coalesce',['get',k],'']],''],['to-string',['get',k]],null]])}
 function nameExpression({useCache=false,fallback=''}={}){
@@ -210,13 +239,14 @@ function hwVisibility(){
  for(const d of hwDefs)for(const id of hwStates.get(d.id)?.ids||[])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',hwEnabled(d)?'visible':'none');
  queueAggregation();
 }
-function hwProperties(p,d){
+function hwProperties(p,d,location){
  const o={...p,catKey:catType(p,d),conditionKey:conditionType(p),hasDesignation:designationType(p,d),sourceLabel:'Heritage Watch AI · '+d.title};
- if(d.id==='wiki'){o.wikidata=p.qid||p.wikidata;o.display=label(p)||o.wikidata;o.name=p.label_local||p.label||o.display;o.kind=p.cls||'维基文化遗产';o.group='heritage'}
- else {const m=/^(node|way|relation)\/(\d+)$/.exec(String(p.id||''));if(m){o.osm_type=m[1];o.osm_id=m[2]}o.display=label(p)||p.id;o.kind=p.historic||p.worship||p.museum||p.building||p.other||d.title;o.group=group(p)}
+ if(location){o.lat=location.lat;o.lon=location.lng}
+ if(d.id==='wiki'){o.wikidata=p.qid||p.wikidata;o.name=p.label_local||p.label||p.name;o.display=label(o)||o.wikidata;o.kind=p.cls||'维基文化遗产';o.group='heritage'}
+ else {const m=/^(node|way|relation)\/(\d+)$/.exec(String(p.id||''));if(m){o.osm_type=m[1];o.osm_id=m[2]}o.display=label(o)||p.id;o.kind=p.historic||p.worship||p.museum||p.building||p.other||d.title;o.group=group(p)}
  return o;
 }
-function hwDetail(f,d,location){const p=hwProperties(f.properties||{},d);if(location){p.lat=location.lat;p.lon=location.lng;p.approxLocation=true}showDetail(p)}
+function hwDetail(f,d,location){const p=hwProperties(f.properties||{},d,location);if(location)p.approxLocation=true;showDetail(p)}
 async function hwConnect(d){
  if(!hwEnabled(d)||hwStates.get(d.id)?.state==='ready'||hwStates.get(d.id)?.state==='loading')return;
  const x={state:'loading',ids:[],error:''};hwStates.set(d.id,x);hwStatus();
@@ -279,7 +309,7 @@ function hwViewFeatures(){
    if(!Number.isFinite(x)||!Number.isFinite(y))continue;
    x+=360*Math.round((c.lng-x)/360);
    const xy=map.project([x,y]);if(xy.x<0||xy.y<0||xy.x>size.clientWidth||xy.y>size.clientHeight)continue;
-   const p=hwProperties(f.properties||{},d);p.lat=y;p.lon=x;
+   const p=hwProperties(f.properties||{},d,{lat:y,lng:x});
    if(!passesCategory(p))continue;
    const k=d.id+'|'+(p.id||p.qid||p.wikidata||p.display+'|'+[x,y].map(v=>v.toFixed(6)).join(','));
    if(seen.has(k))continue;seen.add(k);out.push({geometry:{type:'Point',coordinates:[x,y]},properties:p});
