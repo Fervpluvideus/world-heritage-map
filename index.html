@@ -68,7 +68,7 @@ const rules={"historic":{"palace":"palace","castle":"castle","manor":"manor","de
 const normCat=v=>String(v??'').toLowerCase();
 const hasCatValue=v=>!['','0','false','no','none','unknown'].includes(normCat(v));
 const catFields=d=>d.id==='wiki'?['cls']:['historic','building','other','man_made','tourism'];
-function tokenMatch(s,t,multi){if(s===t)return true;if(!multi)return false;const sep=/^q\d+$/.test(t)?/[,;|\s\[\]"]/ : /[,;|\[\]"]/;const i=s.indexOf(t);return i>=0&&(i===0||sep.test(s[i-1]))&&(i+t.length===s.length||sep.test(s[i+t.length]));}
+function tokenMatch(s,t,multi){if(s===t)return true;if(!multi)return false;const sep=/^q\d+$/.test(t)?/[,;|\s\[\]"]/ : /[,;|\[\]"]/;let from=0;while(from<s.length){const i=s.indexOf(t,from);if(i<0)return false;if((i===0||sep.test(s[i-1]))&&(i+t.length===s.length||sep.test(s[i+t.length])))return true;from=i+1}return false;}
 function catType(p,d){
  for(const k of catFields(d))for(const [id,vals] of Object.entries(rules[k]))if(vals.split('|').some(t=>tokenMatch(normCat(p[k]),t,k==='cls')))return id;
  if(d.id!=='wiki'){
@@ -103,6 +103,7 @@ function categoryExpr(d){
  return ['case',...args,'other'];
 }
 function designationExpr(d){return d.id==='wiki'?['any',presentCat('des'),['==',vcat('cls'),'designated']]:presentCat('heritage')}
+function passesCategory(p){const c=$('conditionFilter').value,g=$('designationFilter').value;return catSelected.has(p.catKey)&&(c==='all'||c===p.conditionKey)&&(g==='all'||(g==='yes')===p.hasDesignation)}
 function catFilter(d,geometry='Point'){
  const f=['all',['==',['geometry-type'],geometry],['in',categoryExpr(d),['literal',[...catSelected]]]];
  const c=$('conditionFilter').value,g=$('designationFilter').value;
@@ -177,9 +178,9 @@ function hwProperties(p,d){
  else {const m=/^(node|way|relation)\/(\d+)$/.exec(String(p.id||''));if(m){o.osm_type=m[1];o.osm_id=m[2]}o.display=label(p)||p.id;o.kind=p.historic||p.worship||p.museum||p.building||p.other||d.title;o.group=group(p)}
  return o;
 }
-function hwDetail(f,d){
- const p=hwProperties(f.properties||{},d);showDetail(p);
- const el=$('detail'), labels={cls:'维基分类',des:'遗产认定记录',ended:'终止日期',status:'存续状态',gone:'已不存续标记',damage_event:'受损事件',damage_type:'受损类型',damage_date:'受损日期',worship:'宗教类别',museum:'博物馆类别',building:'建筑类型',other:'其他标签'};
+function hwDetail(f,d){showDetail(hwProperties(f.properties||{},d))}
+function appendNativeDetails(p,el){
+ const labels={historic:'历史类型',cls:'维基分类',des:'遗产认定记录',ended:'终止日期',status:'原始存续状态',gone:'已不存续标记',damage_event:'受损事件',damage_type:'受损类型',damage_date:'受损日期',worship:'宗教类别',museum:'博物馆类别',building:'建筑类型',other:'其他标签'};
  for(const [key,title] of Object.entries(labels)){const v=p[key];if(v!==undefined&&v!==null&&String(v)!=='')addText(el,'p',title+'：'+String(v))}
 }
 async function hwConnect(d){
@@ -207,19 +208,20 @@ async function hwConnect(d){
    if(d.kind!=='shape'){
     const id=base+'-points';
     // Invisible point layer remains queryable, independent of visible aggregate symbols.
-    add({id,type:'circle',...common,minzoom:5,filter:catFilter(d),paint:{'circle-color':'#000','circle-radius':1,'circle-opacity':0}},'Point');
-    if(!hwPointLayers.some(x=>x.id===id))hwPointLayers.push({id,d});
+    add({id,type:'circle',...common,minzoom:5,filter:['==',['geometry-type'],'Point'],paint:{'circle-color':'#000','circle-radius':1,'circle-opacity':0}});
+    if(!hwPointLayers.some(x=>x.id===id))hwPointLayers.push({id,d,source,sourceLayer:layer});
    }
   }
   x.state='ready';
  }catch(e){
   for(const id of x.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);
   const s='hw-'+d.id;if(map.getSource(s))map.removeSource(s);
-  x.ids=[];x.state='error';x.error=String(e.message||e).slice(0,120);
+  for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);x.ids=[];x.state='error';x.error=String(e.message||e).slice(0,120);
  }finally{hwVisibility();hwStatus();updateCount()}
 }
 async function hwStart(){
  if(!ready||hwLoading)return;hwLoading=true;$('retryTiles').disabled=true;
+ for(const d of hwDefs.filter(hwEnabled)){const old=hwStates.get(d.id);if(old?.needsRetry){for(const id of old.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);const source='hw-'+d.id;if(map.getSource(source))map.removeSource(source);for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);hwStates.delete(d.id)}}
  try{await Promise.all(hwDefs.filter(hwEnabled).map(hwConnect))}
  finally{hwLoading=false;$('retryTiles').disabled=false;hwStatus()}
 }
@@ -229,23 +231,28 @@ function hwInit(){
   i.onchange=()=>{hwVisibility();hwStatus();if(i.checked)hwConnect(d);updateCount();scheduleNames()};
  }
  $('retryTiles').onclick=()=>hwStart();
- map.on('error',e=>{const d=hwDefs.find(d=>'hw-'+d.id===e.sourceId);if(d){status('图层请求异常');$('tileStatus').textContent=d.title+'瓦片请求失败：'+String(e.error?.message||'网络错误').slice(0,160)+'；可重试或切换图层。'}});
+ map.on('error',e=>{const d=hwDefs.find(d=>'hw-'+d.id===e.sourceId);if(d){const state=hwStates.get(d.id);if(state&&state.state==='ready')state.needsRetry=true;status('图层请求异常');$('tileStatus').textContent=d.title+'瓦片请求失败：'+String(e.error?.message||'网络错误').slice(0,160)+'；可重试或切换图层。'}});
  hwVisibility();hwStart();
 }
 function hwViewFeatures(){
  if(!ready||map.getZoom()<5)return [];
- const out=[], seen=new Set();
- for(const {id,d} of hwPointLayers){
-  if(!hwEnabled(d)||!map.getLayer(id))continue;
-  for(const f of map.queryRenderedFeatures(undefined,{layers:[id]})){
+ const out=[],seen=new Set(),c=map.getCenter(),size=map.getContainer();
+ for(const {id,d,source,sourceLayer} of hwPointLayers){
+  if(!hwEnabled(d)||!map.getLayer(id)||!map.getSource(source))continue;
+  for(const f of map.querySourceFeatures(source,{sourceLayer})){
    if(f.geometry.type!=='Point')continue;
-   const p=hwProperties(f.properties||{},d),k=d.id+'|'+(p.id||p.qid||p.wikidata||p.display+'|'+f.geometry.coordinates.join(','));
-   if(seen.has(k))continue;seen.add(k);out.push({geometry:f.geometry,properties:p});
+   let [x,y]=f.geometry.coordinates;
+   if(!Number.isFinite(x)||!Number.isFinite(y))continue;
+   x+=360*Math.round((c.lng-x)/360);
+   const xy=map.project([x,y]);if(xy.x<0||xy.y<0||xy.x>size.clientWidth||xy.y>size.clientHeight)continue;
+   const p=hwProperties(f.properties||{},d);
+   if(!passesCategory(p))continue;
+   const k=d.id+'|'+(p.id||p.qid||p.wikidata||p.display+'|'+[x,y].map(v=>v.toFixed(6)).join(','));
+   if(seen.has(k))continue;seen.add(k);out.push({geometry:{type:'Point',coordinates:[x,y]},properties:p});
   }
  }
  return out;
 }
-
 
 let nameTimer,nameBusy=false,lastNameView='',nameRetryAt=0;
 const NAME_CACHE_MAX=500, NAME_VIEW_LIMIT=100, LANGS='zh-hans|zh-cn|zh-sg|zh|zh-hant|zh-tw|zh-hk|zh-mo|en|en-gb|en-us';
@@ -258,7 +265,7 @@ function scheduleNames(){
 }
 async function loadVisibleNames(key){
  if(nameBusy||!ready||map.isMoving()||map.getZoom()<15)return;
- const candidates=hwViewFeatures(),c=map.getCenter();
+ const candidates=[...visibleRows],c=map.getCenter();
  candidates.sort((a,b)=>{const dist=f=>Math.hypot(f.geometry.coordinates[0]-c.lng,f.geometry.coordinates[1]-c.lat);return dist(a)-dist(b)});
  const ids=[...new Set(candidates.filter(f=>!firstName(f.properties,simpleNames)).map(f=>getQid(f.properties)).filter(id=>id&&!languageCache.has(id)))].slice(0,NAME_VIEW_LIMIT);
  if(!ids.length)return;
@@ -319,9 +326,9 @@ function rebuildAggregation(){
   out.push({type:'Feature',geometry:a.geometry,properties:{key:k,cat,count,icon:'cat-'+cat+(state?'-'+state:''),display,countText:count>1?String(count):'',priority:cat==='other'?2:count>1?0:1}});
  }
  const sig=JSON.stringify(out);
- visibleRows=rows;aggregateRows=out;aggregateMembers=next;
+ visibleRows=rows;aggregateRows=out;aggregateMembers=next;if(aggListKey!==null&&!next.has(aggListKey)){aggListKey=null;if(!$('listPanel').hidden)renderList()}
  $('officialCount').textContent=z<5?'放大查看古迹':rows.length+' 条记录 · '+out.length+' 组';
- if(sig!==aggSignature){aggSignature=sig;map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});if(!$('listPanel').hidden&&aggListKey===null)renderList()}
+ if(sig!==aggSignature){aggSignature=sig;map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});if(!$('listPanel').hidden)renderList()}
 }
 function installAggregation(){
  map.addSource('heritage-aggregate',{type:'geojson',data:empty()});
@@ -329,12 +336,8 @@ function installAggregation(){
  map.addLayer({id:'agg-icons',type:'symbol',source:'heritage-aggregate',minzoom:5,layout:{
   'icon-image':['get','icon'],'icon-size':['interpolate',['linear'],['zoom'],5,0.46,11,0.56,15,0.78,18,1],
   'icon-allow-overlap':false,'icon-ignore-placement':false,'icon-padding':3,'symbol-sort-key':['get','priority'],
-  'text-field':['get','countText'],'text-font':baseFont(),'text-size':10,'text-offset':[0,-1.05],'text-optional':true,'text-allow-overlap':false
+  'text-field':['step',['zoom'],['get','countText'],15,['case',['>', ['get','count'],1],['get','countText'],['get','display']]],'text-font':baseFont(),'text-size':10,'text-anchor':'top','text-offset':[0,1.15],'text-optional':true,'text-allow-overlap':false
  },paint:{'text-color':'#26332d','text-halo-color':'#fff','text-halo-width':1.7}});
- // Single markers retain their status indicator as a symbol suffix, never independent overlapping rings.
- map.addLayer({id:'agg-labels',type:'symbol',source:'heritage-aggregate',minzoom:15,filter:['==',['get','count'],1],layout:{
- 'text-field':['get','display'],'text-font':baseFont(),'text-size':11,'text-anchor':'top','text-offset':[0,1.15],'text-allow-overlap':false,'text-padding':3
- },paint:{'text-color':'#29332d','text-halo-color':'#fff','text-halo-width':1.4}});
  map.on('click','agg-icons',e=>{const key=e.features[0].properties.key,rows=aggregateMembers.get(key)||[];if(rows.length===1)showDetail(rows[0].properties);else if(rows.length){aggListKey=key;$('info').hidden=true;$('listPanel').hidden=false;renderList()}});
  $('aggregateToggle').onchange=()=>{aggSignature='';queueAggregation()};
 }
@@ -355,7 +358,7 @@ $('listClose').onclick=()=>{$('listPanel').hidden=true;aggListKey=null};
 $('collapse').onclick=()=>{const hide=!$('panel').hidden;$('panel').hidden=hide;$('collapse').textContent=hide?'展开 ▼':'收起 ▲';$('collapse').setAttribute('aria-expanded',String(!hide))};
 function testGrouping(){const f=(x,y,c)=>({xy:{x,y},properties:{catKey:c}});const a=[f(0,0,'castle'),f(5,3,'castle'),f(6,4,'church'),f(150,0,'castle')];const g=groupPoints(a,15,true,true);if(g.length!==3||g[0].members.length!==2||groupPoints(a,15,true,false).length!==4)throw Error('aggregation test failed')}
 testGrouping();
-function addText(el,tag,txt){const x=document.createElement(tag);x.textContent=txt;el.append(x);return x}function link(el,title,url){const a=addText(el,'a',title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a}function showDetail(p){const token=++detailToken,el=$('detail');$('listPanel').hidden=true;el.replaceChildren();$('info').hidden=false;const head=addText(el,'h2',(p.sourceLabel?.startsWith('Heritage Watch AI')?(p.display||label(p)):(label(p)||p.display))||types[type(p)]||'未命名地点');if(p.name&&p.name!==head.textContent)addText(el,'p','原名：'+p.name);if(p.sourceLabel)addText(el,'p','数据来源：'+p.sourceLabel);addText(el,'p','分类：'+(CAT[p.catKey]?.[0]||types[type(p)]||type(p)||groups[p.group]?.[0]||'外部图层'));if(p.catKey){addText(el,'p','存续状态：'+({gone:'已毁／拆除／移除',damaged:'受损',ruined:'废墟／残迹',unknown:'原数据未标明损毁'}[p.conditionKey]||'未知'));addText(el,'p','遗产认定：'+(p.hasDesignation?'原数据有记录（需核对原始认定）':'原数据未见记录'));}if(p.heritage)addText(el,'p','遗产标记：'+p.heritage+'（OSM 标签，不等于已核实保护身份）');if(p.start_date)addText(el,'p','建造或起始时间：'+p.start_date);if(p.description)addText(el,'p',p.description);if(p.osm_type&&p.osm_id)link(el,'OSM 原始条目',`https://www.openstreetmap.org/${p.osm_type}/${p.osm_id}`);const qid=getQid(p);if(qid){link(el,'Wikidata',`https://www.wikidata.org/wiki/${qid}`);const btn=addText(el,'button','查找中文／英文名称及简介');btn.onclick=async()=>{btn.disabled=true;btn.textContent='查询中…';try{const q=new URLSearchParams({action:'wbgetentities',ids:qid,props:'labels|descriptions|sitelinks',languages:LANGS,sitefilter:'zhwiki',format:'json',origin:'*'});const r=await fetch('https://www.wikidata.org/w/api.php?'+q,{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error(r.status);const obj=(await r.json()).entities[qid];if(token!==detailToken)return;const l=extractLanguage(obj.labels),d=extractLanguage(obj.descriptions);languageCache.set(qid,l);while(languageCache.size>NAME_CACHE_MAX)languageCache.delete(languageCache.keys().next().value);const preferred=label(p);if(preferred){head.textContent=preferred;if(l.simple||l.generic||l.traditional||l.english)addText(el,'p','多语言名称来源：Wikidata / 原始地图数据')}const description=d.simple||d.generic||d.traditional||d.english;if(description)addText(el,'p',description);refreshNameLayers();if(obj.sitelinks?.zhwiki)link(el,'中文维基百科','https://zh.wikipedia.org/wiki/'+encodeURIComponent(obj.sitelinks.zhwiki.title));btn.textContent=(l.simple||l.generic||l.traditional||l.english||description)?'已查询多语言资料':'未收录中文或英文资料'}catch(e){btn.disabled=false;btn.textContent='查询失败，重试'}};if(!firstName(p,simpleNames))btn.click()}else addText(el,'p','此条目没有可识别的 Wikidata 编号。');if(!chinese(p))addText(el,'p','名称优先简体中文、繁体中文、英文；没有译名时保留原名。')}
+function addText(el,tag,txt){const x=document.createElement(tag);x.textContent=txt;el.append(x);return x}function link(el,title,url){const a=addText(el,'a',title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a}function showDetail(p){const token=++detailToken,el=$('detail');$('listPanel').hidden=true;el.replaceChildren();$('info').hidden=false;const head=addText(el,'h2',(p.sourceLabel?.startsWith('Heritage Watch AI')?(label(p)||p.display):(label(p)||p.display))||types[type(p)]||'未命名地点');if(p.name&&p.name!==head.textContent)addText(el,'p','原名：'+p.name);if(p.sourceLabel)addText(el,'p','数据来源：'+p.sourceLabel);addText(el,'p','分类：'+(CAT[p.catKey]?.[0]||types[type(p)]||type(p)||groups[p.group]?.[0]||'外部图层'));if(p.catKey){addText(el,'p','存续状态：'+({gone:'已毁／拆除／移除',damaged:'受损',ruined:'废墟／残迹',unknown:'原数据未标明损毁'}[p.conditionKey]||'未知'));addText(el,'p','遗产认定：'+(p.hasDesignation?'原数据有记录（需核对原始认定）':'原数据未见记录'));}if(p.heritage)addText(el,'p','遗产标记：'+p.heritage+'（OSM 标签，不等于已核实保护身份）');if(p.start_date)addText(el,'p','建造或起始时间：'+p.start_date);if(p.description)addText(el,'p',p.description);appendNativeDetails(p,el);if(p.osm_type&&p.osm_id)link(el,'OSM 原始条目',`https://www.openstreetmap.org/${p.osm_type}/${p.osm_id}`);const qid=getQid(p);if(qid){link(el,'Wikidata',`https://www.wikidata.org/wiki/${qid}`);const btn=addText(el,'button','查找中文／英文名称及简介');btn.onclick=async()=>{btn.disabled=true;btn.textContent='查询中…';try{const q=new URLSearchParams({action:'wbgetentities',ids:qid,props:'labels|descriptions|sitelinks',languages:LANGS,sitefilter:'zhwiki',format:'json',origin:'*'});const r=await fetch('https://www.wikidata.org/w/api.php?'+q,{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error(r.status);const obj=(await r.json()).entities[qid];if(token!==detailToken)return;const l=extractLanguage(obj.labels),d=extractLanguage(obj.descriptions);languageCache.set(qid,l);while(languageCache.size>NAME_CACHE_MAX)languageCache.delete(languageCache.keys().next().value);const preferred=label(p);if(preferred){head.textContent=preferred;if(l.simple||l.generic||l.traditional||l.english)addText(el,'p','多语言名称来源：Wikidata / 原始地图数据')}const description=d.simple||d.generic||d.traditional||d.english;if(description)addText(el,'p',description);refreshNameLayers();if(obj.sitelinks?.zhwiki)link(el,'中文维基百科','https://zh.wikipedia.org/wiki/'+encodeURIComponent(obj.sitelinks.zhwiki.title));btn.textContent=(l.simple||l.generic||l.traditional||l.english||description)?'已查询多语言资料':'未收录中文或英文资料'}catch(e){btn.disabled=false;btn.textContent='查询失败，重试'}};if(!firstName(p,simpleNames))btn.click()}else addText(el,'p','此条目没有可识别的 Wikidata 编号。');if(!chinese(p))addText(el,'p','名称优先简体中文、繁体中文、英文；没有译名时保留原名。')}
 $('close').onclick=()=>{$('info').hidden=true;++detailToken};$('more').onclick=()=>{const open=$('tools').hidden;$('tools').hidden=!open;$('more').setAttribute('aria-expanded',String(open));$('more').textContent=open?'图层 ▴':'图层 ▾'};$('locate').onclick=()=>{if(!ready)return;if(!navigator.geolocation){status('此浏览器不支持定位');return}navigator.geolocation.getCurrentPosition(p=>map.flyTo({center:[p.coords.longitude,p.coords.latitude],zoom:14}),()=>status('定位失败或未授权，请使用地点搜索。'),{timeout:10000})};$('search').onsubmit=async ev=>{ev.preventDefault();if(!ready)return;const q=$('query').value.trim();if(!q)return;const el=$('places');el.replaceChildren();status('搜索地点…');try{const r=await fetch('https://nominatim.openstreetmap.org/search?'+new URLSearchParams({q,format:'jsonv2',limit:'5','accept-language':'zh,en'}),{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error(r.status);const d=await r.json();for(const p of d){const btn=addText(el,'button',p.display_name);btn.onclick=()=>{map.flyTo({center:[+p.lon,+p.lat],zoom:14});el.replaceChildren()}}status(d.length?'请选择地点。':'未找到地点。')}catch(e){status('地点搜索暂不可用：'+e.message)}};
 init();
 </script></body></html>
