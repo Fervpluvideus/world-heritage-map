@@ -1,16 +1,35 @@
-# 🌏 世界古迹图 | World Heritage Map
+<div align="center">
 
-**跨越语言的边界，探索人类文明的共同记忆。**
+<h1>🌏 世界古迹图</h1>
+<p><strong>World Heritage Map</strong></p>
 
-世界古迹图是一款面向中文用户的全球古迹探索地图，致力于将世界各地以不同语言记录的古迹名称与历史资料尽可能统一为中文展示。通过多源古迹数据库、多语言名称匹配、维基资料关联及可选的 DeepSeek AI 翻译，让中文用户不必受限于当地语言，也能发现、阅读与理解散落在世界各地的历史遗存。项目保留原始名称与资料来源，便于进一步查证。
+<h3>文明各有其语言，而人类共享其历史。</h3>
 
-不仅限于 UNESCO 世界遗产，还可探索各地的历史建筑、文物古迹、考古遗址、城堡、古战场、废墟、纪念碑与工业遗产，并通过历史地图叠加对照城市空间的变迁。
+<p>跨越语言的边界，探索人类文明的共同记忆。</p>
 
-**English summary:** World Heritage Map is a Chinese-first interactive global historical sites and cultural heritage map. Its distinctive goal is to unify historical place names and heritage information in Chinese wherever possible, through multilingual data matching, Wikipedia and Wikidata links, and optional DeepSeek AI translation, while preserving original names and source references. Explore historic buildings, archaeological sites, castles, monuments, ruins and georeferenced historical maps. The main interface is in Simplified Chinese.
+<a href="https://fervpluvideus.github.io/world-heritage-map/"><img alt="打开世界古迹图" src="https://img.shields.io/badge/在线探索-Live%20Map-28594d?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.24" src="https://img.shields.io/badge/Version-0.24-8b704b?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map/issues"><img alt="反馈与建议" src="https://img.shields.io/badge/反馈与建议-Issues-526b63?style=for-the-badge"></a>
 
-[![版本](https://img.shields.io/badge/version-0.24-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
-[![GitHub Issues](https://img.shields.io/github/issues/Fervpluvideus/world-heritage-map)](https://github.com/Fervpluvideus/world-heritage-map/issues)
+<p><strong>全球古迹探索 · 中文统一展示 · 历史地图叠加</strong></p>
+
+</div>
+
+---
+
+## 关于世界古迹图
+
+**以中文为统一展示语言，探索世界各地的历史遗存。**
+
+世界古迹图是一款面向中文用户的全球古迹探索地图，致力于将不同国家、不同语言记录的古迹名称与历史资料尽可能统一为中文展示。
+
+通过多源古迹数据库、多语言名称匹配、维基资料关联及可选的 DeepSeek AI 翻译，让中文用户能够跨越语言障碍，发现、阅读与理解世界各地的历史遗存。同时保留原始名称与资料来源，便于进一步查证。
+
+不局限于 UNESCO 世界遗产，也涵盖历史建筑、文物古迹、考古遗址、城堡、古战场、废墟、纪念碑与工业遗产，并支持历史地图叠加，探索城市空间的变迁。
+
+> 中文化的不只是地图界面，更是地图所承载的历史信息。
+
+**English summary:** World Heritage Map is a Chinese-first interactive global historical sites and cultural heritage map. It aims to present historical place names and heritage information consistently in Chinese wherever possible, using multilingual data matching, Wikipedia and Wikidata links, and optional DeepSeek AI translation while preserving original names and source references. Explore historic buildings, archaeological sites, castles, monuments, ruins and georeferenced historical maps. The main interface is in Simplified Chinese.
 
 ## 在线使用 | Live Map
 
@@ -30,23 +49,22 @@
 
 目前以简体中文为主要展示语言，未来计划逐步支持更多语言。统一展示语言并非取代原始语言，而是让不同语言背景的人能够更加便捷地接近历史。
 
-**文明各有其语言，而人类共享其历史。**
 
 ## 核心功能
 
-### 01 · 全球古迹探索
-
-- 接入全球 OSM 古迹、Wikidata 古迹、建筑轮廓、受损／已毁专题、各国开放遗产名录及其边界，以及 UNESCO 世界遗产、Pleiades 古代地名。
-- 提供 31 种古迹分类，支持类别、存续状态与遗产认定记录筛选、同类点位聚合及当前范围古迹列表。
-- 自动根据地图视野加载数据；图标冲突时优先显示有遗产认定记录或较完整资料的古迹。显示优先级不等于历史价值。
-- 支持原始记录链接、维基百科简介及关联图片，并保留可获得的图片作者与授权信息。
-
-### 02 · 跨语言历史探索
+### 01 · 古迹信息中文化
 
 - 中文名称优先：利用原始数据、多语言字段及 Wikidata／Wikipedia 关联获取已有中文名；未获得中文名时保留英文或当地语言。
 - 可选 DeepSeek 助手：支持翻译外文简介、按需联网检索，以及当前视野内古迹名称的批量翻译。
 - 可开启随地图移动自动翻译，新进入视野的遗址名称分批更新，无需逐个点开详情。
 - AI 译名本地缓存，保留原名并标注未核实；后续获得可靠中文名称时优先使用来源数据中的中文名。
+
+### 02 · 全球古迹探索
+
+- 接入全球 OSM 古迹、Wikidata 古迹、建筑轮廓、受损／已毁专题、各国开放遗产名录及其边界，以及 UNESCO 世界遗产、Pleiades 古代地名。
+- 提供 31 种古迹分类，支持类别、存续状态与遗产认定记录筛选、同类点位聚合及当前范围古迹列表。
+- 自动根据地图视野加载数据；图标冲突时优先显示有遗产认定记录或较完整资料的古迹。显示优先级不等于历史价值。
+- 支持原始记录链接、维基百科简介及关联图片，并保留可获得的图片作者与授权信息。
 
 ### 03 · 历史地图与地理对照
 
