@@ -601,7 +601,7 @@ function showDetail(p){
  if(hasWiki){
   wiki.hidden=false;wiki.textContent='正在获取维基百科简介…';
   getWikiInfo(p,signal).then(info=>{
-   if(token!==detailToken)return;refreshDetailName(p,head,original);configureAI(info);
+   if(token!==detailToken)return;refreshDetailName(p,head,original);if(info?.lang==='zh'&&clean(info.title)&&!chinese(p)){head.textContent=info.title;const orig=origName(p);original.hidden=!orig||orig===head.textContent;original.textContent=original.hidden?'':orig}configureAI(info);
    if(info?.intro){wiki.textContent=info.intro;link(refs,info.lang==='zh'?'中文维基百科':info.lang==='en'?'英文维基百科':'维基百科（'+info.lang+'）',info.url);refs.hidden=false;const license=addText(refs,'span','简介：CC BY-SA');license.className='hint'}
    else{wiki.hidden=true;if(info?.unavailable)console.warn('Wikipedia unavailable')}
   }).catch(e=>{if(token===detailToken){wiki.hidden=true;configureAI({unavailable:true})}});
