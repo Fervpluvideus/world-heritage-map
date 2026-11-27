@@ -4,7 +4,9 @@
 
 面向历史爱好者、旅行者与文化遗产探索者的全球交互式地图，融合古迹数据库、多语言知识检索、AI 翻译和历史地图叠加，让散落在世界各地的历史遗存更容易被发现、阅读与理解。
 
-Explore the world's historical sites and cultural heritage through an interactive map, multilingual knowledge discovery, optional AI translation, and georeferenced historical maps.
+这是一款面向中文用户的全球历史遗存探索地图（世界古迹地图、文化遗产地图、考古遗址地图），适合旅行前查找当地古建筑、文物古迹、城堡、古战场、废墟、纪念碑与工业遗产，并通过历史地图对照城市变迁。不局限于 UNESCO 世界遗产名录。
+
+**English summary:** World Heritage Map is a Chinese-first interactive global historical sites and cultural heritage map for travelers and history enthusiasts. Discover archaeological sites, historic buildings, monuments, castles, ruins and other heritage places using OpenStreetMap, Wikidata, national heritage inventories, UNESCO and Pleiades. Explore georeferenced historical maps and optional DeepSeek AI translation of place names. The main interface is in Simplified Chinese; this English summary is provided for discovery and reference.
 
 [![版本](https://img.shields.io/badge/version-0.24-28594d)](https://github.com/Fervpluvideus/world-heritage-map)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-在线地图-28594d)](https://fervpluvideus.github.io/world-heritage-map/)
