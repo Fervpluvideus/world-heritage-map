@@ -105,15 +105,15 @@ const OHM_LAYERS=[
 function historicalYearFilter(year){return ['all',['any',['has','start_decdate'],['has','end_decdate']],['<=',['to-number',['coalesce',['get','start_decdate'],-100000],-100000],year],['>=',['to-number',['coalesce',['get','end_decdate'],100000],100000],year]]}
 function setOHM(){
  const enabled=$('ohmToggle').checked,year=Number($('ohmYear').value);
- if(!enabled){for(let i=0;i<OHM_LAYERS.length;i++){const id='ohm-history-'+i;if(map.getLayer(id))map.setLayoutProperty(id,'visibility','none')}return}
+ if(!enabled){for(let i=0;i<OHM_LAYERS.length;i++){const id='ohm-history-'+i;if(map.getLayer(id))map.setLayoutProperty(id,'visibility','none')}updateHistoryControls();return}
  if(!$('ohmYear').value||!Number.isInteger(year)||year<-3000||year>2026){$('archiveStatus').textContent='请输入 -3000 至 2026 的整数年份。';return}
  if(!map.getSource('ohm-history'))map.addSource('ohm-history',{type:'vector',tiles:['https://vtiles.openhistoricalmap.org/maps/ohm/{z}/{x}/{y}.pbf'],minzoom:0,maxzoom:20,attribution:'<a href="https://www.openhistoricalmap.org/copyright">OpenHistoricalMap · CC0 except where noted</a>'});
  for(const [i,[sourceLayer,type,color,value]] of OHM_LAYERS.entries()){
   const id='ohm-history-'+i,filter=historicalYearFilter(year);
-  if(map.getLayer(id)){map.setFilter(id,filter);map.setLayoutProperty(id,'visibility','visible')}
-  else map.addLayer({id,type,source:'ohm-history','source-layer':sourceLayer,filter,paint:type==='fill'?{'fill-color':color,'fill-opacity':value}:{'line-color':color,'line-width':value,'line-opacity':0.88}},map.getLayer('agg-icons')?'agg-icons':undefined);
+  if(map.getLayer(id)){map.setFilter(id,filter);map.setLayoutProperty(id,'visibility',archiveHidden?'none':'visible')}
+  else map.addLayer({id,type,source:'ohm-history','source-layer':sourceLayer,filter,layout:{visibility:archiveHidden?'none':'visible'},paint:type==='fill'?{'fill-color':color,'fill-opacity':value}:{'line-color':color,'line-width':value,'line-opacity':0.88}},map.getLayer('agg-icons')?'agg-icons':undefined);
  }
- $('archiveStatus').textContent='历史矢量地图：'+year+' 年初；仅显示具有时间信息的要素。';
+ $('archiveStatus').textContent='历史矢量地图：'+year+' 年初；仅显示具有时间信息的要素。';updateHistoryControls();
 }
 let archiveSearchGeneration=0,archiveSelected=null;
 function archiveId(value){
@@ -135,8 +135,11 @@ function archiveRecord(a){
 }
 function archiveViewer(id){return 'https://viewer.allmaps.org/?url='+encodeURIComponent('https://annotations.allmaps.org/maps/'+id)}
 
-let archiveLoadGeneration=0,archiveWatch=null;
-function archiveMessage(t){$('archiveStatus').textContent=t;$('archiveToastText').textContent=t;$('archiveToast').hidden=false;updateArchivePickerState()}
+let archiveLoadGeneration=0,archiveWatch=null,archiveHidden=false,archiveSpec=null,archiveResume=null;
+function archiveMessage(t){$('archiveStatus').textContent=t;$('archiveToastText').textContent=t;$('archiveToast').hidden=archiveHidden;updateArchivePickerState();updateHistoryControls()}
+function updateHistoryControls(){const raster=!!archiveSpec||!!archiveSelected,ohm=$('ohmToggle').checked,active=raster||ohm;$('historyDock').hidden=!active;$('historyVisibility').textContent=archiveHidden?'恢复历史地图':'暂时隐藏地图';$('historyVisibility').setAttribute('aria-pressed',String(archiveHidden));$('historyVisibility').disabled=!active;$('historyClose').disabled=!active;$('historyDockTitle').textContent=archiveHidden?'历史地图 · 已隐藏':raster?'馆藏历史地图':'历史矢量地图';}
+function toggleHistoryVisibility(){if(!archiveSpec&&!archiveSelected&&!$('ohmToggle').checked)return;archiveHidden=!archiveHidden;if(map.getLayer('archive-overlay'))map.setLayoutProperty('archive-overlay','visibility',archiveHidden?'none':'visible');for(let i=0;i<OHM_LAYERS.length;i++){const id='ohm-history-'+i;if(map.getLayer(id))map.setLayoutProperty(id,'visibility',!archiveHidden&&$('ohmToggle').checked?'visible':'none')}if(archiveHidden){if(archiveWatch&&archiveSpec){const spec=archiveSpec;archiveResume=()=>mountArchiveRaster(spec.tile,spec.credit,spec.bounds,spec.gen,spec.onFail)}stopArchiveWatch();$('archiveToast').hidden=true}else if(archiveResume){const resume=archiveResume;archiveResume=null;resume()}updateHistoryControls()}
+function closeHistoryOverlays(){archiveHidden=false;$('ohmToggle').checked=false;setOHM();clearArchive();updateHistoryControls()}
 function stopArchiveWatch(){
  if(!archiveWatch)return;
  clearTimeout(archiveWatch.timer);map.off('sourcedata',archiveWatch.data);map.off('error',archiveWatch.error);archiveWatch=null;
@@ -147,8 +150,8 @@ function removeArchiveLayer(){
  if(map.getSource('archive-overlay'))map.removeSource('archive-overlay');
 }
 function clearArchive(){
- ++archiveLoadGeneration;removeArchiveLayer();archiveSelected=null;
- $('rumseyXYZRights').checked=false;$('archiveStatus').textContent='老地图已关闭。';$('archiveToast').hidden=true;updateArchivePickerState();
+ ++archiveLoadGeneration;removeArchiveLayer();archiveSelected=null;archiveSpec=null;archiveResume=null;
+ $('rumseyXYZRights').checked=false;$('archiveStatus').textContent='老地图已关闭。';$('archiveToast').hidden=true;updateArchivePickerState();updateHistoryControls();
 }
 function validArchiveBounds(b){return Array.isArray(b)&&b.length===4&&b.every(Number.isFinite)&&b[0]>=-180&&b[2]<=180&&b[1]>=-85.0512&&b[3]<=85.0512&&b[2]>b[0]&&b[3]>b[1]}
 function footprintBounds(data){
@@ -162,33 +165,34 @@ function footprintBounds(data){
 }
 function archiveOpacity(){return Math.max(0,Math.min(1,Number($('archiveOpacity').value)/100))}
 function mountArchiveRaster(tile,credit,bounds,gen,onFail){
- removeArchiveLayer();
+ if(gen!==archiveLoadGeneration)return;
+ archiveSpec={tile,credit,bounds,gen,onFail};archiveResume=null;removeArchiveLayer();
  const source={type:'raster',tiles:[tile],tileSize:256,minzoom:0,maxzoom:22,attribution:credit};
  if(validArchiveBounds(bounds))source.bounds=bounds;
  let failed=false,loaded=false,errors=0;
  const fail=reason=>{if(failed||gen!==archiveLoadGeneration)return;failed=true;stopArchiveWatch();onFail(reason)};
  const data=e=>{
-  if(gen!==archiveLoadGeneration||e.sourceId!=='archive-overlay'||e.sourceDataType!=='content')return;
+  if(archiveHidden||gen!==archiveLoadGeneration||e.sourceId!=='archive-overlay'||e.sourceDataType!=='content')return;
   if(e.tile?.state==='loaded'||(e.coord&&e.isSourceLoaded)){
    loaded=true;clearTimeout(archiveWatch?.timer);archiveMessage('老地图瓦片已加载；若图像为空，请检查覆盖范围及透明度。');
   }
  };
  const error=e=>{
-  if(gen!==archiveLoadGeneration||e.sourceId!=='archive-overlay')return;
+  if(archiveHidden||gen!==archiveLoadGeneration||e.sourceId!=='archive-overlay')return;
   errors++;if(!loaded&&errors>=2)fail(String(e.error?.message||'瓦片请求失败').slice(0,100));
   else if(loaded)archiveMessage('部分老地图瓦片加载失败，可调整缩放或重试。');
  };
- archiveWatch={data,error,timer:setTimeout(()=>{if(!loaded)fail('等待瓦片超时')},35000)};
- map.on('sourcedata',data);map.on('error',error);
+ const watch=()=>{if(archiveHidden||gen!==archiveLoadGeneration)return;archiveWatch={data,error,timer:setTimeout(()=>{if(!loaded)fail('等待瓦片超时')},35000)};map.on('sourcedata',data);map.on('error',error)};
+ archiveResume=watch;watch();
  try{
   map.addSource('archive-overlay',source);
-  map.addLayer({id:'archive-overlay',type:'raster',source:'archive-overlay',paint:{'raster-opacity':archiveOpacity(),'raster-fade-duration':motionOK($('archivePicker'))?300:0}},map.getLayer('agg-icons')?'agg-icons':undefined);
+  map.addLayer({id:'archive-overlay',type:'raster',source:'archive-overlay',layout:{visibility:archiveHidden?'none':'visible'},paint:{'raster-opacity':archiveOpacity(),'raster-fade-duration':motionOK($('archivePicker'))?300:0}},map.getLayer('agg-icons')?'agg-icons':undefined);
  }catch(e){fail(String(e.message||e))}
 }
 async function overlayArchive(record,rights){
  if(!rights){archiveMessage('请先核查这幅地图的原图授权并勾选确认。');return}
  if(!archiveId(record.id))return;
- const gen=++archiveLoadGeneration;archiveSelected=record;
+ const gen=++archiveLoadGeneration;archiveHidden=false;removeArchiveLayer();archiveSpec=null;archiveSelected=record;archiveResume=null;
  archiveMessage('正在获取 '+record.title+' 的覆盖范围…');
  let bounds=null;
  try{const g=await fetchJson('https://annotations.allmaps.org/maps/'+record.id+'.geojson',{},12000);bounds=footprintBounds(g)}catch(e){}
@@ -278,14 +282,14 @@ function importRumseyXYZ(){
  const tile=rumseyXYZ($('rumseyXYZInput').value);
  if(!tile){$('archiveStatus').textContent='请从 Rumsey 的 Use in GIS apps 复制完整 HTTPS XYZ 链接（包含 {z}/{x}/{y}）。';return}
  if(!$('rumseyXYZRights').checked){$('archiveStatus').textContent='请先核查原图及瓦片服务使用许可，并勾选确认。';return}
- const gen=++archiveLoadGeneration;archiveSelected=null;$('archiveToastLink').hidden=true;closeArchivePicker();setTopOpen(false);
+ const gen=++archiveLoadGeneration;archiveHidden=false;archiveSelected=null;archiveResume=null;$('archiveToastLink').hidden=true;closeArchivePicker();setTopOpen(false);
  archiveMessage('正在加载 Rumsey 历史地图，请确保位于原图覆盖范围。');
  mountArchiveRaster(tile,'<a href="https://www.davidrumsey.com/view/georeferenced-maps">David Rumsey Map Collection, David Rumsey Map Center, Stanford University Libraries</a>',null,gen,reason=>archiveMessage('Rumsey 加载失败：'+reason+'。请检查链接和授权。'));
 }
 function initHistoryMaps(){
  $('archiveOpen').onclick=openArchivePicker;$('archivePickerClose').onclick=closeArchivePicker;$('archiveAdvancedToggle').onclick=()=>toggleMenu('archiveAdvanced','archiveAdvancedToggle');
- $('importRumseyXYZ').onclick=importRumseyXYZ;$('archiveToastClose').onclick=clearArchive;$('archiveToastHide').onclick=()=>{$('archiveToast').hidden=true};
- $('ohmToggle').onchange=()=>{try{setOHM()}catch(e){$('archiveStatus').textContent='OHM 加载失败：'+e.message}};
+ $('importRumseyXYZ').onclick=importRumseyXYZ;$('archiveToastClose').onclick=clearArchive;$('archiveToastHide').onclick=()=>{$('archiveToast').hidden=true};$('historyVisibility').onclick=toggleHistoryVisibility;$('historyClose').onclick=closeHistoryOverlays;
+ $('ohmToggle').onchange=()=>{try{if($('ohmToggle').checked&&archiveHidden){archiveHidden=false;if(map.getLayer('archive-overlay'))map.setLayoutProperty('archive-overlay','visibility','visible');if(archiveResume){const resume=archiveResume;archiveResume=null;resume()}}setOHM()}catch(e){$('archiveStatus').textContent='OHM 加载失败：'+e.message}};
  $('ohmYear').onchange=$('ohmToggle').onchange;
  $('findArchive').onclick=()=>searchArchive(false);$('loadArchive').onclick=()=>searchArchive(true);$('clearArchive').onclick=clearArchive;
  $('archiveOpacity').oninput=()=>{$('archiveOpacityValue').textContent=$('archiveOpacity').value+'%';if(map.getLayer('archive-overlay'))map.setPaintProperty('archive-overlay','raster-opacity',Number($('archiveOpacity').value)/100)};
