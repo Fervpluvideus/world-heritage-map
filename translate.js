@@ -76,12 +76,14 @@ function setAutoTranslation(enabled){
  $('mapTranslateStop').disabled=false;$('mapTranslateMenuStop').disabled=false;updateAutoTranslationUI();scheduleAutoTranslation();
 }
 function scheduleAutoTranslation(){
- if(!autoTranslation||!ready||mapTranslationJob||map.isMoving()||map.getZoom()<AUTO_TRANSLATION_MIN_ZOOM||autoTranslationTimer!==null)return;
+ if(!autoTranslation||!ready||mapTranslationJob)return;
  if(autoTranslationUsed>=AUTO_TRANSLATION_BUDGET){setAutoTranslation(false);mapTranslationNotice('已达到本次自动翻译上限；如需继续，请重新开启。',autoTranslationDone,AUTO_TRANSLATION_BUDGET,false);return}
+ if(map.isMoving()||map.getZoom()<AUTO_TRANSLATION_MIN_ZOOM||autoTranslationTimer!==null)return;
  autoTranslationTimer=setTimeout(()=>{autoTranslationTimer=null;runAutoTranslation()},Math.max(AUTO_TRANSLATION_DELAY,AUTO_TRANSLATION_INTERVAL-(Date.now()-autoTranslationLast)));
 }
 function autoTranslationMoveStart(){clearTimeout(autoTranslationTimer);autoTranslationTimer=null}
 async function runAutoTranslation(){
+ if(autoTranslationUsed>=AUTO_TRANSLATION_BUDGET){scheduleAutoTranslation();return}
  if(!autoTranslation||!ready||mapTranslationJob||map.isMoving()||map.getZoom()<AUTO_TRANSLATION_MIN_ZOOM)return;
  if(!dsKey||!dsModel||!dsModels.includes(dsModel)){setAutoTranslation(false);return}
  const targets=mapTranslationTargets(hwViewFeatures().sort(compareHeritage)).filter(t=>!autoTranslationAttempted.has(t.key)).slice(0,Math.min(MAP_TRANSLATION_BATCH,AUTO_TRANSLATION_BUDGET-autoTranslationUsed));
