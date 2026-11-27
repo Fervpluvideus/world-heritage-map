@@ -134,29 +134,89 @@ function archiveRecord(a){
  return {id,title:clean(title)||'已配准地图 '+id,rumsey,imageUrl,manifestUrl};
 }
 function archiveViewer(id){return 'https://viewer.allmaps.org/?url='+encodeURIComponent('https://annotations.allmaps.org/maps/'+id)}
-function clearArchive(){
+
+let archiveLoadGeneration=0,archiveWatch=null;
+function archiveMessage(t){$('archiveStatus').textContent=t;$('archiveToastText').textContent=t;$('archiveToast').hidden=false}
+function stopArchiveWatch(){
+ if(!archiveWatch)return;
+ clearTimeout(archiveWatch.timer);map.off('sourcedata',archiveWatch.data);map.off('error',archiveWatch.error);archiveWatch=null;
+}
+function removeArchiveLayer(){
+ stopArchiveWatch();
  if(map.getLayer('archive-overlay'))map.removeLayer('archive-overlay');
  if(map.getSource('archive-overlay'))map.removeSource('archive-overlay');
- archiveSelected=null;$('archiveRights').checked=false;$('rumseyXYZRights').checked=false;$('archiveStatus').textContent='老地图已关闭。';
 }
-function overlayArchive(record){
- if(!$('archiveRights').checked||archiveSelected?.id!==record.id){$('archiveStatus').textContent='请先选择该地图、核查原图许可并勾选授权确认。';return}
+function clearArchive(){
+ ++archiveLoadGeneration;removeArchiveLayer();archiveSelected=null;
+ $('rumseyXYZRights').checked=false;$('archiveStatus').textContent='老地图已关闭。';$('archiveToast').hidden=true;
+}
+function validArchiveBounds(b){return Array.isArray(b)&&b.length===4&&b.every(Number.isFinite)&&b[0]>=-180&&b[2]<=180&&b[1]>=-85.0512&&b[3]<=85.0512&&b[2]>b[0]&&b[3]>b[1]}
+function footprintBounds(data){
+ if(validArchiveBounds(data?.bbox))return data.bbox;
+ const points=[];
+ function coords(c){if(!Array.isArray(c))return;if(c.length>=2&&typeof c[0]==='number'&&typeof c[1]==='number'){if(validCoords(c[0],c[1]))points.push(c);return}for(const v of c)coords(v)}
+ function walk(o){if(!o)return;if(o.type==='FeatureCollection')for(const f of o.features||[])walk(f);else if(o.type==='Feature')walk(o.geometry);else if(o.type==='GeometryCollection')for(const g of o.geometries||[])walk(g);else coords(o.coordinates)}
+ walk(data);if(!points.length)return null;
+ const b=[Infinity,Infinity,-Infinity,-Infinity];for(const [x,y] of points){b[0]=Math.min(b[0],x);b[1]=Math.min(b[1],y);b[2]=Math.max(b[2],x);b[3]=Math.max(b[3],y)}
+ return validArchiveBounds(b)&&b[2]-b[0]<180?b:null;
+}
+function archiveOpacity(){return Math.max(0,Math.min(1,Number($('archiveOpacity').value)/100))}
+function mountArchiveRaster(tile,credit,bounds,gen,onFail){
+ removeArchiveLayer();
+ const source={type:'raster',tiles:[tile],tileSize:256,minzoom:0,maxzoom:22,attribution:credit};
+ if(validArchiveBounds(bounds))source.bounds=bounds;
+ let failed=false,loaded=false,errors=0;
+ const fail=reason=>{if(failed||gen!==archiveLoadGeneration)return;failed=true;stopArchiveWatch();onFail(reason)};
+ const data=e=>{
+  if(gen!==archiveLoadGeneration||e.sourceId!=='archive-overlay'||e.sourceDataType!=='content')return;
+  if(e.tile?.state==='loaded'||(e.coord&&e.isSourceLoaded)){
+   loaded=true;clearTimeout(archiveWatch?.timer);archiveMessage('老地图瓦片已加载；若图像为空，请检查覆盖范围及透明度。');
+  }
+ };
+ const error=e=>{
+  if(gen!==archiveLoadGeneration||e.sourceId!=='archive-overlay')return;
+  errors++;if(!loaded&&errors>=2)fail(String(e.error?.message||'瓦片请求失败').slice(0,100));
+  else if(loaded)archiveMessage('部分老地图瓦片加载失败，可调整缩放或重试。');
+ };
+ archiveWatch={data,error,timer:setTimeout(()=>{if(!loaded)fail('等待瓦片超时')},35000)};
+ map.on('sourcedata',data);map.on('error',error);
+ try{
+  map.addSource('archive-overlay',source);
+  map.addLayer({id:'archive-overlay',type:'raster',source:'archive-overlay',paint:{'raster-opacity':archiveOpacity(),'raster-fade-duration':0}},map.getLayer('agg-icons')?'agg-icons':undefined);
+ }catch(e){fail(String(e.message||e))}
+}
+async function overlayArchive(record,rights){
+ if(!rights){archiveMessage('请先核查这幅地图的原图授权并勾选确认。');return}
  if(!archiveId(record.id))return;
- if(map.getLayer('archive-overlay'))map.removeLayer('archive-overlay');if(map.getSource('archive-overlay'))map.removeSource('archive-overlay');
+ const gen=++archiveLoadGeneration;archiveSelected=record;
+ archiveMessage('正在获取 '+record.title+' 的覆盖范围…');
+ let bounds=null;
+ try{const g=await fetchJson('https://annotations.allmaps.org/maps/'+record.id+'.geojson',{},12000);bounds=footprintBounds(g)}catch(e){}
+ if(gen!==archiveLoadGeneration)return;
  const credit=record.rumsey?'David Rumsey Map Collection, David Rumsey Map Center, Stanford University Libraries · Allmaps':'原图所属馆藏 · Allmaps';
- map.addSource('archive-overlay',{type:'raster',tiles:['https://allmaps.xyz/maps/'+record.id+'/{z}/{x}/{y}.webp'],tileSize:256,minzoom:0,maxzoom:22,attribution:'<a href="'+archiveViewer(record.id)+'">'+credit+'</a>'});
- map.addLayer({id:'archive-overlay',type:'raster',source:'archive-overlay',paint:{'raster-opacity':Number($('archiveOpacity').value)/100}},map.getLayer('agg-icons')?'agg-icons':undefined);
- $('archiveStatus').textContent='已选择：'+record.title+'。原图年代和配准精度请以馆藏页面为准。';setTopOpen(false);
+ const attribution='<a href="'+archiveViewer(record.id)+'">'+credit+'</a>';
+ const opacity=Number($('archiveOpacity').value);if(!Number.isFinite(opacity)||opacity<35){$('archiveOpacity').value='75';$('archiveOpacityValue').textContent='75%'}
+ if(bounds){const c=map.getCenter();if(c.lng<bounds[0]||c.lng>bounds[2]||c.lat<bounds[1]||c.lat>bounds[3])map.fitBounds([[bounds[0],bounds[1]],[bounds[2],bounds[3]]],{padding:55,maxZoom:17,duration:500})}
+ setTopOpen(false);
+ const prefix='https://allmaps.xyz/maps/'+record.id+'/{z}/{x}/{y}';
+ archiveMessage('正在加载 '+record.title+' 的老地图瓦片…');
+ mountArchiveRaster(prefix+'.webp',attribution,bounds,gen,reason=>{
+  archiveMessage('WebP 加载失败，正在尝试 PNG…');
+  mountArchiveRaster(prefix+'.png',attribution,bounds,gen,second=>{
+   archiveMessage('老地图加载失败：'+second+'。可打开原图查看，或重新选择地图。');$('archiveToastLink').hidden=false;$('archiveToastLink').href=archiveViewer(record.id);
+  });
+ });
+ $('archiveToastLink').href=archiveViewer(record.id);$('archiveToastLink').hidden=false;
 }
 function renderArchives(records){
- const el=$('archiveResults');el.replaceChildren();archiveSelected=null;$('archiveRights').checked=false;
+ const el=$('archiveResults');el.replaceChildren();
  for(const record of records){
   const item=addText(el,'div','');item.className='archiveItem';addText(item,'strong',record.title);
   addText(item,'p',record.rumsey?'David Rumsey 馆藏':'Allmaps 关联馆藏').className='hint';
   link(item,'查看原图／配准',archiveViewer(record.id));if(record.manifestUrl)link(item,'馆藏记录',record.manifestUrl);else if(record.imageUrl)link(item,'原始图像接口',record.imageUrl);
   if(record.rumsey)link(item,'馆藏许可','https://www.davidrumsey.com/about/copyright-and-permissions');
-  const select=addText(item,'button','选择这幅地图');select.onclick=()=>{archiveSelected=record;$('archiveRights').checked=false;$('archiveStatus').textContent='已选择 '+record.title+'；核查原图许可后勾选确认并点击叠加。'};
-  const apply=addText(item,'button','叠加到地图');apply.onclick=()=>{try{overlayArchive(record)}catch(e){$('archiveStatus').textContent='叠加失败：'+e.message}};
+  const lab=addText(item,'label','');lab.className='historyCheck';const rights=document.createElement('input');rights.type='checkbox';lab.append(rights,document.createTextNode('已核查本图授权'));
+  const apply=addText(item,'button','叠加到地图');apply.disabled=true;rights.onchange=()=>{apply.disabled=!rights.checked};apply.onclick=()=>overlayArchive(record,rights.checked).catch(e=>archiveMessage('叠加失败：'+e.message));
  }
 }
 async function searchArchive(manual=false){
@@ -185,21 +245,17 @@ function rumseyXYZ(value){
   return raw;
  }catch(e){return ''}
 }
+
 function importRumseyXYZ(){
  const tile=rumseyXYZ($('rumseyXYZInput').value);
  if(!tile){$('archiveStatus').textContent='请从 Rumsey 的 Use in GIS apps 复制完整 HTTPS XYZ 链接（包含 {z}/{x}/{y}）。';return}
  if(!$('rumseyXYZRights').checked){$('archiveStatus').textContent='请先核查原图及瓦片服务使用许可，并勾选确认。';return}
- try{
-  if(map.getLayer('archive-overlay'))map.removeLayer('archive-overlay');
-  if(map.getSource('archive-overlay'))map.removeSource('archive-overlay');
-  map.addSource('archive-overlay',{type:'raster',tiles:[tile],tileSize:256,minzoom:0,maxzoom:22,attribution:'<a href="https://www.davidrumsey.com/view/georeferenced-maps">David Rumsey Map Collection, David Rumsey Map Center, Stanford University Libraries</a>'});
-  map.addLayer({id:'archive-overlay',type:'raster',source:'archive-overlay',paint:{'raster-opacity':Number($('archiveOpacity').value)/100}},map.getLayer('agg-icons')?'agg-icons':undefined);
-  $('archiveStatus').textContent='已添加 Rumsey XYZ 图层；请移动至原图覆盖范围，实际显示取决于瓦片服务权限与网络。';
-  archiveSelected=null;$('archiveRights').checked=false;$('rumseyXYZRights').checked=false;setTopOpen(false);
- }catch(e){$('archiveStatus').textContent='Rumsey 叠加失败：'+String(e.message||e)}
+ const gen=++archiveLoadGeneration;archiveSelected=null;$('archiveToastLink').hidden=true;setTopOpen(false);
+ archiveMessage('正在加载 Rumsey 历史地图，请确保位于原图覆盖范围。');
+ mountArchiveRaster(tile,'<a href="https://www.davidrumsey.com/view/georeferenced-maps">David Rumsey Map Collection, David Rumsey Map Center, Stanford University Libraries</a>',null,gen,reason=>archiveMessage('Rumsey 加载失败：'+reason+'。请检查链接和授权。'));
 }
 function initHistoryMaps(){
- $('importRumseyXYZ').onclick=importRumseyXYZ;
+ $('importRumseyXYZ').onclick=importRumseyXYZ;$('archiveToastClose').onclick=clearArchive;$('archiveToastHide').onclick=()=>{$('archiveToast').hidden=true};
  $('ohmToggle').onchange=()=>{try{setOHM()}catch(e){$('archiveStatus').textContent='OHM 加载失败：'+e.message}};
  $('ohmYear').onchange=$('ohmToggle').onchange;
  $('findArchive').onclick=()=>searchArchive(false);$('loadArchive').onclick=()=>searchArchive(true);$('clearArchive').onclick=clearArchive;
