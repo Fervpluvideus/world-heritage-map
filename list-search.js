@@ -39,7 +39,7 @@ function renderPlaceResults(el,query){
  for(const p of r.rows){const btn=addText(el,'button',p.name||p.display_name);btn.className='placeResult';addText(btn,'small',p.display_name);btn.onclick=()=>locateSearchPlace(p)}
 }
 function listCandidates(){return aggListKey===null?visibleRows:aggregateMembers.get(aggListKey)||[]}
-function listSearchFields(p){return [...new Set([label(p),p.display,origName(p),rawMapName(p),firstName(p,simpleNames),firstName(p,genericChinese),firstName(p,traditionalNames),firstName(p,englishNames),cachedNames(p).english,CAT[p.catKey]?.[0],p.sourceLabel,p.kind,p.designation,({gone:'已毁 拆除 移除',damaged:'受损',ruined:'废墟 残迹',unknown:'未标明损毁'}[p.conditionKey]||''),p.hasDesignation?'遗产认定 文保':''].filter(Boolean).map(String))]}
+function listSearchFields(p){return [...new Set([label(p),origName(p),rawMapName(p),firstValidName(p,simpleNames),firstValidName(p,genericChinese),firstValidName(p,traditionalNames),firstValidName(p,englishNames),validHeritageName(cachedNames(p).english,p),CAT[p.catKey]?.[0],p.sourceLabel,p.kind,p.designation,({gone:'已毁 拆除 移除',damaged:'受损',ruined:'废墟 残迹',unknown:'未标明损毁'}[p.conditionKey]||''),p.hasDesignation?'遗产认定 文保':''].filter(Boolean).map(String))]}
 function normalizeListQuery(s){return String(s||'').normalize('NFKC').toLowerCase().trim()}
 function normalListMatch(p,query){const fields=listSearchFields(p).map(normalizeListQuery),tokens=normalizeListQuery(query).split(/\s+/).filter(Boolean);return tokens.every(token=>fields.some(v=>v.includes(token)))}
 function cancelListSearch(){if(listSearchJob){listSearchJob.controller.abort();listSearchJob=null}$('listSearchStop').hidden=true;$('listSearchSubmit').disabled=false}
@@ -88,7 +88,7 @@ function renderList(){
  if(waiting){addText(el,'p',listSearchJob?'正在匹配，请稍候…':'点击搜索，查看 AI 匹配结果。');return}
  if(!rows.length){addText(el,'p',total?'没有匹配的古迹。':'当前没有已加载记录，尝试放大或移动地图。');return}
  const cap=aggListKey===null?150:rows.length;
- for(const f of rows.slice(0,cap)){const p=f.properties,btn=addText(el,'button',label(p)||p.display||'未命名地点');addText(btn,'small',(CAT[p.catKey]?.[0]||'类型未明')+' · '+({gone:'已毁／移除',damaged:'受损',ruined:'废墟',unknown:'未标明损毁'}[p.conditionKey]||'')+(p.hasDesignation?' · 有遗产认定记录':'')+' · '+(p.sourceLabel||'原版数据'));btn.onclick=()=>{closeList();map.easeTo({center:f.geometry.coordinates,zoom:Math.max(map.getZoom(),17)});showDetail(p)}}
+ for(const f of rows.slice(0,cap)){const p=f.properties,btn=addText(el,'button',heritageTitle(p));addText(btn,'small',(CAT[p.catKey]?.[0]||'类型未明')+' · '+({gone:'已毁／移除',damaged:'受损',ruined:'废墟',unknown:'未标明损毁'}[p.conditionKey]||'')+(p.hasDesignation?' · 有遗产认定记录':'')+' · '+(p.sourceLabel||'原版数据'));btn.onclick=()=>{closeList();map.easeTo({center:f.geometry.coordinates,zoom:Math.max(map.getZoom(),17)});showDetail(p)}}
  if(rows.length>cap)addText(el,'p','共 '+rows.length+' 条，显示前 '+cap+' 条；缩小搜索范围可查看更多。');
 }
 function setupListSearch(){

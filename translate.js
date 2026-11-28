@@ -8,7 +8,7 @@ function hideTranslationNotice(){clearTimeout(translationNoticeTimer);translatio
 const AUTO_TRANSLATION_DELAY=500,AUTO_TRANSLATION_INTERVAL=800;
 function translationZoomAllowed(){return ready&&map.getZoom()>=LABEL_MIN_ZOOM}
 let autoTranslation=false,autoTranslationTimer=null,autoTranslationLast=0,autoTranslationUsed=0,autoTranslationDone=0,autoTranslationAttempted=new Set(),autoTranslationEmptyRevision=-1;
-function rawMapName(p){return firstName(p,['label_local','name_local','name','label','name:en','name_en','label_en','int_name'])||cachedNames(p).english||''}
+function rawMapName(p){return firstValidName(p,['label_local','name_local','name','label','name:en','name_en','label_en','int_name'])||validHeritageName(cachedNames(p).english,p)||otherLanguageName(p)||validHeritageName(parseWikiTag(p.wikipedia)?.title,p)||''}
 function mapTranslationKey(p){
  const name=rawMapName(p);if(!name)return '';
  const q=getQid(p),osm=p.osm_type&&p.osm_id?p.osm_type+'/'+p.osm_id:'';
@@ -22,7 +22,7 @@ function getMapTranslationCache(){
  return mapTranslationCache;
 }
 function validMapTranslation(v){
- return typeof v==='string'&&v.length<=150&&v.trim()===v&&/\p{Script=Han}/u.test(v)&&!/[<>\r\n\t]|https?:\/\//i.test(v)&&!/(?:无法确认|无法翻译|未知名称|不确定|未找到|无法判断|不详)/.test(v);
+ return typeof v==='string'&&isNameToken(v)&&!GENERIC_HERITAGE_NAMES.has(normalizeHeritageName(v))&&v.length<=150&&v.trim()===v&&/\p{Script=Han}/u.test(v)&&!/[<>\r\n\t]|https?:\/\//i.test(v)&&!/(?:无法确认|无法翻译|未知名称|不确定|未找到|无法判断|不详)/.test(v);
 }
 function translatedMapName(p){return getMapTranslationCache().get(mapTranslationKey(p))||''}
 function saveMapTranslations(){

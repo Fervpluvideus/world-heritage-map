@@ -19,7 +19,7 @@ function unescoFeatures(r){
  const base={sourceId:'unesco',sourceLabel:'UNESCO 世界遗产名录',catKey:'worldheritage',hasDesignation:true,conditionKey:'unknown',name,name_en:name,name_zh:zh,recordUrl:'https://whc.unesco.org/en/list/'+id+'/',recordIntro:plainSourceText(r.short_description_zh||r.short_description_en),recordIntroLang:r.short_description_zh?'zh':'en',recordCredit:'UNESCO · '+(clean(r.category)||'类别未标明')+' · CC BY-SA 4.0',kind:'世界遗产'};
  let comp=[];try{comp=typeof r.components_list==='string'?JSON.parse(r.components_list):r.components_list||[]}catch(e){}
  const valid=Array.isArray(comp)?comp.filter(c=>validCoords(c.longitude,c.latitude)):[];
- if(valid.length)return valid.map((c,i)=>externalFeature({...base,id:id+'-'+String(c.ref||i),recordCredit:base.recordCredit+(c.name?' · 分项：'+clean(c.name):'')},c.longitude,c.latitude));
+ if(valid.length)return valid.map((c,i)=>{const component=validHeritageName(c.name,base,true),recordCredit=base.recordCredit+' · 所属世界遗产：'+(zh||name)+(component?' · 分项：'+component:' · 分项名称未提供');return externalFeature({...base,id:id+'-'+String(c.ref||i),name:component,name_en:'',name_zh:'',recordCredit,recordIntro:base.recordIntro?'所属世界遗产总项目简介：'+base.recordIntro:''},c.longitude,c.latitude)});
  const g=r.coordinates?.geometry||r.coordinates,coords=g?.type==='Point'?[g.coordinates]:g?.type==='MultiPoint'?g.coordinates:[];
  if(coords.length)return coords.filter(c=>Array.isArray(c)&&validCoords(c[0],c[1])).map((c,i)=>externalFeature({...base,id:id+'-'+i},c[0],c[1]));
  const pt=r.geo_point_2d,lat=Array.isArray(pt)?pt[0]:pt?.lat,lon=Array.isArray(pt)?pt[1]:pt?.lon;
