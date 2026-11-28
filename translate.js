@@ -29,12 +29,12 @@ function saveMapTranslations(){
  const c=getMapTranslationCache();while(c.size>MAP_TRANSLATION_MAX)c.delete(c.keys().next().value);
  return storeSet(MAP_TRANSLATION_STORE,JSON.stringify([...c]));
 }
-function mapTranslationTargets(rows){
+function mapTranslationTargets(rows,limit=Infinity){
  const seen=new Set(),out=[];
  for(const f of rows){
   const p=f.properties,key=mapTranslationKey(p),name=rawMapName(p);
-  if(!key||!name||name.length>200||chinese(p)||translatedMapName(p)||seen.has(key))continue;
-  seen.add(key);out.push({key,p,name});
+  if(!key||!name||name.length>200||autoTranslationAttempted.has(key)||seen.has(key)||chinese(p)||translatedMapName(p))continue;
+  seen.add(key);out.push({key,p,name});if(out.length>=limit)break;
  }
  return out;
 }
@@ -58,7 +58,8 @@ function mapTranslationNotice(text,done,total,running){
 }
 
 function stopMapTranslation(){setAutoTranslation(false);if(mapTranslationJob){mapTranslationJob.controller.abort();updateTranslationStop()}else{$('mapTranslateStatus').textContent='自动翻译已停止';hideTranslationNotice()}}
-function syncTranslationZoom(){if(translationZoomAllowed())return;
+function syncTranslationZoom(){if(!translationZoomAllowed())pauseTranslationForHiddenView()}
+function pauseTranslationForHiddenView(){
  if(!autoTranslation&&!mapTranslationJob)return;
  autoTranslationMoveStart();
  if(mapTranslationJob&&!mapTranslationJob.controller.signal.aborted){mapTranslationJob.scalePause=true;mapTranslationJob.controller.abort()}
@@ -89,7 +90,7 @@ function startAutoTranslation(){
  $('mapTranslateStatus').textContent='全图自动翻译已开启';updateAutoTranslationUI();scheduleAutoTranslation();
 }
 function scheduleAutoTranslation(){
- if(scalePaused||!autoTranslation||!ready||mapTranslationJob)return;
+ if(scalePaused||!autoTranslation||!ready||mapTranslationJob||aggTimer)return;
  if(map.isMoving()||!translationZoomAllowed()||autoTranslationTimer!==null)return;
  autoTranslationTimer=setTimeout(()=>{autoTranslationTimer=null;runAutoTranslation()},Math.max(AUTO_TRANSLATION_DELAY,AUTO_TRANSLATION_INTERVAL-(Date.now()-autoTranslationLast)));
 }
@@ -97,7 +98,7 @@ function autoTranslationMoveStart(){clearTimeout(autoTranslationTimer);autoTrans
 async function runAutoTranslation(){
  if(scalePaused||!autoTranslation||!ready||mapTranslationJob||map.isMoving()||!translationZoomAllowed())return;
  if(!dsKey||!dsModel||!dsModels.includes(dsModel)){setAutoTranslation(false);return}
- const targets=mapTranslationTargets(hwViewFeatures().sort(compareHeritage)).filter(t=>!autoTranslationAttempted.has(t.key)).slice(0,MAP_TRANSLATION_BATCH);
+ if(aggTimer||aggListDirty)return;const targets=mapTranslationTargets(visibleRows,MAP_TRANSLATION_BATCH);
  if(!targets.length)return;
  for(const t of targets)autoTranslationAttempted.add(t.key);
  autoTranslationLast=Date.now();
@@ -139,7 +140,7 @@ async function translateMapBatch(initial,job,onResults,onRetry){
    if(job.automatic){
     while(map.isMoving()&&translationJobActive(job)){if(!await translationDelay(250,job.controller.signal))break}
     if(!translationJobActive(job))break;
-    const visible=new Set(hwViewFeatures().map(f=>mapTranslationKey(f.properties)));
+    const visible=new Set(visibleRows.map(f=>mapTranslationKey(f.properties)));
     pending=pending.filter(t=>{if(visible.has(t.key))return true;autoTranslationAttempted.delete(t.key);return false});
    }
   }
