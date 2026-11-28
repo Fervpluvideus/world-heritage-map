@@ -74,7 +74,7 @@ async function searchListAI(){
  finally{if(listSearchJob===job){listSearchJob=null;$('listSearchStop').hidden=true;$('listSearchSubmit').disabled=false;renderList()}}
 }
 function renderList(){
- const el=$('listRows'),query=$('listQuery').value.trim();el.replaceChildren();renderPlaceResults(el,query);if(densityPaused){$('listTitle').textContent='地点与古迹搜索';$('listSearchStatus').textContent='';$('listSearchSubmit').disabled=false;return}if(query)addText(el,'h3','当前范围古迹').className='unifiedSearchHeading';if(!listSearchJob)$('listSearchSubmit').disabled=false;
+ const el=$('listRows'),query=$('listQuery').value.trim();el.replaceChildren();renderPlaceResults(el,query);if(scalePaused){$('listTitle').textContent='地点与古迹搜索';$('listSearchStatus').textContent='';$('listSearchSubmit').disabled=false;return}if(query)addText(el,'h3','当前范围古迹').className='unifiedSearchHeading';if(!listSearchJob)$('listSearchSubmit').disabled=false;
  let rows=[...listCandidates()];const total=rows.length;
  $('listTitle').textContent=aggListKey===null?'地点与古迹搜索':'同类聚合点 · '+total+' 条记录';
  if(aggListKey===null){const c=map.getContainer();rows.sort((a,b)=>Math.hypot(a.xy.x-c.clientWidth/2,a.xy.y-c.clientHeight/2)-Math.hypot(b.xy.x-c.clientWidth/2,b.xy.y-c.clientHeight/2))}
@@ -92,7 +92,7 @@ function renderList(){
  if(rows.length>cap)addText(el,'p','共 '+rows.length+' 条，显示前 '+cap+' 条；缩小搜索范围可查看更多。');
 }
 function setupListSearch(){
- $('listSearchForm').onsubmit=e=>{e.preventDefault();const q=$('listQuery').value.trim();if(!q){renderList();return}searchPlaces(q);if(listQueryMode==='ai'&&!densityPaused)searchListAI();else renderList()};
+ $('listSearchForm').onsubmit=e=>{e.preventDefault();const q=$('listQuery').value.trim();if(!q){renderList();return}searchPlaces(q);if(listQueryMode==='ai'&&!scalePaused)searchListAI();else renderList()};
  $('listQuery').oninput=()=>{cancelPlaceSearch();cancelListSearch();listAIResult=null;listSearchNotice='';renderList()};
  $('listSearchClear').onclick=()=>{resetListSearch();renderList()};
  $('listSearchStop').onclick=()=>{cancelListSearch();listSearchNotice='已取消 AI 匹配。';renderList()};
