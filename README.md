@@ -8,7 +8,7 @@
 <p>跨越语言的边界，探索人类文明的共同记忆。</p>
 
 <a href="https://fervpluvideus.github.io/world-heritage-map/"><img alt="打开世界古迹图" src="https://img.shields.io/badge/在线探索-Live%20Map-28594d?style=for-the-badge"></a>
-<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.26" src="https://img.shields.io/badge/Version-0.26-8b704b?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.27" src="https://img.shields.io/badge/Version-0.27-8b704b?style=for-the-badge"></a>
 <a href="https://github.com/Fervpluvideus/world-heritage-map/issues"><img alt="反馈与建议" src="https://img.shields.io/badge/反馈与建议-Issues-526b63?style=for-the-badge"></a>
 
 <p><strong>全球古迹探索 · 中文统一展示 · 历史地图叠加</strong></p>
@@ -77,16 +77,16 @@
 
 ### 04 · 底图与移动端体验
 
-- V0.27 开发版：中性实时磨砂玻璃，使用浏览器 backdrop-filter 对当前地图画面模糊；支持关闭效果。
+- V0.27：中性实时磨砂玻璃，使用浏览器 backdrop-filter 对当前地图画面模糊；支持关闭效果。
 - 可选开放高清底图：EOX 2025 上叠加 OpenAerialMap 在缩放等级 14 以上的卫星与无人机影像，局部覆盖，具体影像许可与来源见 [OpenAerialMap](https://imagery.hotosm.org/)。两者均无需访问者提供密钥；不保证全球高清覆盖。
 - 当前屏幕内已加载且符合筛选的点状古迹记录超过 2000 条时，停止聚合、图标、建筑轮廓及列表显示，缩放或筛选使其降至 2000 条及以下后恢复；计数依据记录而非跨来源去重后的实体。
 
 - 标准矢量地图、纯卫星影像、卫星混合（保留地名）三种底图；卫星影像默认选用 EOxCloudless 2025（非商业使用），可切换至 2016 年版（CC BY 4.0）。
 - 卫星影像原始分辨率 10 米，最高原生瓦片缩放等级 14，非实时；更高缩放仅放大既有影像。卫星加载失败时回退标准底图。
-- 松柏绿与古铜金玻璃界面，适配浅色、深色与减少动态效果偏好；可关闭玻璃模糊以减少 GPU 负担。
+- 中性磨砂玻璃与古铜金强调色，适配浅色、深色与减少动态效果偏好；可关闭玻璃模糊以减少 GPU 负担。
 
 - 统一古迹搜索入口、右下角独立定位按钮；无法自动定位时以沈阳为默认位置。
-- 可收起的顶部菜单（古迹搜索、历史地图、图层分类、AI 设置）、动画详情面板及固定关闭按钮。
+- 可收起的顶部菜单（古迹搜索、历史地图、图层分类、AI 设置）、四个主功能入口采用上图标下文字布局、点击回弹和涟漪动画，保留动画详情面板及固定关闭按钮。
 - 自动记忆古迹分类、图层、状态筛选及聚合等显示偏好。
 
 ## 使用指南
