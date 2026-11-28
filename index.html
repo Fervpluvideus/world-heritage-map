@@ -333,7 +333,7 @@ function hwStatus(){
  $('tileStatus').textContent=hwDefs.filter(hwEnabled).map(d=>{const x=hwStates.get(d.id);return d.title+'：'+(x?.state==='ready'?'接口已连接':x?.state==='error'?'失败（'+x.error+'）':x?.state==='loading'?'连接中':'未连接')}).join(' · ')||'所有原版图层已关闭';refreshLayerDetailsSummary();
 }
 function hwVisibility(){
- for(const d of hwDefs)for(const id of hwStates.get(d.id)?.ids||[])if(map.getLayer(id))map.setLayoutProperty(id,'visibility',hwEnabled(d)&&(!scalePaused||hwPointLayers.some(p=>p.id===id))?'visible':'none');
+ for(const d of hwDefs)for(const id of hwStates.get(d.id)?.ids||[])if(map.getLayer(id)){const visibility=hwEnabled(d)&&(!scalePaused||hwPointLayers.some(p=>p.id===id))?'visible':'none';if((map.getLayoutProperty(id,'visibility')||'visible')!==visibility)map.setLayoutProperty(id,'visibility',visibility)}
  queueAggregation();
 }
 function classifyHeritage(p,d){return {catKey:catType(p,d),conditionKey:conditionType(p),hasDesignation:designationType(p,d)}}
@@ -350,7 +350,7 @@ function hwProperties(p,d,location,classification=classifyHeritage(p,d)){
 function hwDetail(f,d,location){const p=hwProperties(f.properties||{},d,location);if(location)p.approxLocation=true;showDetail(p)}
 async function hwConnect(d){
  if(!hwEnabled(d)||hwStates.get(d.id)?.state==='ready'||hwStates.get(d.id)?.state==='loading')return;
- const x={state:'loading',ids:[],error:''};hwStates.set(d.id,x);hwStatus();
+ const x={state:'loading',ids:[],clickHandlers:[],error:''};hwStates.set(d.id,x);hwStatus();
  try{
   if(!proto||!window.pmtiles)throw Error('PMTiles 组件不可用');
   const url=HW_ROOT+d.file, archive=new pmtiles.PMTiles(url);
@@ -368,7 +368,7 @@ async function hwConnect(d){
     for(const [geometry,type,paint] of [
      ['Polygon','fill',{'fill-color':c,'fill-opacity':d.inventory?0:0.13,'fill-outline-color':c}],
      ['LineString','line',{'line-color':c,'line-width':1.6}]
-    ]){const id=base+'-'+type;add({id,type,...common,minzoom:13,filter:catFilter(d,geometry),paint},geometry);map.on('click',id,e=>hwDetail(e.features[0],d,e.lngLat))}
+    ]){const id=base+'-'+type;add({id,type,...common,minzoom:13,filter:catFilter(d,geometry),paint},geometry);const handler=e=>hwDetail(e.features[0],d,e.lngLat);map.on('click',id,handler);x.clickHandlers.push([id,handler])}
    }
    if(d.kind!=='shape'){
     const id=base+'-points';
@@ -379,14 +379,14 @@ async function hwConnect(d){
   }
   x.state='ready';invalidateTileFeatures(source);if(map.getLayer('agg-icons'))map.moveLayer('agg-icons');
  }catch(e){
-  for(const id of x.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);
+  for(const [id,handler] of x.clickHandlers)map.off('click',id,handler);for(const id of x.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);
   const s='hw-'+d.id;if(map.getSource(s))map.removeSource(s);
   for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);x.ids=[];x.state='error';x.error=String(e.message||e).slice(0,120);
  }finally{hwVisibility();hwStatus();updateCount()}
 }
 async function hwStart(){
  if(!ready||hwLoading)return;hwLoading=true;$('retryTiles').disabled=true;
- for(const d of hwDefs.filter(hwEnabled)){const old=hwStates.get(d.id);if(old?.needsRetry){for(const id of old.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);const source='hw-'+d.id;if(map.getSource(source))map.removeSource(source);for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);hwStates.delete(d.id)}}
+ for(const d of hwDefs.filter(hwEnabled)){const old=hwStates.get(d.id);if(old?.needsRetry){for(const [id,handler] of old.clickHandlers||[])map.off('click',id,handler);for(const id of old.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);const source='hw-'+d.id;if(map.getSource(source))map.removeSource(source);invalidateTileFeatures(source);for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);hwStates.delete(d.id)}}
  try{await Promise.all(hwDefs.filter(hwEnabled).map(hwConnect))}
  finally{hwLoading=false;$('retryTiles').disabled=false;hwStatus()}
 }
@@ -470,7 +470,7 @@ function closeList(){$('nearby').setAttribute('aria-expanded','false');cancelPla
 function closeInfo(){if(!sheetIsOpen('info'))return;++detailToken;detailRequest?.abort();animatePanel($('info'),false,'sheet')}
 function openList(){$('nearby').setAttribute('aria-expanded','true');resetListSearch();closeArchivePicker();closeInfo();setTopOpen(false);animatePanel($('listPanel'),true,'sheet')}
 
-function refreshNameLayers(){aggListDirty=true;queueAggregation()}
+function refreshNameLayers(){visibleRevision++;aggListDirty=true;queueAggregation()}
 
 function wikiNameKey(w){return w?w.lang+'|'+w.title.replace(/_/g,' '):''}
 function cacheName(cache,id,value){cache.delete(id);cache.set(id,value);while(cache.size>NAME_CACHE_MAX)cache.delete(cache.keys().next().value)}
@@ -629,9 +629,10 @@ function setupGlass(){
  document.addEventListener('pointerdown',e=>{const b=e.target.closest?.('button');if(!b||b.disabled)return;const r=b.getBoundingClientRect();if(!r.width||!r.height)return;b.style.setProperty('--tap-x',Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100))+'%');b.style.setProperty('--tap-y',Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))+'%')},{passive:true});
 }
 
-function init(){if(!window.maplibregl){status('地图组件加载失败，请检查网络或浏览器。');return}try{if(window.pmtiles){proto=new pmtiles.Protocol({metadata:true});maplibregl.addProtocol('pmtiles',proto.tile)}map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[123.4315,41.8057],zoom:13,localIdeographFontFamily:'sans-serif',attributionControl:false});map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');map.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:['<a href="https://data.unesco.org/explore/dataset/whc001/">UNESCO (CC BY-SA 4.0)</a>','<a href="https://pleiades.stoa.org/credits">Pleiades contributors (CC BY 3.0)</a>','<a href="https://terria-catalog.prod.heritagewatch.ai/tools/">Heritage Watch AI</a>','<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap (ODbL)</a>','<a href="https://www.wikidata.org/">Wikidata (CC0)</a>']}),'bottom-right');const attribution=map.getContainer().querySelector('.maplibregl-ctrl-attrib');if(attribution){attribution.classList.remove('maplibregl-compact-show');const toggle=attribution.querySelector('summary,button');if(toggle){toggle.setAttribute('aria-label','地图数据来源与许可');toggle.setAttribute('title','地图数据来源与许可')}if(attribution.tagName==='DETAILS')attribution.open=false;map.on('click',()=>{if(attribution.tagName==='DETAILS')attribution.open=false;else if(attribution.classList.contains('maplibregl-compact-show'))toggle?.click()})}map.on('error',e=>{if(!ready)status('底图尚未加载，请检查网络。');else if(e.error)console.warn(e.error)});map.on('load',()=>{for(const l of map.getStyle().layers){if(l.type!=='symbol'||!l.layout?.['text-field']||!l['source-layer']||!['place','transportation_name','water_name','poi','mountain_peak','park'].includes(l['source-layer']))continue;try{map.setLayoutProperty(l.id,'text-field',nameExpression({fallback:l.layout['text-field']}))}catch(e){console.warn(l.id,e)}}ready=true;initBaseMap();installAggregation();$('nearby').disabled=false;$('locate').disabled=false;updateTranslationStop();status('在线古迹地图');hwInit();initExtraSources();map.on('movestart',()=>{autoTranslationMoveStart();clearTimeout(nameTimer);nameTimer=null});map.on('move',()=>{syncTranslationZoom();queueAggregation()});map.on('moveend',()=>{invalidateTileFeatures();queueAggregation(true)});map.on('resize',()=>queueAggregation(true));map.on('sourcedata',e=>{if(e.sourceId?.startsWith('hw-')&&e.sourceDataType==='content'){invalidateTileFeatures(e.sourceId);queueAggregation()}});map.on('idle',()=>{scheduleNames();if(autoTranslation)scheduleAutoTranslation()});startLocation();});}catch(e){status('地图初始化失败：'+e.message)}}
+function afterInitialPaint(task){let done=false;const run=()=>{if(done)return;done=true;map?.off('idle',run);clearTimeout(timer);task()};const timer=setTimeout(run,1500);if(ready)map.once('idle',run)}
+function init(){if(!window.maplibregl){status('地图组件加载失败，请检查网络或浏览器。');return}try{if(window.pmtiles){proto=new pmtiles.Protocol({metadata:true});maplibregl.addProtocol('pmtiles',proto.tile)}map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[123.4315,41.8057],zoom:13,localIdeographFontFamily:'sans-serif',attributionControl:false});map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');map.addControl(new maplibregl.ScaleControl({maxWidth:100,unit:'metric'}),'bottom-left');map.addControl(new maplibregl.AttributionControl({compact:true,customAttribution:['<a href="https://data.unesco.org/explore/dataset/whc001/">UNESCO (CC BY-SA 4.0)</a>','<a href="https://pleiades.stoa.org/credits">Pleiades contributors (CC BY 3.0)</a>','<a href="https://terria-catalog.prod.heritagewatch.ai/tools/">Heritage Watch AI</a>','<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap (ODbL)</a>','<a href="https://www.wikidata.org/">Wikidata (CC0)</a>']}),'bottom-right');const attribution=map.getContainer().querySelector('.maplibregl-ctrl-attrib');if(attribution){attribution.classList.remove('maplibregl-compact-show');const toggle=attribution.querySelector('summary,button');if(toggle){toggle.setAttribute('aria-label','地图数据来源与许可');toggle.setAttribute('title','地图数据来源与许可')}if(attribution.tagName==='DETAILS')attribution.open=false;map.on('click',()=>{if(attribution.tagName==='DETAILS')attribution.open=false;else if(attribution.classList.contains('maplibregl-compact-show'))toggle?.click()})}map.on('error',e=>{if(!ready)status('底图尚未加载，请检查网络。');else if(e.error)console.warn(e.error)});map.on('load',()=>{for(const l of map.getStyle().layers){if(l.type!=='symbol'||!l.layout?.['text-field']||!l['source-layer']||!['place','transportation_name','water_name','poi','mountain_peak','park'].includes(l['source-layer']))continue;try{map.setLayoutProperty(l.id,'text-field',nameExpression({fallback:l.layout['text-field']}))}catch(e){console.warn(l.id,e)}}ready=true;initBaseMap();installAggregation();$('nearby').disabled=false;$('locate').disabled=false;updateTranslationStop();status('在线古迹地图');hwInit();initExtraSources();map.on('movestart',()=>{autoTranslationMoveStart();clearTimeout(nameTimer);nameTimer=null});map.on('move',()=>{syncTranslationZoom();queueAggregation()});map.on('moveend',()=>{invalidateTileFeatures();queueAggregation(true)});map.on('resize',()=>queueAggregation(true));map.on('sourcedata',e=>{if(e.sourceId?.startsWith('hw-')&&e.sourceDataType==='content'){invalidateTileFeatures(e.sourceId);queueAggregation()}});map.on('idle',()=>{if(!aggTimer){scheduleNames();if(autoTranslation)scheduleAutoTranslation()}});startLocation();});}catch(e){status('地图初始化失败：'+e.message)}}
 
-let previousAggregateOutput=[];
+let previousAggregateOutput=[],visibleRevision=0;
 function sameAggregateOutput(a,b){if(a.length!==b.length)return false;for(let i=0;i<a.length;i++){const x=a[i],y=b[i],p=x.properties,q=y.properties;if(x.geometry.coordinates[0]!==y.geometry.coordinates[0]||x.geometry.coordinates[1]!==y.geometry.coordinates[1]||p.key!==q.key||p.cat!==q.cat||p.count!==q.count||p.icon!==q.icon||p.display!==q.display||p.mapLabel!==q.mapLabel||p.countText!==q.countText||p.priority!==q.priority)return false}return true}
 let scalePaused=false;
 let aggTimer=0, aggSignature='', aggregateMembers=new Map(), visibleRows=[], aggregateRows=[], aggListKey=null;
@@ -678,7 +679,7 @@ function queueAggregation(urgent=false){if(!ready)return;if(aggTimer){if(urgent!
 function rebuildAggregation(){
  if(!ready||!map.getSource('heritage-aggregate'))return;
  const size=map.getContainer(),w=size.clientWidth,h=size.clientHeight,z=map.getZoom();
- const buffered=hwViewFeatures(AGGREGATION_BUFFER);if(z<HERITAGE_MIN_ZOOM||buffered===null){const entering=!scalePaused;if(entering){scalePaused=true;clearTimeout(nameTimer);nameTimer=null;pauseTranslationForHiddenView();cancelListSearch();for(const spec of catSpecs)if(map.getLayer(spec.id))map.setLayoutProperty(spec.id,'visibility','none')}if(aggSignature!=='[]'){aggSignature='[]';previousAggregateOutput=[];map.getSource('heritage-aggregate').setData(empty())}visibleRows=[];aggregateRows=[];aggregateMembers.clear();aggListKey=null;$('officialCount').textContent='';if(entering&&sheetIsOpen('listPanel'))renderList();return}if(scalePaused){scalePaused=false;for(const spec of catSpecs)if(map.getLayer(spec.id))map.setLayoutProperty(spec.id,'visibility',hwEnabled(spec.d)?'visible':'none');aggListDirty=true}for(const f of buffered){f._pointKey=pointKey(f);f._importance=heritageImportance(f.properties)}
+ const buffered=hwViewFeatures(AGGREGATION_BUFFER);if(z<HERITAGE_MIN_ZOOM||buffered===null){const entering=!scalePaused;if(entering){scalePaused=true;clearTimeout(nameTimer);nameTimer=null;pauseTranslationForHiddenView();cancelListSearch();for(const spec of catSpecs)if(map.getLayer(spec.id))map.setLayoutProperty(spec.id,'visibility','none')}if(aggSignature!=='[]'){aggSignature='[]';previousAggregateOutput=[];map.getSource('heritage-aggregate').setData(empty())}if(visibleRows.length)visibleRevision++;visibleRows=[];aggregateRows=[];aggregateMembers.clear();aggListKey=null;$('officialCount').textContent='';if(entering&&sheetIsOpen('listPanel'))renderList();return}if(scalePaused){scalePaused=false;for(const spec of catSpecs)if(map.getLayer(spec.id))map.setLayoutProperty(spec.id,'visibility',hwEnabled(spec.d)?'visible':'none');aggListDirty=true}for(const f of buffered){f._pointKey=pointKey(f);f._importance=heritageImportance(f.properties)}
  const inView=f=>f.xy.x>=0&&f.xy.x<=w&&f.xy.y>=0&&f.xy.y<=h;
  buffered.sort((a,b)=>Number(inView(b))-Number(inView(a))||compareHeritage(a,b));const rows=buffered.filter(inView);
  const groups=groupPoints(buffered,z,w<800,$('aggregateToggle').checked);
@@ -694,7 +695,7 @@ function rebuildAggregation(){
  const viewChanged=rows.length!==visibleRows.length||rows.some((f,i)=>pointKey(f)!==pointKey(visibleRows[i]));
  visibleRows=rows;aggregateRows=out;aggregateMembers=next;if(aggListKey!==null&&!next.has(aggListKey)){aggListKey=null;aggListDirty=true}
  const countText=rows.length+' 条记录 · '+visibleGroups+' 组';if($('officialCount').textContent!==countText)$('officialCount').textContent=countText;
- if(!sameAggregateOutput(out,previousAggregateOutput)){previousAggregateOutput=out;aggSignature=out.length?'data':'[]';map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});aggListDirty=true}if(viewChanged)aggListDirty=true;
+ if(!sameAggregateOutput(out,previousAggregateOutput)){previousAggregateOutput=out;aggSignature=out.length?'data':'[]';map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});aggListDirty=true}if(viewChanged){visibleRevision++;aggListDirty=true}
  if(!moving){if(aggListDirty&&sheetIsOpen('listPanel'))renderList();aggListDirty=false;scheduleNames();if(autoTranslation)scheduleAutoTranslation()}
 }
 function installAggregation(){
@@ -775,7 +776,7 @@ function setupDeepSeek(){
  $('dsModel').onchange=()=>{stopMapTranslation();dsModel=$('dsModel').value;storeSet(DS_MODEL_STORE,dsModel)};
  $('dsClear').onclick=()=>{clearTimeout(dsSaveTimer);++dsGeneration;stopMapTranslation();dsKey='';dsModel='';dsModels=[];storeSet(DS_KEY_STORE,'');storeSet(DS_MODEL_STORE,'');AI_CACHE.clear();$('dsKey').value='';$('dsKey').placeholder='输入密钥（自动保存）';refreshModels()};
  $('aiSettings').onclick=()=>toggleMenu('aiPanel','aiSettings');
- if(dsKey)refreshModels();else dsStatus('未配置密钥');
+ if(dsKey){dsStatus('已保存密钥');const load=()=>{if(dsKey&&!dsModels.length&&!$('dsRefresh').disabled)refreshModels()};$('aiSettings').addEventListener('click',load);setTimeout(load,2500)}else dsStatus('未配置密钥');
 }
 function parseWikiTag(v){
  const m=/^([a-z][a-z0-9-]{0,20}):(.+)$/i.exec(clean(v));if(!m)return null;
