@@ -73,7 +73,7 @@ async function loadExtra(d){
  try{s.rows=await(d.id==='unesco'?loadUNESCO():loadPleiades());s.index=indexExternal(s.rows);s.state='ready'}catch(e){s.state='error';s.error=String(e.message||e).slice(0,80)}
  finally{refreshExtraStatus();queueAggregation()}
 }
-function extraVisibleFeatures(center,size,pad=0,overLimit=()=>false){
+function extraVisibleFeatures(center,size,pad=0){
  const out=[],b=map.getBounds(),dx=(b.getEast()-b.getWest())*pad/Math.max(1,size.clientWidth),dy=(b.getNorth()-b.getSouth())*pad/Math.max(1,size.clientHeight),west=b.getWest()-dx,east=b.getEast()+dx,south=Math.max(-90,b.getSouth()-dy),north=Math.min(90,b.getNorth()+dy);
  for(const d of EXTRA_DEFS){
   const s=extraStates.get(d.id);if(!extraEnabled(d)||s?.state!=='ready')continue;
@@ -85,7 +85,7 @@ function extraVisibleFeatures(center,size,pad=0,overLimit=()=>false){
   for(const f of candidates){
    const [lon,y]=f.geometry.coordinates,x=lon+360*Math.round((center.lng-lon)/360);if(y<south||y>north||x<west||x>east||!passesCategory(f.properties))continue;
    const xy=map.project([x,y]);if(xy.x< -pad||xy.y< -pad||xy.x>size.clientWidth+pad||xy.y>size.clientHeight+pad)continue;
-   if(overLimit(xy))return null;out.push({...f,xy,geometry:{type:'Point',coordinates:[x,y]}});
+   out.push({...f,xy,geometry:{type:'Point',coordinates:[x,y]}});
   }
  }
  return out;
