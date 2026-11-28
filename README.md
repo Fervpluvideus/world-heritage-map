@@ -8,7 +8,7 @@
 <p>跨越语言的边界，探索人类文明的共同记忆。</p>
 
 <a href="https://fervpluvideus.github.io/world-heritage-map/"><img alt="打开世界古迹图" src="https://img.shields.io/badge/在线探索-Live%20Map-28594d?style=for-the-badge"></a>
-<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.27" src="https://img.shields.io/badge/Version-0.27-8b704b?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.28" src="https://img.shields.io/badge/Version-0.28-8b704b?style=for-the-badge"></a>
 <a href="https://github.com/Fervpluvideus/world-heritage-map/issues"><img alt="反馈与建议" src="https://img.shields.io/badge/反馈与建议-Issues-526b63?style=for-the-badge"></a>
 
 <p><strong>全球古迹探索 · 中文统一展示 · 历史地图叠加</strong></p>
@@ -77,7 +77,9 @@
 
 ### 04 · 底图与移动端体验
 
-- V0.28-dev 实验图源：从奥维配置适配 Esri World Imagery 官方服务与标称 Google 的非官方转发接口，均不需访客输入密钥。仅用于开发验证，未确认服务可用性、坐标精度和公开网站使用授权；不会自动恢复实验图源。Google 官方明确限制非官方渠道访问地图瓦片；Esri 服务适用其许可。正式版不启用这些实验图源。
+- 图层连接详情和数据说明默认折叠；底部保留简短署名及可展开的完整来源与许可信息。
+
+- V0.28 实验图源：从奥维配置适配 Esri World Imagery 官方服务与标称 Google 的非官方转发接口，均不需访客输入密钥。仅供主动选择测试，未确认服务可用性、坐标精度和公开网站使用授权；不会自动恢复实验图源。Google 官方明确限制非官方渠道访问地图瓦片；Esri 服务适用其许可。默认不启用实验图源，选择时会提示风险。
 
 - V0.27：中性实时磨砂玻璃，使用浏览器 backdrop-filter 对当前地图画面模糊；支持关闭效果。
 - 可选开放高清底图：EOX 2025 上叠加 OpenAerialMap 在缩放等级 14 以上的卫星与无人机影像，局部覆盖，具体影像许可与来源见 [OpenAerialMap](https://imagery.hotosm.org/)。两者均无需访问者提供密钥；不保证全球高清覆盖。
