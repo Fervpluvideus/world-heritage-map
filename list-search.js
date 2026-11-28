@@ -38,7 +38,7 @@ async function searchListAI(){
  finally{if(listSearchJob===job){listSearchJob=null;$('listSearchStop').hidden=true;$('listSearchSubmit').disabled=false;renderList()}}
 }
 function renderList(){
- const el=$('listRows'),query=$('listQuery').value.trim();el.replaceChildren();
+ const el=$('listRows'),query=$('listQuery').value.trim();el.replaceChildren();if(densityPaused){$('listTitle').textContent='当前范围古迹';$('listSearchStatus').textContent='密度保护已启动。';$('listSearchSubmit').disabled=true;addText(el,'p','当前范围超过 2000 条古迹，请放大地图或减少图层后搜索。');return}if(!listSearchJob)$('listSearchSubmit').disabled=false;
  let rows=[...listCandidates()];const total=rows.length;
  $('listTitle').textContent=aggListKey===null?'当前范围古迹':'同类聚合点 · '+total+' 条记录';
  if(aggListKey===null){const c=map.getContainer();rows.sort((a,b)=>Math.hypot(a.xy.x-c.clientWidth/2,a.xy.y-c.clientHeight/2)-Math.hypot(b.xy.x-c.clientWidth/2,b.xy.y-c.clientHeight/2))}
