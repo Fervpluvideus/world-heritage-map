@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f6fb">
+<title>传热学99题互动题库｜分章节抽认卡与错题强化</title>
+<meta name="description" content="传热学考研名词解释与简答题互动复习：99道题、7个章节、近期新增30题、等概率与加权抽题、错题复习、学习记录导入导出。">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{
+ color-scheme:light;
+ --bg:#f4f6fb;--surface:#fff;--surface-soft:#f8f9ff;
+ --text:#18223d;--muted:#6b7690;--line:#e5e9f2;
+ --accent:#5268dd;--accent-dark:#3f55c5;--accent-soft:#eef1ff;
+ --shade:0 12px 38px rgba(38,54,106,.065);
+ --green:#2b9470;--green-bg:#eaf8f1;--amber:#ae7a18;--amber-bg:#fff7e5;--rose:#c65c69;--rose-bg:#fff0f1;
+}
+@media(prefers-color-scheme:dark){:root{
+ color-scheme:dark;--bg:#0e1322;--surface:#192033;--surface-soft:#202940;
+ --text:#f0f2fb;--muted:#a2aec7;--line:#303a50;
+ --accent:#8999ff;--accent-dark:#6c7dec;--accent-soft:#283354;
+ --shade:0 14px 45px rgba(0,0,0,.22);
+ --green:#6adbb4;--green-bg:#203e39;--amber:#ffd18a;--amber-bg:#443a2d;--rose:#ffa0a7;--rose-bg:#432b39;
+}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;padding:0 18px calc(26px + env(safe-area-inset-bottom));background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.5;min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:300px;background:radial-gradient(ellipse at 20% -25%,rgba(118,145,249,.18),transparent 60%),radial-gradient(ellipse at 100% -15%,rgba(118,203,222,.12),transparent 55%);pointer-events:none;z-index:-1}
+.page{max-width:800px;margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:36px 3px 23px}
+.overline{font-size:11px;letter-spacing:.19em;font-weight:800;color:var(--accent);text-transform:uppercase;margin-bottom:9px}
+h1{font-size:clamp(25px,5vw,34px);line-height:1.2;letter-spacing:-.03em;margin:0;font-weight:820}
+.subtitle{margin:10px 0 0;color:var(--muted);font-size:13px}
+.logo{height:58px;width:58px;flex:none;display:grid;place-items:center;border-radius:19px;background:linear-gradient(140deg,#6e82f8,#475ed1);box-shadow:0 10px 20px #5366dc36;color:white}
+.logo svg{width:30px;height:30px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:23px;box-shadow:var(--shade);padding:19px}
+.panel-head{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:780;margin-bottom:14px}
+.panel-head .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-mode{grid-column:1 / -1}
+.mode-hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.65;min-height:19px}
+.field label{display:block;margin-bottom:7px;color:var(--muted);font-size:12px;font-weight:650}
+select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 32px 12px 12px;min-height:45px;background:var(--surface-soft);color:var(--text);font:inherit;font-size:14px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%238b94ac' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 5 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;transition:border-color .18s,box-shadow .18s}
+select:focus-visible{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.summary{margin-top:14px;padding:15px 16px;border-radius:17px;background:var(--surface-soft)}
+.summary-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.summary-top strong{color:var(--text);font-size:13px}
+.progress-track{height:7px;width:100%;border-radius:99px;background:var(--line);overflow:hidden}
+.progress-fill{width:0;height:100%;background:linear-gradient(90deg,#8d9dff,#586bdd);border-radius:99px;transition:width .36s cubic-bezier(.2,.8,.2,1)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:13px}
+.stat{border:1px solid var(--line);background:var(--surface);border-radius:13px;padding:11px 4px;text-align:center}
+.stat strong{display:block;font-size:23px;line-height:1.15;font-weight:780;font-variant-numeric:tabular-nums}
+.stat span{display:block;color:var(--muted);font-size:11px;margin-top:5px}
+.stat.known strong{color:var(--green)}.stat.fuzzy strong{color:var(--amber)}.stat.wrong strong{color:var(--rose)}
+.practice{margin-top:24px}
+.practice-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;padding:0 3px}
+.eyebrow{color:var(--muted);font-size:12px;font-weight:650}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-size:11px;font-weight:650}
+.chip.recent{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.index{white-space:nowrap;color:var(--muted);font-size:12px}
+.index b{color:var(--accent);font-size:17px}
+.stage{perspective:1200px;transform:translateZ(0)}
+.flashcard{width:100%;min-height:320px;position:relative;display:grid;grid-template-columns:1fr;transform-style:preserve-3d;transition:transform .54s cubic-bezier(.2,.72,.15,1);cursor:pointer;border:0;background:none;outline:0;border-radius:24px}
+.flashcard.flipped{transform:rotateY(180deg)}
+.face{grid-area:1/1;min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:28px 28px;border-radius:24px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shade);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.face.front{background:linear-gradient(146deg,var(--surface) 58%,var(--surface-soft) 100%)}
+.face.back{transform:rotateY(180deg);align-items:flex-start;justify-content:center}
+.card-symbol{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--accent-soft);color:var(--accent);font-size:20px}
+.face-caption{color:var(--accent);font-weight:750;font-size:11px;letter-spacing:.14em}
+.question{font-size:clamp(20px,4.3vw,26px);font-weight:780;text-align:center;line-height:1.55;max-width:630px;letter-spacing:-.01em;white-space:pre-wrap;overflow-wrap:anywhere}
+.answer{font-size:16px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;width:100%;color:var(--text);text-align:left}
+.card-hint{font-size:12px;color:var(--muted);text-align:center}
+.card-foot{margin-top:4px;display:flex;justify-content:center;gap:5px;align-items:center;color:var(--muted);font-size:11px}
+.flashcard:focus-visible .face{outline:3px solid var(--accent);outline-offset:2px}
+.flashcard:active{filter:brightness(.985)}
+.stage.swap-next{animation:swapNext .32s cubic-bezier(.2,.8,.2,1)}
+.stage.swap-prev{animation:swapPrev .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes swapNext{from{opacity:.45;transform:translateX(16px) scale(.988)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes swapPrev{from{opacity:.45;transform:translateX(-16px) scale(.988)}to{opacity:1;transform:translateX(0) scale(1)}}
+.ratings{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px;animation:rise .2s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ratings.hidden{display:none}
+.btn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:13px;padding:12px 11px;min-height:48px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:transform .16s ease,box-shadow .18s ease,border-color .18s ease,background-color .18s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn:hover:not(:disabled){border-color:var(--accent);box-shadow:0 5px 15px rgba(52,78,156,.08)}
+.btn:active:not(:disabled){transform:scale(.962)}.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 8px 18px rgba(68,88,193,.19)}
+.btn.primary:hover:not(:disabled){background:var(--accent-dark);box-shadow:0 9px 20px rgba(68,88,193,.26)}
+.btn.rating-wrong{border-color:var(--rose);color:var(--rose);background:var(--rose-bg)}
+.btn.rating-fuzzy{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+.btn.rating-known{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.btn.rating-selected{box-shadow:inset 0 0 0 1px currentColor}
+.navigation{display:grid;grid-template-columns:.95fr 1fr 1.4fr;gap:9px;margin-top:12px}
+.ico{font-size:17px;line-height:1;display:inline-block}
+.toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,14px);border:1px solid var(--line);border-radius:999px;padding:9px 16px;background:var(--surface);color:var(--text);box-shadow:var(--shade);font-size:13px;font-weight:650;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:5;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer{margin:18px 2px 0;padding:13px 1px;border-top:1px solid var(--line);font-size:12px;line-height:1.75;color:var(--muted)}
+[hidden]{display:none!important}
+.view-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:17px;padding:6px;border:1px solid var(--line);border-radius:17px;background:var(--surface);box-shadow:var(--shade)}
+.view-tab{border:0;border-radius:11px;padding:12px 8px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:760;cursor:pointer;transition:background .2s,color .2s,transform .15s;touch-action:manipulation}
+.view-tab:active{transform:scale(.97)}.view-tab.active{background:var(--accent-soft);color:var(--accent)}.view-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.view-tab-count{font-size:11px;opacity:.85;margin-left:3px}
+.overview-panel{margin-bottom:25px}.overview-count{font-size:12px;color:var(--muted);font-weight:500;margin-left:auto}
+.overview-intro{color:var(--muted);font-size:13px;line-height:1.7;margin:-2px 0 17px}
+.overview-controls{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.overview-search{flex:1 1 240px;font-size:12px;color:var(--muted);font-weight:650}
+.overview-search input{display:block;width:100%;border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin-top:7px;background:var(--surface-soft);color:var(--text);font:inherit;font-size:14px;outline:none}
+.overview-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.overview-recent{display:flex;align-items:center;gap:7px;color:var(--text);font-size:12px;padding-bottom:13px;cursor:pointer;white-space:nowrap}
+.overview-recent input{width:17px;height:17px;accent-color:var(--accent)}
+.chapter-section{border:1px solid var(--line);border-radius:16px;margin-top:12px;overflow:hidden;background:var(--surface)}
+.chapter-section>summary{padding:15px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;list-style:none;font-weight:770;font-size:15px;background:var(--surface-soft)}
+.chapter-section>summary::-webkit-details-marker{display:none}
+.chapter-section>summary::after{content:'⌄';font-size:18px;color:var(--muted);transition:transform .17s}
+.chapter-section[open]>summary::after{transform:rotate(180deg)}
+.chapter-count{font-size:12px;color:var(--muted);font-weight:500;margin-left:auto}
+.overview-card{padding:13px 14px;border-top:1px solid var(--line)}
+.overview-card>summary{list-style:none;display:flex;align-items:flex-start;gap:11px;cursor:pointer;line-height:1.55}
+.overview-card>summary::-webkit-details-marker{display:none}
+.item-no{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px;min-width:22px}
+.item-name{font-size:14px;font-weight:670;flex:1}
+.item-badges{display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:5px}
+.item-pill{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 6px;white-space:nowrap}
+.item-pill.recent{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.item-pill.known{color:var(--green);background:var(--green-bg);border-color:transparent}
+.item-pill.fuzzy{color:var(--amber);background:var(--amber-bg);border-color:transparent}
+.item-pill.wrong{color:var(--rose);background:var(--rose-bg);border-color:transparent}
+.overview-detail{margin:11px 0 0 33px;padding:14px;border:1px solid var(--line);border-radius:11px;background:var(--surface-soft)}
+.overview-answer{font-size:14px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
+.overview-rating{margin-top:15px;padding-top:13px;border-top:1px solid var(--line)}
+.overview-rating-title{font-size:12px;color:var(--muted);font-weight:680;margin-bottom:9px}
+.overview-rating-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.overview-grade{min-height:42px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:inherit;font-size:13px;font-weight:720;cursor:pointer;touch-action:manipulation;color:var(--muted);transition:transform .14s,border-color .14s,background .14s,box-shadow .14s}
+.overview-grade:hover{border-color:var(--accent)}
+.overview-grade:active{transform:scale(.96)}
+.overview-grade:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.overview-grade[data-grade="wrong"]{color:var(--rose)}
+.overview-grade[data-grade="fuzzy"]{color:var(--amber)}
+.overview-grade[data-grade="known"]{color:var(--green)}
+.overview-grade.selected[data-grade="wrong"]{background:var(--rose-bg);border-color:var(--rose);box-shadow:inset 0 0 0 1px var(--rose)}
+.overview-grade.selected[data-grade="fuzzy"]{background:var(--amber-bg);border-color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber)}
+.overview-grade.selected[data-grade="known"]{background:var(--green-bg);border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.overview-grade-reset{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;padding:10px 2px;margin-top:3px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.overview-grade-reset:focus-visible{outline:2px solid var(--accent)}
+.overview-grade-note{min-height:17px;margin-top:5px;font-size:11px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.overview-grade{transition:none}}
+.overview-action{font:inherit;font-size:12px;font-weight:750;margin-top:12px;background:var(--accent-soft);color:var(--accent);border:0;border-radius:8px;padding:8px 12px;cursor:pointer}
+.overview-empty{font-size:14px;color:var(--muted);padding:30px 12px;text-align:center}
+@media(max-width:600px){.item-badges .item-pill.type{display:none}.overview-recent{padding-bottom:3px}.overview-card{padding:12px 11px}.item-name{font-size:13px}.overview-detail{margin-left:0}.item-badges{max-width:104px}}
+.ripple{position:absolute;display:block;border-radius:50%;background:currentColor;opacity:.11;transform:scale(0);animation:ripple .5s ease-out;pointer-events:none}
+@keyframes ripple{to{transform:scale(2.8);opacity:0}}
+@media(max-width:600px){body{padding:0 13px calc(20px + env(safe-area-inset-bottom))}.header{padding:25px 2px 20px}.logo{width:52px;height:52px;border-radius:16px}.panel{padding:15px;border-radius:19px}.controls{grid-template-columns:1fr 1fr}.field:first-child{grid-column:span 2}.summary{padding:13px 12px}.stat strong{font-size:21px}.practice{margin-top:20px}.face{min-height:310px;padding:25px 19px}.flashcard{min-height:310px}.answer{font-size:15px;line-height:1.85}.navigation{grid-template-columns:1fr 1fr 1.2fr;gap:7px}.btn{font-size:13px;padding:12px 5px}.ratings{gap:7px}.practice-top{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Progress & backup panel: isolated from practice logic and card data. */
+.data-panel{margin-bottom:24px}
+.data-lead{color:var(--muted);font-size:13px;line-height:1.85;margin:0 0 18px}
+.data-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0 0 18px}
+.data-tile{background:var(--surface-soft);border:1px solid var(--line);padding:12px 6px;border-radius:12px;text-align:center}
+.data-tile strong{display:block;font-size:22px;line-height:1.3;font-variant-numeric:tabular-nums}
+.data-tile small{font-size:11px;color:var(--muted)}
+.data-group{padding:17px 0;border-top:1px solid var(--line)}
+.data-group h2{font-size:15px;margin:0 0 7px}
+.data-group p{font-size:12px;color:var(--muted);margin:0 0 11px;line-height:1.75}
+.data-buttons{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.data-action{min-height:44px;padding:10px 16px}
+.data-upload{width:100%;max-width:410px;padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--surface-soft);color:var(--text);font:inherit;font-size:13px}
+.data-choice{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text);margin:11px 0;flex-wrap:wrap}
+.data-choice input{accent-color:var(--accent)}
+.data-status{margin-top:10px;min-height:20px;font-size:12px;color:var(--muted);line-height:1.65;overflow-wrap:anywhere}
+.data-warning{padding:12px 14px;border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.8;margin:0}
+@media(max-width:410px){.view-tab{font-size:12px;padding:11px 5px}.view-tab-count{margin:0}.data-summary{gap:5px}.data-tile strong{font-size:19px}.data-upload{font-size:12px}}
+</style>
+</head>
+<body><main class="page">
+<header class="header"><div><div class="overline">Heat Transfer · Review</div><h1>传热学 · 抽认卡</h1><p class="subtitle">99 道题 · 7 个章节 · 近期新增 30 道</p></div><div class="logo" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 22C9 6 13 26 18 10S26 20 28 7"/><path d="M5 27h22"/></svg></div></header>
+<nav class="view-tabs" aria-label="页面切换" role="tablist">
+ <button type="button" class="view-tab active" role="tab" aria-selected="true" aria-controls="view-study" id="tab-study">✦ 抽认卡练习</button>
+ <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-overview" id="tab-overview">▦ 题库总览 <span class="view-tab-count">99</span></button>
+ <button type="button" class="view-tab" role="tab" aria-selected="false" aria-controls="view-data" id="tab-data">↥ 学习记录</button>
+</nav>
+<div id="view-study" role="tabpanel" aria-labelledby="tab-study">
+<section class="panel" aria-label="练习设置">
+ <div class="panel-head"><span class="dot"></span>练习设置</div>
+ <div class="controls">
+   <div class="field"><label for="chapter">练习范围</label><select id="chapter"></select></div>
+   <div class="field"><label for="kind">题目类型</label><select id="kind"><option value="all">全部题型</option><option value="名词解释">名词解释</option><option value="简答题">简答题</option></select></div>
+   <div class="field field-mode"><label for="mode">练习模式</label><select id="mode">
+    <option value="uniform">1. 所选章节题目概率相同</option>
+    <option value="weighted">2. 不会题更高概率，掌握题更低概率</option>
+    <option value="wrong">3. 只抽不会</option>
+    <option value="fuzzy">4. 只抽模糊</option>
+    <option value="known">5. 只抽认识</option>
+   </select><div class="mode-hint" id="mode-hint" aria-live="polite">同概率模式：本轮未抽到的题等概率出现，全部抽完后重新洗牌。</div></div>
+ </div>
+ <div class="summary">
+  <div class="summary-top"><span id="scope-count">当前范围 · 99 题</span><strong id="percent">0% 已评级</strong></div>
+  <div class="progress-track" role="progressbar" aria-label="当前范围学习进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+ </div>
+ <div class="stats">
+   <div class="stat known"><strong id="s-known">0</strong><span>已掌握</span></div>
+   <div class="stat fuzzy"><strong id="s-fuzzy">0</strong><span>模糊</span></div>
+   <div class="stat wrong"><strong id="s-wrong">0</strong><span>不会</span></div>
+   <div class="stat"><strong id="s-new">99</strong><span>未评级</span></div>
+ </div>
+</section>
+<section class="practice" aria-label="抽认卡练习">
+ <div class="practice-top">
+   <div><div class="eyebrow" id="chapter-label">全部章节 · 名词解释</div><div class="chips"><span class="chip" id="kind-label">名词解释</span><span class="chip recent" id="recent-label" hidden>✦ 近期新增</span><span class="chip" id="freq-label" hidden></span></div></div>
+   <div class="index"><b id="draw-num">01</b> <span id="draw-suffix">/ 本轮抽题</span></div>
+ </div>
+ <div class="stage" id="stage"><div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="点击翻转抽认卡" aria-pressed="false">
+   <div class="face front"><div class="card-symbol" aria-hidden="true">✦</div><div class="face-caption">QUESTION</div><div class="question" id="front-text">正在准备题目…</div><div class="card-hint">先独立回忆，再点击翻面</div></div>
+   <div class="face back"><div class="face-caption">REFERENCE ANSWER · 参考答案</div><div class="answer" id="back-text"></div><div class="card-foot">↻ 点击卡片返回题目</div></div>
+ </div></div>
+ <div class="ratings hidden" id="rating-bar"><button class="btn rating-wrong" id="wrong">✕ 不会</button><button class="btn rating-fuzzy" id="fuzzy">◑ 模糊</button><button class="btn rating-known" id="known">✓ 掌握</button></div>
+ <div class="navigation"><button class="btn" id="prev" disabled><span class="ico">‹</span> 上一题</button><button class="btn" id="flip"><span class="ico">↻</span> 翻转</button><button class="btn primary" id="next">随机下一题 <span class="ico">›</span></button></div>
+ <div class="footer" id="hint">同一道题在章节、全部章节与近期新增中共用自评记录。「上一题」可撤销误跳并恢复翻面状态；题库总览可查看全题目与答案。学习记录保存在此浏览器，可在「学习记录」页面导出／导入备份。</div>
+</section>
+</div>
+<section id="view-overview" role="tabpanel" aria-labelledby="tab-overview" hidden>
+ <div class="panel overview-panel">
+   <div class="panel-head"><span class="dot"></span>题库总览 <span class="overview-count" id="overview-count">99 道题 · 7个章节</span></div>
+   <p class="overview-intro">按章节浏览全部99道题。点击题目可展开答案，并直接将其评级为“不会／模糊／掌握”，修改立即同步到抽题模式与学习进度。</p>
+   <div class="overview-controls">
+     <label class="overview-search">搜索题目或答案 <input id="overview-search" type="search" placeholder="输入关键词，筛选题库…" autocomplete="off" /></label>
+     <label class="overview-recent"><input id="overview-recent" type="checkbox" /> 仅显示近期新增（30）</label>
+   </div>
+   <div id="overview-list"></div>
+ </div>
+</section>
+<section id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
+ <div class="panel data-panel">
+  <div class="panel-head"><span class="dot"></span>学习记录 · 备份与迁移</div>
+  <p class="data-lead">学习评级默认保存在当前浏览器中，不会上传至 GitHub。更换浏览器、设备或网站地址时，请通过 JSON 文件导出后再导入。</p>
+  <div class="data-summary" aria-label="全题库掌握情况">
+   <div class="data-tile"><strong id="d-known">0</strong><small>掌握</small></div>
+   <div class="data-tile"><strong id="d-fuzzy">0</strong><small>模糊</small></div>
+   <div class="data-tile"><strong id="d-wrong">0</strong><small>不会</small></div>
+   <div class="data-tile"><strong id="d-new">99</strong><small>未评级</small></div>
+  </div>
+  <div class="data-group">
+   <h2>导出记录</h2>
+   <p>生成可跨设备保存的 JSON 备份，包含每道题的固定 ID 和评级，不含任何账号信息。</p>
+   <div class="data-buttons"><button type="button" class="btn primary data-action" id="export-progress">↓ 导出 JSON 备份</button></div>
+  </div>
+  <div class="data-group">
+   <h2>导入或迁移</h2>
+   <p>支持本版备份、直接保存的题目 ID→评级映射，以及早期版本的对象格式。</p>
+   <input class="data-upload" id="import-file" type="file" accept=".json,application/json" aria-label="选择学习记录JSON文件">
+   <div class="data-choice"><label><input type="radio" name="import-mode" value="merge" checked> 与现有记录合并（同题以导入文件为准）</label><label><input type="radio" name="import-mode" value="replace"> 覆盖全部已有评级</label></div>
+   <div class="data-buttons"><button type="button" class="btn data-action" id="import-progress">↑ 导入选择的文件</button><button type="button" class="btn data-action" id="migrate-legacy">尝试读取同域旧版记录</button></div>
+   <div class="data-status" id="data-status" role="status" aria-live="polite"></div>
+  </div>
+  <p class="data-warning">注意：浏览器本地存储会按照网站域名隔离。此前直接打开的 HTML 文件，其学习记录不会因为本次上传 GitHub 而自动迁移；请先在旧版导出，再在本网站导入。题库及答案公开，但个人评级仅存在你的设备中。</p>
+ </div>
+</section>
+</main><div class="toast" id="toast" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+const CARDS=[{"id":"TH001","ch":"基础概念","k":"名词解释","q":"什么是传热学？","a":"传热学是研究由温差引起的热能传递规律的科学。","r":false},{"id":"TH002","ch":"基础概念","k":"名词解释","q":"什么是稳态过程？","a":"稳态过程：系统中各点的温度不随时间变化。","r":false},{"id":"TH003","ch":"基础概念","k":"名词解释","q":"什么是非稳态过程？","a":"非稳态过程：系统中各点的温度随时间变化。","r":false},{"id":"TH004","ch":"基础概念","k":"名词解释","q":"什么是热传导？","a":"热传导是物体内部或相互接触的物体间，仅依靠分子、原子及自由电子等微观粒子的热运动而产生的热能传递。","r":false},{"id":"TH005","ch":"基础概念","k":"名词解释","q":"什么是热对流？","a":"热对流是由于流体的宏观运动，使流体内部各部分之间发生热量传递的现象。","r":false},{"id":"TH006","ch":"基础概念","k":"名词解释","q":"什么是辐射？","a":"辐射是物体通过电磁波来传递能量的方式。","r":false},{"id":"TH007","ch":"基础概念","k":"名词解释","q":"什么是热辐射？","a":"热辐射是物体由于温度而发出的电磁辐射。","r":false},{"id":"TH008","ch":"基础概念","k":"名词解释","q":"什么是黑体？","a":"黑体是能够吸收投射到其表面上的全部热辐射能量的理想物体。","r":false},{"id":"TH009","ch":"基础概念","k":"名词解释","q":"什么是传热过程？","a":"传热过程是热量由壁面一侧的高温流体，通过壁面传到另一侧低温流体中去的过程。","r":false},{"id":"TH010","ch":"基础概念","k":"简答题","q":"传热学与工程热力学有何异同？","a":"相同点：（1）都是研究热现象的科学；（2）都遵循热力学第一、第二定律。不同点：（1）工程热力学主要研究热力系统的状态、过程及能量转换关系；传热学主要研究存在温差时热能传递的规律；（2）热力学侧重状态量和过程的能量收支，传热学还要研究单位时间内能传递多少热量。","r":false},{"id":"TH011","ch":"基础概念","k":"简答题","q":"热辐射与导热、对流相比有什么特点？","a":"（1）热辐射可以在真空中传递，而且在真空中传播最有效；（2）热辐射既有能量转移，还伴随着热能与辐射能间能量形式的转换。","r":false},{"id":"TH012","ch":"基础概念","k":"简答题","q":"增强传热应该从哪个环节入手？","a":"增强传热应从热阻大的环节入手。这一环节的热阻在总热阻中占主要地位，具有改变总热阻的最大潜力。","r":false},{"id":"TH013","ch":"导热","k":"名词解释","q":"什么是热扩散率？","a":"热扩散率（热扩散系数）表征物体内部温度趋于一致的能力。热扩散率越大，材料中的温度变化传播得越迅速。其表达式为 a = λ/(ρc)。","r":false},{"id":"TH014","ch":"导热","k":"名词解释","q":"什么是接触热阻？","a":"两个固体表面因未完全接触，界面之间常有充满空气等介质的间隙，从而增加附加传热阻力，这种热阻称为接触热阻。","r":false},{"id":"TH015","ch":"导热","k":"简答题","q":"傅里叶定律的文字表达","a":"在导热过程中，单位时间内通过给定截面的导热量，正比于垂直该截面方向上的温度变化率和截面面积，而热量传递的方向与温度升高的方向相反。矢量式：q = −λ∇t。q 为热流密度矢量；λ 为导热系数，反映物质导热本领的大小；∇t 为温度梯度，其方向指向温度升高最快处；负号表示热量沿温度降低方向传递。","r":false},{"id":"TH016","ch":"导热","k":"简答题","q":"不同物态物质的导热机理","a":"（1）气体：依靠气体分子不规则热运动时的相互碰撞，不同能量水平的分子碰撞使热量由高温处传向低温处。（2）导电固体：主要依靠自由电子的运动传热。（3）非导电固体：主要依靠晶格结构的振动，即原子、分子在平衡位置附近的振动传热。（4）液体：依靠分子热运动及分子间相互作用传热。","r":false},{"id":"TH017","ch":"导热","k":"简答题","q":"傅里叶定律不适用的四种情况","a":"（1）温度接近绝对零度；（2）过程作用时间极短；（3）过程发生的空间尺度很小；（4）热流密度极高。","r":false},{"id":"TH018","ch":"导热","k":"简答题","q":"如何减小接触热阻？","a":"（1）换热器可采用胀管或浸镀锡液等操作，改善接触；（2）在接触界面间敷设导热系数比空气大的导热油、导热硅脂等界面材料。","r":false},{"id":"TH019","ch":"导热","k":"简答题","q":"影响接触热阻的因素有哪些？","a":"（1）接触界面的粗糙程度；（2）接触压力；（3）接触材料的硬度；（4）间隙中介质的种类。","r":false},{"id":"TH020","ch":"导热","k":"简答题","q":"如何减小套管温度计的测温误差？","a":"（1）选用导热系数小的材料作为套管；（2）增加套管伸入流体的长度并减小管壁厚度；（3）强化套管与流体间的换热；（4）在储气筒等外露部分包裹保温材料。","r":false},{"id":"TH090","ch":"导热","k":"名词解释","q":"什么是临界绝缘直径？","a":"临界绝缘直径 dcr：若圆柱外径小于 dcr，随外径增大散热量增大；若圆柱外径大于 dcr，则散热量随外径增大而减小。dcr=2λ/h。","r":true},{"id":"TH021","ch":"非稳态导热","k":"名词解释","q":"什么是非稳态导热？","a":"非稳态导热是物体内部温度随时间发生变化的导热过程。","r":false},{"id":"TH022","ch":"非稳态导热","k":"名词解释","q":"什么是非正规状况阶段？","a":"非正规状况阶段：物体内部的温度分布主要受初始温度分布的控制。","r":false},{"id":"TH023","ch":"非稳态导热","k":"名词解释","q":"什么是正规状况阶段？","a":"正规状况阶段：物体内部的温度分布主要受热边界条件影响，初始温度分布对温度场形状的影响逐渐消失。","r":false},{"id":"TH024","ch":"非稳态导热","k":"名词解释","q":"什么是时间常数？","a":"时间常数是说明热电偶对流体温度变动响应快慢的指标。时间常数越小，响应越迅速。","r":false},{"id":"TH025","ch":"非稳态导热","k":"名词解释","q":"什么是毕渥数？","a":"毕渥数是固体内部单位导热面积上的导热热阻与表面单位面积上的换热热阻之比，用于比较内部导热热阻与外部换热热阻的相对大小。Bi = hL_c/λ。","r":false},{"id":"TH026","ch":"非稳态导热","k":"名词解释","q":"什么是傅里叶数？","a":"傅里叶数是表征非稳态导热过程进行深度的量纲为一的时间。Fo = at/L_c²。","r":false},{"id":"TH027","ch":"非稳态导热","k":"名词解释","q":"什么是集总参数法？","a":"当物体内部导热热阻远小于表面换热热阻时，任一时刻固体内部温度趋于一致，可以近似认为整个固体在同一瞬间处于同一温度下。这种忽略内部导热热阻的简化分析方法称为集总参数法。","r":false},{"id":"TH028","ch":"对流换热","k":"名词解释","q":"什么是对流换热？","a":"对流换热是流体流过一个物体表面时，流体与物体表面之间发生的热量传递过程。","r":false},{"id":"TH029","ch":"对流换热","k":"名词解释","q":"什么是速度边界层？","a":"速度边界层（流动边界层）是固体表面附近流体速度发生剧烈变化的薄层。","r":false},{"id":"TH030","ch":"对流换热","k":"名词解释","q":"什么是温度边界层？","a":"温度边界层（热边界层）是固体表面附近流体温度发生剧烈变化的薄层。","r":false},{"id":"TH031","ch":"对流换热","k":"名词解释","q":"湍流边界层的粘性底层","a":"湍流边界层的主体处于湍流状态，但紧靠壁面处黏性力仍占主导地位，使贴附于壁面的一极薄层内仍保持层流的主要性质。该极薄层称为湍流边界层的粘性底层。","r":false},{"id":"TH032","ch":"对流换热","k":"名词解释","q":"什么是普朗特数？","a":"普朗特数表征流动边界层与热边界层的相对大小，反映流体中动量扩散与热扩散能力的对比。Pr = ν/a。","r":false},{"id":"TH033","ch":"对流换热","k":"名词解释","q":"什么是类比法（比拟理论）？","a":"类比法（比拟理论）是利用两个不同物理现象在控制方程形式上的类似性，通过测定其中一种现象的规律而获得另一种现象规律的方法。","r":false},{"id":"TH034","ch":"对流换热","k":"名词解释","q":"物理现象相似的定义","a":"两个同类的物理现象，在相应时刻和相应地点，与现象有关的物理量一一对应成比例，称为物理现象相似。同类现象是由相同形式、相同内容的微分方程描述的现象。","r":false},{"id":"TH035","ch":"对流换热","k":"简答题","q":"两个同类物理现象相似的充分条件","a":"两个同类物理现象相似的充分条件：（1）同名特征数相等；（2）单值性条件相似。","r":false},{"id":"TH036","ch":"对流换热","k":"简答题","q":"相似原理的应用","a":"（1）安排和整理实验数据：利用相似特征数，将个别实验得到的规律推广到满足相似条件的一组现象；（2）指导模型实验，确定模型与实际现象之间需要满足的相似条件。","r":false},{"id":"TH037","ch":"对流换热","k":"名词解释","q":"什么是入口效应？","a":"入口段热边界层较薄，局部表面换热系数比充分发展段高。因此可以在一定条件下采用短管来强化换热，这称为入口效应。","r":false},{"id":"TH038","ch":"对流换热","k":"名词解释","q":"什么是充分发展段？","a":"流体在管内流动时，边界层从入口开始增长，直至汇合于管子中心线；汇合后的区域称为充分发展段。","r":false},{"id":"TH039","ch":"对流换热","k":"名词解释","q":"什么是特征数方程？","a":"特征数方程是表征物理现象规律的无量纲函数关系式。","r":false},{"id":"TH040","ch":"对流换热","k":"名词解释","q":"什么是自然对流？","a":"自然对流是由流体本身温度场不均匀引起密度差，在重力作用下产生浮升力而形成的流动。","r":false},{"id":"TH041","ch":"对流换热","k":"简答题","q":"影响对流换热的因素？","a":"影响对流换热的主要因素：（1）流体流动的起因；（2）流体有无相变；（3）流体的流动状态，如层流或湍流；（4）传热表面的几何因素，如内部流动或外部流动。","r":false},{"id":"TH042","ch":"对流换热","k":"简答题","q":"引入边界层的意义？","a":"将计算区域简化到边界层内，可以对控制方程进行实质性的简化，便于计算。","r":false},{"id":"TH043","ch":"对流换热","k":"简答题","q":"内部流动与外部流动的区别？","a":"外部流动：换热壁面上的流体边界层可以自由发展，不受流道壁面的限制。内部流动：换热壁面上边界层的发展受到流道壁面的限制。","r":false},{"id":"TH044","ch":"对流换热","k":"简答题","q":"叉排管束与顺排管束的区别？","a":"（1）叉排流动扰动剧烈，传热通常比顺排强；（2）顺排阻力损失通常小于叉排，且易于清洗。","r":false},{"id":"TH093","ch":"对流换热","k":"名词解释","q":"什么是表面传热系数？","a":"单位换热面积、单位壁面与流体温差下的对流换热量，是反映对流换热强弱的物理量。","r":true,"f":1},{"id":"TH094","ch":"对流换热","k":"名词解释","q":"什么是局部对流传热系数？","a":"换热表面某一点处的局部热流密度与该点壁面温度和当地流体参考温度之差的比值，其大小取决于壁面处流体的温度梯度。","r":true,"f":4},{"id":"TH095","ch":"对流换热","k":"名词解释","q":"什么是牛顿冷却公式？","a":"对流换热量正比于换热面积以及壁面与流体之间的温差，这一关系称为牛顿冷却公式。","r":true,"f":1},{"id":"TH096","ch":"对流换热","k":"名词解释","q":"什么是自然对流自模化？","a":"自然对流达到湍流状态后，平均表面传热系数近似与特征长度无关的现象。","r":true,"f":4},{"id":"TH045","ch":"凝结与沸腾","k":"名词解释","q":"什么是膜状凝结？","a":"膜状凝结是指凝结液体能很好地润湿壁面，并在壁面上铺展成连续液膜的凝结形式。","r":false},{"id":"TH046","ch":"凝结与沸腾","k":"名词解释","q":"什么是珠状凝结？","a":"珠状凝结是指凝结液体不能很好地润湿壁面，凝结液体在壁面上形成一个个小液珠的凝结形式。","r":false},{"id":"TH047","ch":"凝结与沸腾","k":"名词解释","q":"什么是蒸发？","a":"蒸发是发生在液体表面的汽化过程。","r":false},{"id":"TH048","ch":"凝结与沸腾","k":"名词解释","q":"什么是沸腾？","a":"沸腾是液体内部以产生气泡的形式进行的汽化过程。","r":false},{"id":"TH049","ch":"凝结与沸腾","k":"名词解释","q":"什么是不凝结气体？","a":"不凝结气体影响凝结换热：（1）随着蒸气凝结，液膜表面不凝结气体的分压增大，蒸气凝结前必须以扩散方式穿过不凝结气体层，增加了传递阻力；（2）蒸气分压下降，使相应饱和温度下降，减小凝结温差，从而削弱凝结换热。不凝结气体是指在该凝结工况下不发生凝结的气体。","r":false},{"id":"TH050","ch":"凝结与沸腾","k":"简答题","q":"比较膜状凝结与珠状凝结的特点及优缺点","a":"膜状凝结：凝结液能润湿壁面，在壁面铺展成连续液膜；液膜厚度通常沿液体流动方向增加，换热热阻较大。珠状凝结：凝结液不能很好润湿壁面，形成许多小液珠；大量壁面能与蒸气直接接触，液珠长大后在重力作用下滑落并扫除沿途液珠，因而换热通常较强。","r":false},{"id":"TH051","ch":"凝结与沸腾","k":"简答题","q":"膜状凝结的影响因素？","a":"（1）不凝结气体；（2）管子的排数：排数越多，下排管液膜越厚，凝结传热减弱；（3）蒸气流速。","r":false},{"id":"TH052","ch":"凝结与沸腾","k":"简答题","q":"膜状凝结的强化原则？","a":"膜状凝结强化的基本原则是尽量减薄液膜厚度。具体措施：（1）降低传热面的高度；（2）竖管改为横管；（3）利用表面张力；（4）及时排液。","r":false},{"id":"TH053","ch":"凝结与沸腾","k":"简答题","q":"强化沸腾换热的基本原则？","a":"强化沸腾换热的基本原则是增加加热表面的汽化核心。","r":false},{"id":"TH054","ch":"凝结与沸腾","k":"简答题","q":"影响沸腾换热的因素？","a":"（1）不凝结气体：液体中溶解的不凝结气体逸出，可增加扰动并影响汽化核心；（2）过冷度：在核态沸腾起始阶段，过冷度可使换热增强；（3）液位高度：低液位下沸腾换热可能得到强化；（4）沸腾表面结构：表面微小凹坑容易形成汽化核心。","r":false},{"id":"TH076","ch":"凝结与沸腾","k":"简答题","q":"蒸汽流速如何影响膜状凝结传热？","a":"蒸汽流速对液膜表面会产生明显的黏滞力。当蒸汽流动方向与液膜向下流动方向相同时，使液膜拉薄，换热系数增大；反方向时则阻滞液膜流动，使液膜增厚，换热系数减小。","r":true},{"id":"TH077","ch":"凝结与沸腾","k":"简答题","q":"液膜过冷度如何影响膜状凝结传热？","a":"考虑液膜过冷度的影响，可用修正汽化潜热代替原汽化潜热：r′ = r + 0.68cₚ(tₛ − t_w)。修正后换热系数增大，使传热增强。","r":true},{"id":"TH078","ch":"凝结与沸腾","k":"简答题","q":"液膜波动如何影响膜状凝结传热？","a":"液膜波动使流动扰动增强，传热系数增大。","r":true},{"id":"TH079","ch":"凝结与沸腾","k":"名词解释","q":"什么是核态沸腾？","a":"气泡的生长、合并及脱离表面的过程造成剧烈扰动，使传热系数和热流密度都急剧增大。","r":true},{"id":"TH080","ch":"凝结与沸腾","k":"名词解释","q":"什么是过渡沸腾？","a":"气泡汇聚覆盖在加热面上，蒸汽排除过程越趋恶化。","r":true},{"id":"TH081","ch":"凝结与沸腾","k":"名词解释","q":"什么是稳定膜态沸腾？","a":"加热面上已形成稳定的蒸汽膜层，产生的蒸汽有规则地排出膜层，热流密度随壁面过热度的增加而增大。由于热量必须穿过热阻较大的气膜，传热系数较小。","r":true},{"id":"TH055","ch":"热辐射","k":"名词解释","q":"什么是辐射力？","a":"辐射力是单位时间内，单位表面积向其上半球空间所有方向辐射出去的全部波长范围内的能量。","r":false},{"id":"TH056","ch":"热辐射","k":"名词解释","q":"什么是光谱辐射力？","a":"光谱辐射力是单位时间内，单位表面积向其上半球空间所有方向辐射出去的、在任意波长附近单位波长间隔内的能量。","r":false},{"id":"TH057","ch":"热辐射","k":"名词解释","q":"什么是兰贝特余弦定律？","a":"兰贝特定律：对于黑体或漫射体，其定向辐射强度与空间方向无关；某方向上的辐射能量与该方向和法线夹角的余弦成正比。","r":false},{"id":"TH058","ch":"热辐射","k":"名词解释","q":"什么是定向辐射强度？","a":"定向辐射强度是单位时间内，从表面单位投影面积向给定方向单位立体角内辐射出去的能量。","r":false},{"id":"TH059","ch":"热辐射","k":"名词解释","q":"什么是灰体？","a":"灰体是吸收比与波长无关的理想化物体。","r":false},{"id":"TH060","ch":"热辐射","k":"名词解释","q":"什么是漫射灰体？","a":"漫射灰体是光谱辐射特性不随波长变化，同时辐射强度在空间各个方向上都相等的理想化物体。","r":false},{"id":"TH061","ch":"热辐射","k":"名词解释","q":"什么是表面发射率？","a":"物体表面的发射率，是其实际辐射力与相同温度下黑体辐射力之比。发射率取决于物质种类、表面温度和表面状况。","r":false},{"id":"TH062","ch":"热辐射","k":"简答题","q":"气体辐射的特点","a":"（1）选择性：气体只在某些波长区段（光带）内具有辐射和吸收能力，光带外的辐射、吸收能力很弱，可近似认为透明。（2）容积性：气体的辐射和吸收在整个气体容积中进行，因此与气体的形状、容积及辐射行程有关。","r":false},{"id":"TH063","ch":"热辐射","k":"简答题","q":"微波炉的加热原理？","a":"微波可以穿透部分塑料、玻璃和陶瓷等材料，但可被水等极性分子吸收，在物体内部产生热量，从而加热食物。","r":false},{"id":"TH064","ch":"热辐射","k":"名词解释","q":"什么是角系数？","a":"表面1发出的辐射能中，落到表面2的百分数（份额），称为表面1对表面2的角系数。","r":false},{"id":"TH065","ch":"热辐射","k":"名词解释","q":"什么是有效辐射？","a":"有效辐射表示单位时间内离开表面单位面积的总辐射能，包括表面自身辐射能和投入辐射中被该表面反射出去的部分。","r":false},{"id":"TH066","ch":"热辐射","k":"名词解释","q":"什么是投入辐射？","a":"投入辐射是单位时间内落到单位表面积上的全部辐射能。","r":false},{"id":"TH067","ch":"热辐射","k":"名词解释","q":"什么是重辐射面？","a":"表面温度未定、能够自行调整，并使净辐射传热量为零的表面称为重辐射面。","r":false},{"id":"TH070","ch":"热辐射","k":"名词解释","q":"什么是立体角？","a":"以立体角的顶点为球心，作半径为 r 的球面，将球面上被该立体角所截取的面积 A_c 除以半径的平方 r²，即得立体角的大小。Ω = A_c/r²。","r":true},{"id":"TH071","ch":"热辐射","k":"名词解释","q":"什么是普朗克定律？","a":"普朗克定律揭示了黑体辐射能按波长分布的规律，即黑体光谱辐射力与波长及温度之间的关系。E_bλ = c₁/[λ⁵(e^(c₂/(λT)) − 1)]。","r":true},{"id":"TH072","ch":"热辐射","k":"名词解释","q":"什么是光谱发射率？","a":"光谱发射率表示实际物体的光谱辐射力与同温度下黑体的光谱辐射力的比值。ε(λ) = E_λ/E_bλ。","r":true},{"id":"TH073","ch":"热辐射","k":"名词解释","q":"什么是光谱吸收比？","a":"光谱吸收比是物体对某一特定波长的入射辐射能所吸收的百分数。","r":true},{"id":"TH074","ch":"热辐射","k":"名词解释","q":"什么是定向发射率？","a":"定向发射率是实际物体在某一方向上的定向辐射强度与相同温度下黑体的定向辐射强度之比。","r":true},{"id":"TH075","ch":"热辐射","k":"名词解释","q":"什么是基尔霍夫定律？","a":"当黑体处于辐射热平衡时，任意物体对黑体投入辐射的吸收比等于同温度下该物体的发射率。","r":true},{"id":"TH082","ch":"热辐射","k":"名词解释","q":"什么是维恩位移定律？","a":"黑体光谱辐射力取得最大值时所对应的波长 λ_m 与黑体的绝对温度 T 成反比，即 λ_m T = 2.9×10⁻³ m·K。","r":true},{"id":"TH083","ch":"热辐射","k":"名词解释","q":"什么是本身辐射？","a":"表面自身发出的辐射。","r":true},{"id":"TH084","ch":"热辐射","k":"名词解释","q":"什么是反射辐射？","a":"表面的投入辐射中被反射的部分。","r":true},{"id":"TH085","ch":"热辐射","k":"名词解释","q":"什么是表面辐射热阻？","a":"当物体表面不是黑体表面时，表面不能全部吸收外来投入辐射能量，相当于存在表面热阻。Rₛ=(1−ε)/(εA)，取决于表面的辐射特性。","r":true},{"id":"TH086","ch":"热辐射","k":"名词解释","q":"什么是遮热板？","a":"插入两个辐射换热表面之间，用以削弱辐射换热的薄板。","r":true},{"id":"TH087","ch":"热辐射","k":"名词解释","q":"什么是空间辐射热阻？","a":"由于表面发出的辐射能不能完全落在另一个表面上而存在的热阻，由表面面积及相对位置决定。","r":true},{"id":"TH088","ch":"热辐射","k":"名词解释","q":"什么是平均射线行程？","a":"一个当量半球的半径，该半球内气体对球心的辐射，相当于所研究容器中气体对所指地点的辐射。","r":true},{"id":"TH089","ch":"热辐射","k":"简答题","q":"角系数具有哪些性质？在什么条件下角系数是一个纯几何因子？","a":"角系数具有相对性、完整性和可加性。纯几何因子的条件：（1）漫射表面；（2）表面辐射热流密度均匀。","r":true},{"id":"TH068","ch":"换热器","k":"名词解释","q":"什么是换热器的效能？","a":"换热器的效能是表征换热器实际换热效果与可能的最大换热效果之比。","r":false},{"id":"TH069","ch":"换热器","k":"简答题","q":"如何提高换热器的紧凑性？","a":"（1）减小管径；（2）采用板式结构；（3）采用肋化表面；（4）采用丝网状材料；（5）借鉴仿生结构。","r":false},{"id":"TH091","ch":"换热器","k":"名词解释","q":"什么是污垢热阻？","a":"换热器运行一段时间后，换热面上常会覆盖一层垢层，表现为附加的热阻，称为污垢热阻。","r":true},{"id":"TH092","ch":"换热器","k":"简答题","q":"顺流和逆流换热器各有什么优缺点？","a":"（1）相同出口温度条件下，逆流平均温差最大，顺流最小。\n（2）但逆流冷热流体高温在同侧，对高温换热器应避免。","r":true},{"id":"TH097","ch":"换热器","k":"名词解释","q":"什么是换热器？","a":"使热量从热流体传递给冷流体，以满足规定工艺要求的热工设备。","r":true,"f":1},{"id":"TH098","ch":"换热器","k":"名词解释","q":"什么是传热系数（总传热系数）？","a":"传热过程中，单位传热面积、单位冷热流体平均温差下的传热量，综合反映各传热环节的传热能力。","r":true,"f":3},{"id":"TH099","ch":"换热器","k":"名词解释","q":"什么是换热器单元数？","a":"换热器的传热能力与冷热流体中较小热容量流率之比，是衡量换热器传热能力大小的无量纲参数。","r":true,"f":4}];
+const CHAPTERS=['基础概念','导热','非稳态导热','对流换热','凝结与沸腾','热辐射','换热器'];
+const byId=new Map(CARDS.map(c=>[c.id,c]));
+const $=id=>document.getElementById(id);
+const STORAGE='heat-transfer-flashcards-v3';
+let progress={};try{const obj=JSON.parse(localStorage.getItem(STORAGE)||'{}');if(obj&&typeof obj==='object'&&!Array.isArray(obj))progress=obj;}catch(e){}
+let current=null,face=false,queue=[],history=[],forward=[],draws=0,advanceTimer=null,toastTimer=null;
+const grade=c=>['wrong','fuzzy','known'].includes(progress[c.id])?progress[c.id]:'new';
+const save=()=>{try{localStorage.setItem(STORAGE,JSON.stringify(progress))}catch(e){}};
+function base(){const ch=$('chapter').value,kind=$('kind').value;return CARDS.filter(c=>(ch==='all'||(ch==='recent'?c.r:c.ch===ch))&&(kind==='all'||c.k===kind));}
+function allowed(){const m=$('mode').value;const pool=base();if(m==='uniform'||m==='weighted')return pool;return pool.filter(c=>grade(c)===m);}
+function shuffle(arr){const b=arr.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+const WEIGHTS={wrong:6,fuzzy:3,new:2,known:1};
+function weightedPick(options){let total=0;for(const c of options)total+=WEIGHTS[grade(c)];let target=Math.random()*total;for(const c of options){target-=WEIGHTS[grade(c)];if(target<0)return c;}return options[options.length-1];}
+const MODE_HINTS={uniform:'各题同概率：一轮内不重复，全部抽完后重新洗牌。',weighted:'单题相对权重：不会 ×6 · 模糊 ×3 · 未评级 ×2 · 认识 ×1。每次独立加权抽取，允许重复；实际概率按题量归一化。',wrong:'只抽被标记为“不会”的题目。',fuzzy:'只抽被标记为“模糊”的题目。',known:'只抽被标记为“认识／掌握”的题目。'};
+function stopTimer(){if(advanceTimer){clearTimeout(advanceTimer);advanceTimer=null;}}
+function showToast(t){$('toast').textContent=t;$('toast').classList.add('show');if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1150);}
+function animateSwap(direction){const stage=$('stage');stage.classList.remove('swap-next','swap-prev');void stage.offsetWidth;stage.classList.add(direction==='prev'?'swap-prev':'swap-next');}
+function render(){
+ const scope=base(),available=allowed();const k=scope.filter(c=>grade(c)==='known').length,f=scope.filter(c=>grade(c)==='fuzzy').length,w=scope.filter(c=>grade(c)==='wrong').length;
+ $('s-known').textContent=k;$('s-fuzzy').textContent=f;$('s-wrong').textContent=w;$('s-new').textContent=scope.length-k-f-w;
+ const percent=scope.length?Math.round((k+f+w)/scope.length*100):0;
+ $('scope-count').textContent='当前范围 · '+scope.length+' 题 · 可抽 '+available.length+' 题';$('percent').textContent=percent+'% 已评级';$('progress-fill').style.width=percent+'%';$('progress-track').setAttribute('aria-valuenow',String(percent));
+ $('draw-num').textContent=String(draws).padStart(2,'0');$('mode-hint').textContent=MODE_HINTS[$('mode').value];
+ $('prev').disabled=history.length===0;$('next').disabled=available.length===0&&forward.length===0;
+ $('next').innerHTML=forward.length?'返回下一题 <span class="ico">›</span>':'随机下一题 <span class="ico">›</span>';
+ $('rating-bar').classList.toggle('hidden',!face||!current);
+ if(!current){$('chapter-label').textContent='当前范围';$('kind-label').textContent='暂无可练习题目';$('recent-label').hidden=true;$('freq-label').hidden=true;$('front-text').textContent='当前筛选没有符合条件的题目';$('back-text').textContent='请选择其他练习范围或模式。';$('flashcard').classList.remove('flipped');$('flashcard').setAttribute('aria-pressed','false');return;}
+ $('chapter-label').textContent=current.ch;
+ $('kind-label').textContent=current.k;
+ $('recent-label').hidden=!current.r;
+ $('freq-label').hidden=!current.f;
+ if(current.f)$('freq-label').textContent='考频 '+current.f+' 次';
+ $('front-text').textContent=current.q;$('back-text').textContent=current.a;
+ $('flashcard').classList.toggle('flipped',face);$('flashcard').setAttribute('aria-pressed',String(face));
+ for(const rating of ['wrong','fuzzy','known'])$(''+rating).classList.toggle('rating-selected',grade(current)===rating);
+}
+function restart(){stopTimer();queue=[];history=[];forward=[];draws=0;current=null;face=false;drawRandom(true);}
+function drawRandom(reset=false){stopTimer();const options=allowed();if(!options.length){if(current&&!reset)history.push({id:current.id,face});current=null;face=false;render();return;}
+ let selected;
+ if($('mode').value==='weighted'){
+   // With-replacement, per-item proportional probability. Different grades retain exact weights.
+   selected=weightedPick(options);
+ }else{
+   const ids=new Set(options.map(c=>c.id));queue=queue.filter(c=>ids.has(c.id));
+   if(!queue.length){queue=shuffle(options);if(queue.length>1&&current&&queue[0].id===current.id){const j=queue.findIndex(c=>c.id!==current.id);[queue[0],queue[j]]=[queue[j],queue[0]];}}
+   selected=queue.shift();
+ }
+ if(current&&!reset)history.push({id:current.id,face});
+ forward=[];current=selected;face=false;draws++;render();animateSwap('next');}
+function next(){stopTimer();if(forward.length){if(current)history.push({id:current.id,face});const snap=forward.pop();current=byId.get(snap.id)||null;face=snap.face;render();animateSwap('next');return;}drawRandom(false);}
+function previous(){stopTimer();if(!history.length)return;if(current)forward.push({id:current.id,face});const snap=history.pop();current=byId.get(snap.id)||null;face=snap.face;render();animateSwap('prev');}
+function flip(){stopTimer();if(!current)return;face=!face;render();}
+function setTab(which){
+ const overview=which==='overview',data=which==='data';
+ $('view-study').hidden=overview||data;$('view-overview').hidden=!overview;$('view-data').hidden=!data;
+ for(const name of ['study','overview','data']){
+  const btn=$('tab-'+name),on=name===which;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',String(on));
+ }
+ if(overview)renderOverview();if(data)renderData();
+}
+function renderOverview(){
+ const term=$('overview-search').value.trim().toLowerCase();const recentOnly=$('overview-recent').checked;
+ const root=$('overview-list');root.replaceChildren();
+ let shown=0;
+ for(const ch of CHAPTERS){
+  const pool=CARDS.filter(c=>c.ch===ch&&(!recentOnly||c.r)&&(!term||(c.q+' '+c.a).toLowerCase().includes(term)));
+  if(!pool.length)continue;
+  shown+=pool.length;
+  const chapter=document.createElement('details');chapter.className='chapter-section';chapter.open=true;
+  const summ=document.createElement('summary');const chname=document.createElement('span');chname.textContent=ch;
+  const n=document.createElement('span');n.className='chapter-count';n.textContent=pool.length+'题';summ.append(chname,n);chapter.append(summ);
+  pool.forEach((card,index)=>{
+    const item=document.createElement('details');item.className='overview-card';
+    const line=document.createElement('summary');
+    const num=document.createElement('span');num.className='item-no';num.textContent=String(index+1).padStart(2,'0');
+    const name=document.createElement('span');name.className='item-name';name.textContent=card.q;
+    const chips=document.createElement('span');chips.className='item-badges';
+    const typ=document.createElement('span');typ.className='item-pill type';typ.textContent=card.k;chips.append(typ);
+    if(card.r){const r=document.createElement('span');r.className='item-pill recent';r.textContent='近期新增';chips.append(r);}
+    const rating=document.createElement('span');rating.dataset.ratingChip=card.id;rating.className='item-pill '+(grade(card)==='new'?'':grade(card));rating.textContent=({new:'未评级',wrong:'不会',fuzzy:'模糊',known:'掌握'})[grade(card)];chips.append(rating);
+    line.append(num,name,chips);item.append(line);
+    const detail=document.createElement('div');detail.className='overview-detail';
+    const answer=document.createElement('div');answer.className='overview-answer';answer.textContent=card.a;
+    const jump=document.createElement('button');jump.className='overview-action';jump.type='button';jump.textContent='练习这一题 →';jump.dataset.id=card.id;
+    detail.append(answer);
+    const panel=document.createElement('div');panel.className='overview-rating';panel.dataset.ratingFor=card.id;
+    const label=document.createElement('div');label.className='overview-rating-title';label.textContent='修改掌握程度';
+    const actions=document.createElement('div');actions.className='overview-rating-actions';
+    for(const [value,title] of [['wrong','✕ 不会'],['fuzzy','◑ 模糊'],['known','✓ 掌握']]){
+      const btn=document.createElement('button');btn.type='button';btn.className='overview-grade'+(grade(card)===value?' selected':'');btn.dataset.id=card.id;btn.dataset.grade=value;
+      btn.setAttribute('aria-pressed',String(grade(card)===value));btn.textContent=title;actions.append(btn);
+    }
+    const reset=document.createElement('button');reset.type='button';reset.className='overview-grade-reset';reset.dataset.id=card.id;reset.dataset.grade='new';reset.textContent='清除评级，恢复未评级';
+    const note=document.createElement('div');note.className='overview-grade-note';note.textContent='当前：'+({new:'未评级',wrong:'不会',fuzzy:'模糊',known:'掌握'})[grade(card)];
+    panel.append(label,actions,reset,note);
+    detail.append(panel,jump);item.append(detail);chapter.append(item);
+  });root.append(chapter);
+ }
+ $('overview-count').textContent=shown+'道题 · '+(recentOnly?'近期新增':'7个章节');
+ if(!shown){const e=document.createElement('div');e.className='overview-empty';e.textContent='没有找到符合条件的题目';root.append(e);}
+}
+function jumpToCard(id){
+ const card=byId.get(id);if(!card)return;
+ stopTimer();$('chapter').value=card.ch;$('kind').value='all';$('mode').value='uniform';
+ current=card;face=false;draws=1;queue=[];history=[];forward=[];
+ const others=allowed().filter(c=>c.id!==card.id);queue=shuffle(others);
+ render();setTab('study');animateSwap('next');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+$('tab-study').addEventListener('click',()=>setTab('study'));
+$('tab-overview').addEventListener('click',()=>setTab('overview'));
+$('tab-data').addEventListener('click',()=>setTab('data'));
+$('overview-search').addEventListener('input',renderOverview);
+$('overview-recent').addEventListener('change',renderOverview);
+function updateOverviewGrade(id,value){
+ const card=byId.get(id);if(!card||!['wrong','fuzzy','known','new'].includes(value))return;
+ if(value==='new')delete progress[id];else progress[id]=value;
+ save();
+ const text={new:'未评级',wrong:'不会',fuzzy:'模糊',known:'掌握'};
+ const chip=$('overview-list').querySelector('[data-rating-chip="'+id+'"]');
+ if(chip){chip.className='item-pill '+(value==='new'?'':value);chip.textContent=text[value];}
+ const panel=$('overview-list').querySelector('[data-rating-for="'+id+'"]');
+ if(panel){panel.querySelectorAll('.overview-grade').forEach(btn=>{const selected=btn.dataset.grade===value;btn.classList.toggle('selected',selected);btn.setAttribute('aria-pressed',String(selected));});panel.querySelector('.overview-grade-note').textContent='当前：'+text[value]+' · 已同步到练习模式';}
+ // If overview changes the current card out of a grade-only pool, don't leave an ineligible question on screen.
+ if(current && !allowed().some(c=>c.id===current.id))restart();else render();
+ showToast('已更新：'+text[value]);
+}
+
+function renderData(){
+ const counts={new:0,wrong:0,fuzzy:0,known:0};for(const c of CARDS)counts[grade(c)]++;
+ for(const [k,v] of Object.entries(counts))$('d-'+k).textContent=v;
+}
+function normalizedRatings(source){
+ const core=source&&typeof source==='object'?(source.ratings||source.progress||source.grades||source.records||source):null;
+ if(!core||typeof core!=='object')throw new Error('文件不包含可识别的评级数据');
+ const clean={};let ignored=0;
+ const entries=Array.isArray(core)?core.map(x=>[x?.id||x?.question_id,x]):Object.entries(core);
+ for(const [id,raw] of entries){
+  if(!byId.has(id)){ignored++;continue;}
+  const v=typeof raw==='string'?raw:(raw&&typeof raw==='object'?(raw.grade||raw.rating||raw.status||raw.level):null);
+  const mapped={掌握:'known',认识:'known',模糊:'fuzzy',不会:'wrong',未评级:'new'}[v]||v;
+  if(['known','fuzzy','wrong'].includes(mapped))clean[id]=mapped;
+  else if(mapped==='new')clean[id]='new';
+  else ignored++;
+ }
+ return {ratings:clean,ignored};
+}
+function applyImported(obj,isLegacy=false){
+ const {ratings,ignored}=normalizedRatings(obj);const ids=Object.keys(ratings);
+ if(!ids.length)throw new Error('没有识别到有效的题目评级，请确认文件和题目ID');
+ const replace=document.querySelector('input[name="import-mode"]:checked')?.value==='replace';
+ if(replace&&!window.confirm('确定覆盖当前所有学习评级吗？该操作不可撤销，请先导出备份。'))return;
+ const merged=replace?{}:{...progress};for(const [id,value] of Object.entries(ratings)){if(value==='new')delete merged[id];else merged[id]=value;}
+ progress=merged;save();restart();renderOverview();renderData();
+ $('data-status').textContent=(isLegacy?'已迁移':'已导入')+' '+ids.length+' 道记录，忽略 '+ignored+' 条未识别数据。'+(replace?'现有评级已覆盖。':'其余旧评级已保留。');
+ showToast('学习记录已更新');
+}
+function exportProgress(){
+ const ratings={};for(const c of CARDS)if(grade(c)!=='new')ratings[c.id]=grade(c);
+ const obj={format:'heat-transfer-review',version:1,exportedAt:new Date().toISOString(),questionCount:CARDS.length,ratings};
+ const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='传热学_学习记录_'+new Date().toISOString().slice(0,10)+'.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);
+ $('data-status').textContent='已生成 '+Object.keys(ratings).length+' 道题的学习记录备份。';
+}
+$('export-progress').addEventListener('click',exportProgress);
+$('import-progress').addEventListener('click',async()=>{
+ const file=$('import-file').files?.[0];if(!file){$('data-status').textContent='请先选择一个 JSON 文件。';return;}
+ if(file.size>2*1024*1024){$('data-status').textContent='文件大于 2 MB，请确认是否为学习记录。';return;}
+ try{applyImported(JSON.parse(await file.text()));}catch(e){$('data-status').textContent='导入失败：'+e.message;}
+});
+$('migrate-legacy').addEventListener('click',()=>{
+ const oldKey='ht-study-2026-oct-photoaligned-v3';
+ try{const raw=localStorage.getItem(oldKey);if(!raw){$('data-status').textContent='当前网站域名下没有检测到旧版记录；请使用旧网页导出，再导入这里。';return;}applyImported(JSON.parse(raw),true);}
+ catch(e){$('data-status').textContent='旧版迁移失败：'+e.message;}
+});
+document.addEventListener('keydown',e=>{
+ if(e.altKey||e.metaKey||e.ctrlKey||!$('view-study')||$('view-study').hidden||e.target.closest('input,select,textarea,[contenteditable]'))return;
+ if(e.key==='ArrowLeft'){e.preventDefault();previous();}
+ else if(e.key==='ArrowRight'){e.preventDefault();next();}
+ else if(e.key===' '&&e.target===document.body){e.preventDefault();flip();}
+ else if(face&&['1','2','3'].includes(e.key)){({1:'wrong',2:'fuzzy',3:'known'})[e.key]&&$(({1:'wrong',2:'fuzzy',3:'known'})[e.key]).click();}
+});
+$('overview-list').addEventListener('click',e=>{
+ const rating=e.target.closest('button[data-grade][data-id]');
+ if(rating){updateOverviewGrade(rating.dataset.id,rating.dataset.grade);return;}
+ const jump=e.target.closest('button.overview-action[data-id]');if(jump)jumpToCard(jump.dataset.id);
+});
+for(const [v,t] of [['all','全部章节 · 99题'],...CHAPTERS.map(ch=>[ch,ch+' · '+CARDS.filter(c=>c.ch===ch).length+'题']),['recent','近期新增 · '+CARDS.filter(c=>c.r).length+'题']]){const o=document.createElement('option');o.value=v;o.textContent=t;$('chapter').appendChild(o);}
+for(const id of ['chapter','kind','mode'])$(id).addEventListener('change',restart);
+$('flashcard').addEventListener('click',flip);
+$('flashcard').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip();}});
+$('flip').addEventListener('click',flip);$('prev').addEventListener('click',previous);$('next').addEventListener('click',next);
+for(const rating of ['wrong','fuzzy','known'])$(rating).addEventListener('click',()=>{if(!current||!face)return;stopTimer();progress[current.id]=rating;save();render();showToast({wrong:'已标记：不会',fuzzy:'已标记：模糊',known:'已标记：掌握'}[rating]);advanceTimer=setTimeout(()=>{advanceTimer=null;next();},320);});
+for(const btn of document.querySelectorAll('.btn'))btn.addEventListener('pointerdown',e=>{if(btn.disabled)return;const rect=btn.getBoundingClientRect();const p=document.createElement('span');p.className='ripple';const size=Math.max(rect.width,rect.height);p.style.width=size+'px';p.style.height=size+'px';p.style.left=(e.clientX-rect.left-size/2)+'px';p.style.top=(e.clientY-rect.top-size/2)+'px';btn.appendChild(p);setTimeout(()=>p.remove(),550);});
+restart();
+})();
+</script>
+</body></html>
