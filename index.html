@@ -304,10 +304,11 @@ function catIcon(key,ring=''){
  ctx.save();ctx.translate(2,2);ctx.scale(20/24,20/24);ctx.lineWidth=1.65;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='white';ctx.stroke(new Path2D(path));ctx.restore();
  return canvas;
 }
+const ICON_RING_COLORS={gone:'#b64e40',damaged:'#e59b20',ruined:'#967052',designated:'#25845b'};
+function ensureAggregateIcons(features){const seen=new Set();for(const f of features){const {icon,cat}=f.properties;if(seen.has(icon))continue;seen.add(icon);if(map.hasImage(icon))continue;const state=icon.slice(('cat-'+cat+'-').length),cv=catIcon(cat,ICON_RING_COLORS[state]||'');map.addImage(icon,cv.getContext('2d').getImageData(0,0,48,48),{pixelRatio:2})}}
 function installCatIcons(){
  for(const key of Object.keys(CAT)){
   const cv=catIcon(key);if(!map.hasImage('cat-'+key))map.addImage('cat-'+key,cv.getContext('2d').getImageData(0,0,48,48),{pixelRatio:2});
-  for(const [state,color] of Object.entries({gone:'#b64e40',damaged:'#e59b20',ruined:'#967052',designated:'#25845b'})){const v=catIcon(key,color),id='cat-'+key+'-'+state;if(!map.hasImage(id))map.addImage(id,v.getContext('2d').getImageData(0,0,48,48),{pixelRatio:2})}
   const lab=document.createElement('label'),input=document.createElement('input'),img=document.createElement('img'),span=document.createElement('span');
   input.type='checkbox';input.checked=catSelected.has(key);img.src=cv.toDataURL();img.alt='';span.textContent=CAT[key][0];lab.append(input,img,span);$('categoryGrid').append(lab);catInputs.set(key,input);
   input.onchange=()=>{input.checked?catSelected.add(key):catSelected.delete(key);applyCats()};
@@ -391,7 +392,7 @@ async function hwStart(){
  finally{hwLoading=false;$('retryTiles').disabled=false;hwStatus()}
 }
 function hwInit(){
- restoreMapPrefs();try{console.info('Category fixture tests:',runCategoryTests());installCatIcons()}catch(e){console.warn('Category icons unavailable',e)}for(const d of hwDefs){
+ restoreMapPrefs();try{installCatIcons()}catch(e){console.warn('Category icons unavailable',e)}for(const d of hwDefs){
   const l=document.createElement('label'),i=document.createElement('input'),dot=document.createElement('span');i.type='checkbox';i.checked=prefEnabled('layers',d.id,d.enabled);dot.className='sw';dot.style.background=d.color;l.append(i,dot,d.title);$('officialFilters').append(l);hwControls.set(d.id,i);
   i.onchange=()=>{saveMapPrefs();hwVisibility();hwStatus();if(i.checked)hwConnect(d);updateCount();scheduleNames()};
  }
@@ -478,19 +479,19 @@ function nameViewKey(){
  const c=map.getCenter();return [map.getZoom().toFixed(1),c.lng.toFixed(3),c.lat.toFixed(3),hwDefs.filter(hwEnabled).map(d=>d.id).join(','),[...catSelected].join(','),$('conditionFilter').value,$('designationFilter').value].join('|');
 }
 function nameTargets(rows,usedIds=new Set(),usedWiki=new Set()){
- const ids=[],wiki=[],seenIds=new Set(),seenWiki=new Set();
- for(const {properties:p} of rows){
+ const ids=[],wiki=[],seenIds=new Set(),seenWiki=new Set(),idLimit=Math.max(0,NAME_VIEW_LIMIT-usedIds.size),wikiLimit=Math.max(0,WIKI_NAME_VIEW_LIMIT-usedWiki.size);
+ for(const {properties:p} of rows){if(ids.length>=idLimit&&wiki.length>=wikiLimit)break;
   if(chinese(p))continue;
   const id=getQid(p);
   if(id&&!languageCache.has(id)){
-   if(!usedIds.has(id)&&!seenIds.has(id)){seenIds.add(id);ids.push(id)}continue;
+   if(ids.length<idLimit&&!usedIds.has(id)&&!seenIds.has(id)){seenIds.add(id);ids.push(id)}continue;
   }
   const w=parseWikiTag(p.wikipedia),key=wikiNameKey(w);
-  if(w&&w.lang!=='zh'&&key&&!wikiNameCache.has(key)&&!usedWiki.has(key)&&!seenWiki.has(key)&&!w.title.includes('|')){
+  if(wiki.length<wikiLimit&&w&&w.lang!=='zh'&&key&&!wikiNameCache.has(key)&&!usedWiki.has(key)&&!seenWiki.has(key)&&!w.title.includes('|')){
    seenWiki.add(key);wiki.push({key,lang:w.lang,title:w.title});
   }
  }
- return {ids:ids.slice(0,Math.max(0,NAME_VIEW_LIMIT-usedIds.size)),wiki:wiki.slice(0,Math.max(0,WIKI_NAME_VIEW_LIMIT-usedWiki.size))};
+ return {ids,wiki};
 }
 function scheduleNames(){
  if(scalePaused||!ready||map.isMoving()||map.getZoom()<NAME_MIN_ZOOM||nameBusy||Date.now()<nameRetryAt)return;
@@ -695,7 +696,7 @@ function rebuildAggregation(){
  const viewChanged=rows.length!==visibleRows.length||rows.some((f,i)=>pointKey(f)!==pointKey(visibleRows[i]));
  visibleRows=rows;aggregateRows=out;aggregateMembers=next;if(aggListKey!==null&&!next.has(aggListKey)){aggListKey=null;aggListDirty=true}
  const countText=rows.length+' 条记录 · '+visibleGroups+' 组';if($('officialCount').textContent!==countText)$('officialCount').textContent=countText;
- if(!sameAggregateOutput(out,previousAggregateOutput)){previousAggregateOutput=out;aggSignature=out.length?'data':'[]';map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});aggListDirty=true}if(viewChanged){visibleRevision++;aggListDirty=true}
+ if(!sameAggregateOutput(out,previousAggregateOutput)){ensureAggregateIcons(out);previousAggregateOutput=out;aggSignature=out.length?'data':'[]';map.getSource('heritage-aggregate').setData({type:'FeatureCollection',features:out});aggListDirty=true}if(viewChanged){visibleRevision++;aggListDirty=true}
  if(!moving){if(aggListDirty&&sheetIsOpen('listPanel'))renderList();aggListDirty=false;scheduleNames();if(autoTranslation)scheduleAutoTranslation()}
 }
 function installAggregation(){
