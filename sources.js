@@ -38,9 +38,11 @@ async function loadUNESCO(){
  }
  if(!rows.length||offset<total)throw Error('未获取完整可定位名录');return rows;
 }
-function readCSV(text,onRow){
- let row=[],field='',quoted=false;
+function yieldToMap(){return new Promise(resolve=>setTimeout(resolve,0))}
+async function readCSV(text,onRow){
+ let row=[],field='',quoted=false,nextCheck=262144,lastYield=Date.now();
  for(let i=0;i<text.length;i++){
+  if(i>=nextCheck){nextCheck=i+262144;if(Date.now()-lastYield>=12){await yieldToMap();lastYield=Date.now()}}
   const ch=text[i];
   if(quoted){if(ch==='"'){if(text[i+1]==='"'){field+='"';i++}else quoted=false}else field+=ch}
   else if(ch==='"'&&!field)quoted=true;
@@ -51,9 +53,9 @@ function readCSV(text,onRow){
  if(quoted)throw Error('CSV 引号不完整');
  if(row.length||field){row.push(field.replace(/\r$/,''));onRow(row)}
 }
-function pleiadesFeatures(csv){
+async function pleiadesFeatures(csv){
  const rows=[];let ix=null;
- readCSV(csv.replace(/^\uFEFF/,''),a=>{
+ await readCSV(csv.replace(/^\uFEFF/,''),a=>{
   if(!ix){ix=Object.fromEntries(a.map((v,i)=>[v.trim(),i]));for(const k of ['id','title','representative_longitude','representative_latitude'])if(!(k in ix))throw Error('Pleiades 缺少字段 '+k);return}
   const get=k=>clean(a[ix[k]]),id=get('id'),name=get('title'),lon=get('representative_longitude'),lat=get('representative_latitude');
   if(!/^\d+$/.test(id)||!name||!validCoords(lon,lat))return;
@@ -66,11 +68,11 @@ async function loadPleiades(){
  if(!res.ok)throw Error('HTTP '+res.status);
  const csv=await res.text();if(csv.length>35000000)throw Error('数据过大');return pleiadesFeatures(csv);
 }
-function indexExternal(rows){const index=new Map();for(const f of rows){const [lon,lat]=f.geometry.coordinates,key=Math.floor(lon===180?-180:lon)+'|'+Math.floor(lat);if(!index.has(key))index.set(key,[]);index.get(key).push(f)}return index}
+async function indexExternal(rows){const index=new Map();let i=0,lastYield=Date.now();for(const f of rows){const [lon,lat]=f.geometry.coordinates,key=Math.floor(lon===180?-180:lon)+'|'+Math.floor(lat);if(!index.has(key))index.set(key,[]);index.get(key).push(f);if(++i%2048===0&&Date.now()-lastYield>=12){await yieldToMap();lastYield=Date.now()}}return index}
 async function loadExtra(d){
  if(!extraEnabled(d)||['loading','ready'].includes(extraStates.get(d.id)?.state))return;
  const s={state:'loading',rows:[]};extraStates.set(d.id,s);refreshExtraStatus();
- try{s.rows=await(d.id==='unesco'?loadUNESCO():loadPleiades());s.index=indexExternal(s.rows);s.state='ready'}catch(e){s.state='error';s.error=String(e.message||e).slice(0,80)}
+ try{s.rows=await(d.id==='unesco'?loadUNESCO():loadPleiades());s.index=await indexExternal(s.rows);s.state='ready'}catch(e){s.state='error';s.error=String(e.message||e).slice(0,80)}
  finally{refreshExtraStatus();queueAggregation()}
 }
 function extraVisibleFeatures(center,size,pad=0,collect=null){
