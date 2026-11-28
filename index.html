@@ -85,7 +85,11 @@ body[data-glass=off] header::after,body[data-glass=off] .sheet::after,body[data-
 #panel .actions button[aria-expanded=true] .actionIcon{transform:translateY(-1px);color:var(--gold)}
 #panel .actions button:not(:disabled):active{transform:scale(.95)}
 #panel .actions button:not(:disabled):active .actionIcon{transform:scale(.9)}
-#panel .actions button .actionRipple{position:absolute;left:var(--tap-x,50%);top:var(--tap-y,50%);width:18px;height:18px;border-radius:50%;background:currentColor;pointer-events:none;opacity:0;z-index:-1}
+/* Shared water-ripple feedback; only app buttons, never the map canvas. */
+.uiTapHost{isolation:isolate;overflow:hidden}
+.uiTapStatic{position:relative}
+.uiTapRipple{position:absolute;display:block;left:var(--ripple-x);top:var(--ripple-y);width:var(--ripple-size);height:var(--ripple-size);border-radius:50%;background:currentColor;pointer-events:none;z-index:-1;opacity:0}
+@media(prefers-reduced-motion:reduce){.uiTapRipple{display:none!important}}
 @media(hover:hover){#panel .actions button:not(:disabled):hover{border-color:var(--gold)}}
 @media(max-width:350px){#panel .actions{gap:4px}#panel .actions button{min-height:61px;gap:3px}#panel .actions .actionLabel{font-size:11px}#panel .actions .actionIcon svg{width:20px;height:20px}}
 @media(prefers-reduced-motion:reduce){#panel .actions button,#panel .actions .actionIcon{transition:none!important;transform:none!important}}
@@ -629,8 +633,31 @@ function initBaseMap(){
 function setupGlass(){
  const on=prefs.glassEffects!==false;$('glassEffects').checked=on;document.body.dataset.glass=on?'on':'off';
  $('glassEffects').onchange=()=>{const enabled=$('glassEffects').checked;document.body.dataset.glass=enabled?'on':'off';prefs.glassEffects=enabled;writePrefs()};
- for(const b of document.querySelectorAll('#panel .actions button'))b.addEventListener('click',e=>{if(b.disabled||!motionOK(b))return;const r=b.getBoundingClientRect();if(e.detail===0||!r.width||!r.height){b.style.setProperty('--tap-x','50%');b.style.setProperty('--tap-y','50%')}b.querySelector('.actionRipple')?.remove();const ripple=document.createElement('span');ripple.className='actionRipple';ripple.setAttribute('aria-hidden','true');b.append(ripple);const a=ripple.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:.22},{transform:'translate(-50%,-50%) scale(12)',opacity:0}],{duration:360,easing:'ease-out'});a.onfinish=()=>ripple.remove();a.oncancel=()=>ripple.remove()});
- document.addEventListener('pointerdown',e=>{const b=e.target.closest?.('button');if(!b||b.disabled)return;const r=b.getBoundingClientRect();if(!r.width||!r.height)return;b.style.setProperty('--tap-x',Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100))+'%');b.style.setProperty('--tap-y',Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))+'%')},{passive:true});
+ const activeRipples=new WeakMap();
+ const appButton=e=>{const b=e.target.closest?.('button');return b&&!b.matches(':disabled')&&!b.closest('#map')?b:null};
+ document.addEventListener('pointerdown',e=>{const b=appButton(e);if(!b||!e.isPrimary||e.button!==0||!motionOK(b))return;const r=b.getBoundingClientRect();if(!r.width||!r.height)return;b.style.setProperty('--tap-x',Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100))+'%');b.style.setProperty('--tap-y',Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))+'%')},{passive:true});
+ document.addEventListener('click',e=>{
+  const b=appButton(e);if(!b||!e.isTrusted||!motionOK(b))return;
+  const r=b.getBoundingClientRect(),w=b.clientWidth,h=b.clientHeight;if(!r.width||!r.height||!w||!h)return;
+  const x=e.detail===0?w/2:Math.max(0,Math.min(w,(e.clientX-r.left)*w/r.width));
+  const y=e.detail===0?h/2:Math.max(0,Math.min(h,(e.clientY-r.top)*h/r.height));
+  const diameter=2*Math.hypot(Math.max(x,w-x),Math.max(y,h-y))+4;
+  const previous=activeRipples.get(b);if(previous){previous.animation.cancel();previous.node.remove()}
+  if(getComputedStyle(b).position==='static')b.classList.add('uiTapStatic');
+  b.classList.add('uiTapHost');
+  const node=document.createElement('span');node.className='uiTapRipple';node.setAttribute('aria-hidden','true');
+  node.style.setProperty('--ripple-x',x+'px');node.style.setProperty('--ripple-y',y+'px');node.style.setProperty('--ripple-size',diameter+'px');
+  b.append(node);
+  const clear=()=>{node.remove();if(activeRipples.get(b)?.node===node){activeRipples.delete(b);b.classList.remove('uiTapHost','uiTapStatic')}};
+  try{
+   const animation=node.animate([
+    {transform:'translate(-50%,-50%) scale(.04)',opacity:.24},
+    {transform:'translate(-50%,-50%) scale(.65)',opacity:.14,offset:.42},
+    {transform:'translate(-50%,-50%) scale(1)',opacity:0}
+   ],{duration:480,easing:'cubic-bezier(.18,.65,.3,1)'});
+   activeRipples.set(b,{node,animation});animation.onfinish=clear;animation.oncancel=clear;
+  }catch{activeRipples.delete(b);node.remove();b.classList.remove('uiTapHost','uiTapStatic')}
+ },{capture:true,passive:true});
 }
 
 function afterInitialPaint(task){let done=false;const run=()=>{if(done)return;done=true;map?.off('idle',run);clearTimeout(timer);task()};const timer=setTimeout(run,1500);if(ready)map.once('idle',run)}
