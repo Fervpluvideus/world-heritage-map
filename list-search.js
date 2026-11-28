@@ -2,14 +2,15 @@
 /* Viewport heritage-list search. The AI only filters records actually present. */
 const LIST_AI_LIMIT=600,LIST_AI_BATCH=60;
 let listQueryMode='normal',listSearchJob=null,listAIResult=null,listSearchNotice='';
-let placeSearchJob=null,placeSearchResult=null,placeSearchLastStart=0;
+let placeSearchJob=null,placeSearchResult=null,placeSearchLastStart=0;const placeSearchCache=new Map();
 function cancelPlaceSearch(){if(placeSearchJob){placeSearchJob.controller.abort();placeSearchJob=null}placeSearchResult=null}
-function validPlace(p){return p&&Number.isFinite(Number(p.lon))&&Number.isFinite(Number(p.lat))&&Math.abs(Number(p.lon))<=180&&Math.abs(Number(p.lat))<=90&&typeof p.display_name==='string'}
+function validPlace(p){return p&&p.lon!=null&&p.lat!=null&&String(p.lon).trim()!==''&&String(p.lat).trim()!==''&&Number.isFinite(Number(p.lon))&&Number.isFinite(Number(p.lat))&&Math.abs(Number(p.lon))<=180&&Math.abs(Number(p.lat))<=90&&typeof p.display_name==='string'}
 async function searchPlaces(query){
  if(!ready||!query)return;
  if(placeSearchJob?.query===query)return;
  if(placeSearchResult?.query===query&&placeSearchResult.state==='done'){renderList();return}
  cancelPlaceSearch();
+ const cached=placeSearchCache.get(query);if(cached&&Date.now()-cached.at<86400000){placeSearchResult={query,state:'done',rows:cached.rows};renderList();return}
  const job={query,controller:new AbortController()};placeSearchJob=job;placeSearchResult={query,state:'loading',rows:[]};renderList();
  let timer;
  try{
@@ -19,7 +20,7 @@ async function searchPlaces(query){
   placeSearchLastStart=Date.now();timer=setTimeout(()=>job.controller.abort(),15000);
   const r=await fetch('https://nominatim.openstreetmap.org/search?'+new URLSearchParams({q:query,format:'jsonv2',limit:'6','accept-language':'zh-CN,zh,en',addressdetails:'1'}),{signal:job.controller.signal});
   if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(!Array.isArray(data))throw Error('无效搜索响应');
-  if(placeSearchJob===job)placeSearchResult={query,state:'done',rows:data.filter(validPlace)};
+  if(placeSearchJob===job){const rows=data.filter(validPlace);placeSearchResult={query,state:'done',rows};placeSearchCache.set(query,{at:Date.now(),rows});if(placeSearchCache.size>30)placeSearchCache.delete(placeSearchCache.keys().next().value)}
  }catch(e){if(placeSearchJob===job)placeSearchResult={query,state:'error',rows:[]}}
  finally{clearTimeout(timer);if(placeSearchJob===job){placeSearchJob=null;renderList()}}
 }
