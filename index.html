@@ -11,7 +11,7 @@
 <meta name="twitter:title" content="世界古迹图 World Heritage Map｜全球古迹、考古遗址与历史地图">
 <meta name="twitter:description" content="面向中文用户的全球古迹探索地图，致力于统一古迹名称与历史资料的中文展示。探索历史建筑、考古遗址、城堡、废墟及文化遗产，支持中文名称匹配、可选 AI 翻译、原始资料查询与历史地图叠加。">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"世界古迹图","alternateName":"World Heritage Map","url":"https://fervpluvideus.github.io/world-heritage-map/","description":"面向中文用户的全球古迹探索地图，致力于统一古迹名称与历史资料的中文展示。探索历史建筑、考古遗址、城堡、废墟及文化遗产，支持中文名称匹配、可选 AI 翻译、原始资料查询与历史地图叠加。","inLanguage":"zh-CN","applicationCategory":"TravelApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript and WebGL","isAccessibleForFree":true,"sameAs":"https://github.com/Fervpluvideus/world-heritage-map"}</script>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css"><link rel="preconnect" href="https://unpkg.com" crossorigin><link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin><link rel="preconnect" href="https://terria-catalog.prod.heritagewatch.ai" crossorigin><link rel="preload" as="script" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js"><link rel="preload" as="script" href="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"><style>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css"><link rel="preconnect" href="https://unpkg.com" crossorigin><link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin><link rel="preconnect" href="https://terria-catalog.prod.heritagewatch.ai" crossorigin><link rel="preload" as="script" href="https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js"><link rel="preload" as="script" href="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"><link rel="preload" as="script" href="sources.js?v=030"><link rel="preload" as="script" href="translate.js?v=030"><link rel="preload" as="script" href="list-search.js?v=030"><style>
 
 :root{--ink:#243b34;--muted:#68766e;--accent:#28594d;--paper:#fffdf8;--line:#e1e6dc;--soft:#f0f4ed;--shadow:0 8px 28px #213a3426;--ease:cubic-bezier(.22,.8,.25,1)}
 *{box-sizing:border-box}body{margin:0;color:var(--ink);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f7f4eb}#map{position:fixed;inset:0}
@@ -385,10 +385,10 @@ async function hwConnect(d){
   for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);x.ids=[];x.state='error';x.error=String(e.message||e).slice(0,120);
  }finally{hwVisibility();hwStatus();updateCount()}
 }
-async function hwStart(){
+async function hwStart(initial=false){
  if(!ready||hwLoading)return;hwLoading=true;$('retryTiles').disabled=true;
  for(const d of hwDefs.filter(hwEnabled)){const old=hwStates.get(d.id);if(old?.needsRetry){for(const [id,handler] of old.clickHandlers||[])map.off('click',id,handler);for(const id of old.ids.slice().reverse())if(map.getLayer(id))map.removeLayer(id);const source='hw-'+d.id;if(map.getSource(source))map.removeSource(source);invalidateTileFeatures(source);for(let i=hwPointLayers.length-1;i>=0;i--)if(hwPointLayers[i].d.id===d.id)hwPointLayers.splice(i,1);for(let i=catSpecs.length-1;i>=0;i--)if(catSpecs[i].d.id===d.id)catSpecs.splice(i,1);hwStates.delete(d.id)}}
- try{await Promise.all(hwDefs.filter(hwEnabled).map(hwConnect))}
+ try{const enabled=hwDefs.filter(hwEnabled);if(initial){const secondary=enabled.filter(d=>d.kind==='shape');afterInitialPaint(()=>{for(const d of secondary)hwConnect(d)});await Promise.all(enabled.filter(d=>d.kind!=='shape').map(hwConnect))}else await Promise.all(enabled.map(hwConnect))}
  finally{hwLoading=false;$('retryTiles').disabled=false;hwStatus()}
 }
 function hwInit(){
@@ -398,7 +398,7 @@ function hwInit(){
  }
  $('retryTiles').onclick=()=>{hwStart();for(const d of EXTRA_DEFS)if(extraEnabled(d))loadExtra(d)};$('resetMapPrefs').onclick=()=>{for(const d of hwDefs){const i=hwControls.get(d.id);if(i)i.checked=d.enabled}resetExtraSources();for(const [k,i] of catInputs){i.checked=true;catSelected.add(k)}$('conditionFilter').value='all';$('designationFilter').value='all';$('aggregateToggle').checked=true;saveMapPrefs();applyCats();hwVisibility();hwStatus();hwStart()};
  map.on('error',e=>{const d=hwDefs.find(d=>'hw-'+d.id===e.sourceId);if(d){const state=hwStates.get(d.id);if(state&&state.state==='ready')state.needsRetry=true;status('图层请求异常');$('tileStatus').textContent=d.title+'瓦片请求失败：'+String(e.error?.message||'网络错误').slice(0,160)+'；可重试或切换图层。';refreshLayerDetailsSummary()}});
- hwVisibility();hwStart();
+ hwVisibility();hwStart(true);
 }
 
 const tileFeatureCache=new Map();
