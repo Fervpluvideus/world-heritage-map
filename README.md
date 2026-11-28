@@ -8,7 +8,7 @@
 <p>跨越语言的边界，探索人类文明的共同记忆。</p>
 
 <a href="https://fervpluvideus.github.io/world-heritage-map/"><img alt="打开世界古迹图" src="https://img.shields.io/badge/在线探索-Live%20Map-28594d?style=for-the-badge"></a>
-<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.32" src="https://img.shields.io/badge/Version-0.32-8b704b?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.33" src="https://img.shields.io/badge/Version-0.33-8b704b?style=for-the-badge"></a>
 <a href="https://github.com/Fervpluvideus/world-heritage-map/issues"><img alt="反馈与建议" src="https://img.shields.io/badge/反馈与建议-Issues-526b63?style=for-the-badge"></a>
 
 <p><strong>全球古迹探索 · 中文统一展示 · 历史地图叠加</strong></p>
@@ -86,6 +86,7 @@
 - V0.29：卫星图源仅保留 ArcGIS World Imagery，标注「仅交流学习使用」。直接使用 Esri 服务，公开网站使用授权尚待核实；说明文字不构成授权。
 
 - V0.27：中性实时磨砂玻璃，使用浏览器 backdrop-filter 对当前地图画面模糊；支持关闭效果。
+- V0.33：扩充各国名录的原始名称字段适配，包括日本国土数值信息 P32_006、美国 NRHP RESNAME、加拿大 NAME/NOM、澳大利亚 NAME、台湾 caseName、香港 NAME_TC 等，另增加意大利、巴西、新西兰名称栏目兼容候选。原始字段必须存在才可恢复，保留来源语言，扩展认定类型误用识别。不代表已遍历全部上游瓦片。
 - V0.32：统一古迹名称校验，区分实体名称、遗产类别与记录编号；在名录可用原始属性中尝试恢复名称，优先使用韩国 KHS、法国 Mérimée、英格兰 NHLE 的明确名称字段；避免无效名称进入 AI 翻译及优先级筛选。UNESCO 分项采用各自的名称，不冒用总项目名称。无法恢复时保留记录与轮廓，标明原始字段和编号。上游 PMTiles 若已丢失名称，客户端无法凭空恢复；尚未完成全球逐记录核查。
 - V0.31：古迹轮廓与点位独立显示，从缩放等级 5 起展示轮廓（以数据源可用瓦片为准），不受 2500 条点位上限及新增优先级筛选影响；七大轮廓配色适配路网与卫星底图，重叠时图标点击优先。新增隐藏未命名／无介绍古迹点位，筛选先于数量限制，设置自动保存。主界面加入项目标语，统一按钮水波纹并关闭原生触摸高亮。
 - V0.30（历史记录）：恢复屏幕内古迹数量保护。符合筛选的记录超过 2500 条时静默隐藏古迹图标、名称及轮廓，降至 2500 条及以下自动恢复；不将屏幕外预加载缓冲计入上限。图标从原有的缩放等级 5 起显示，名称从等级 9 起显示。
