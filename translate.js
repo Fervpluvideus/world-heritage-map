@@ -1,6 +1,6 @@
 
-/* Explicit, paid, viewport-scoped name translation. Official Chinese labels always win. */
-const MAP_TRANSLATION_STORE='heritage.map.ai.names.v1',MAP_TRANSLATION_MAX=6000,MAP_TRANSLATION_BATCH=30,MAP_TRANSLATION_LIMIT=1000;
+/* Opt-in continuous translation of newly visible map names. Official Chinese labels always win. */
+const MAP_TRANSLATION_STORE='heritage.map.ai.names.v1',MAP_TRANSLATION_MAX=6000,MAP_TRANSLATION_BATCH=30;
 let mapTranslationCache=null,mapTranslationJob=null;
 let translationNoticeTimer=null,translationNoticeDismissed=false;
 function resetTranslationNotice(){clearTimeout(translationNoticeTimer);translationNoticeTimer=null;translationNoticeDismissed=false}
@@ -52,20 +52,27 @@ function mapTranslationNotice(text,done,total,running){
  $('mapTranslateStatus').textContent=text;$('mapTranslateToastText').textContent=text;
  $('mapTranslateProgress').max=Math.max(1,total);$('mapTranslateProgress').value=done;
  clearTimeout(translationNoticeTimer);translationNoticeTimer=null;
- $('mapTranslateToast').hidden=translationNoticeDismissed;$('mapTranslateStop').hidden=!running&&!autoTranslation;$('mapTranslateMenuStop').hidden=!running&&!autoTranslation;$('mapTranslate').disabled=running;$('mapTranslateAI').disabled=running;updateTranslationStop();
+ $('mapTranslateToast').hidden=translationNoticeDismissed||densityPaused;updateTranslationStop();
  if(!running&&!translationNoticeDismissed)translationNoticeTimer=setTimeout(()=>{translationNoticeTimer=null;$('mapTranslateToast').hidden=true},/中断|失败|上限/.test(text)?6500:3500);
 }
 
-function stopMapTranslation(){setAutoTranslation(false);if(mapTranslationJob){mapTranslationJob.controller.abort();$('mapTranslateStop').disabled=true;$('mapTranslateMenuStop').disabled=true;$('mapTranslateTopStop').disabled=true}else{$('mapTranslateStatus').textContent='自动翻译已停止';hideTranslationNotice()}}
+function stopMapTranslation(){setAutoTranslation(false);if(mapTranslationJob){mapTranslationJob.controller.abort();updateTranslationStop()}else{$('mapTranslateStatus').textContent='自动翻译已停止';hideTranslationNotice()}}
+function pauseTranslationForDensity(){
+ autoTranslationMoveStart();
+ if(mapTranslationJob){mapTranslationJob.densityPause=true;mapTranslationJob.controller.abort()}
+ $('mapTranslateToast').hidden=true;updateTranslationStop();
+}
 function updateTranslationStop(){
- const active=autoTranslation||!!mapTranslationJob;
- $('mapTranslateTopStop').hidden=!active;
- $('mapTranslateTopStop').disabled=!!mapTranslationJob?.controller.signal.aborted;
+ const active=autoTranslation||!!mapTranslationJob,b=$('mapTranslateToggle');
+ b.setAttribute('aria-pressed',String(active));b.disabled=!ready||!!mapTranslationJob?.controller.signal.aborted;
+ const label=active?'停止全图自动翻译':'开启全图自动翻译';
+ b.setAttribute('aria-label',label);b.title=label;
+ b.querySelector('.translateStartIcon').toggleAttribute('hidden',active);
+ b.querySelector('.translateStopIcon').toggleAttribute('hidden',!active);
 }
 function updateAutoTranslationUI(){
- $('mapTranslateFollow').checked=autoTranslation;
  $('mapTranslateFollowStatus').textContent=autoTranslation?'持续翻译已开启 · 已请求 '+autoTranslationUsed+' / '+AUTO_TRANSLATION_BUDGET+' 个名称':'持续翻译已关闭';
- $('mapTranslateStop').hidden=!autoTranslation&&!mapTranslationJob;$('mapTranslateMenuStop').hidden=!autoTranslation&&!mapTranslationJob;updateTranslationStop();
+ updateTranslationStop();
 }
 function setAutoTranslation(enabled){
  clearTimeout(autoTranslationTimer);autoTranslationTimer=null;
@@ -73,7 +80,7 @@ function setAutoTranslation(enabled){
  if(!dsKey||!dsModel||!dsModels.includes(dsModel)){updateAutoTranslationUI();openAISettings();$('mapTranslateStatus').textContent='请先配置 DeepSeek 并获取模型。';return}
  if(!window.confirm('开启随地图移动自动翻译？地图停止移动后将持续调用 DeepSeek 翻译新出现的遗址名称，可能产生费用。仅本次页面有效，最多自动请求 '+AUTO_TRANSLATION_BUDGET+' 个名称（含重试），可随时停止。网络或模型输出异常最多自动重试两次，重试也可能计费。')){updateAutoTranslationUI();return}
  resetTranslationNotice();autoTranslation=true;autoTranslationUsed=0;autoTranslationDone=0;autoTranslationAttempted.clear();autoTranslationLast=0;
- $('mapTranslateStop').disabled=false;$('mapTranslateMenuStop').disabled=false;updateAutoTranslationUI();scheduleAutoTranslation();
+ $('mapTranslateStatus').textContent='全图自动翻译已开启';updateAutoTranslationUI();scheduleAutoTranslation();
 }
 function scheduleAutoTranslation(){
  if(densityPaused||!autoTranslation||!ready||mapTranslationJob)return;
@@ -90,7 +97,7 @@ async function runAutoTranslation(){
  if(!targets.length)return;
  for(const t of targets)autoTranslationAttempted.add(t.key);
  autoTranslationLast=Date.now();
- await translateViewport({automatic:true,targets});
+ await translateViewport({targets});
 }
 
 
@@ -169,25 +176,18 @@ async function translateMapBatch(initial,job,onResults,onRetry){
 }
 
 async function translateViewport(options={}){
- const automatic=options.automatic===true;
- if(mapTranslationJob)return;
- if(!automatic)resetTranslationNotice();
- if(!ready||map.isMoving()){ $('mapTranslateStatus').textContent='请等地图停止移动并加载后再翻译。';return}
- if(!dsKey||!dsModel||!dsModels.includes(dsModel)){openAISettings();$('mapTranslateStatus').textContent='请配置 DeepSeek API Key 并获取模型。';return}
- if(densityPaused){if(!automatic)mapTranslationNotice('古迹密度超过 2000 条，请放大地图后翻译。',0,0,false);return}const targets=automatic?options.targets:mapTranslationTargets(hwViewFeatures().sort(compareHeritage));
- if(!targets.length){mapTranslationNotice('当前范围没有待翻译的有名遗址（未命名记录不会翻译）。',0,0,false);return}
- if(targets.length>MAP_TRANSLATION_LIMIT){mapTranslationNotice('当前范围有 '+targets.length+' 个待翻译名称，请放大地图至不超过 '+MAP_TRANSLATION_LIMIT+' 个后再翻译。',0,targets.length,false);return}
- if(!automatic&&!window.confirm('翻译当前视野 '+targets.length+' 个尚无中文名的遗址？\n将分 '+Math.ceil(targets.length/MAP_TRANSLATION_BATCH)+' 批调用 '+dsModel+'，可能产生 API 费用。仅翻译名称，不联网搜索。异常最多重试两次（可能产生额外费用）。自动跟随模式开启时，移动地图后会继续翻译。'))return;
- const job={controller:new AbortController(),key:dsKey,model:dsModel,automatic};mapTranslationJob=job;updateTranslationStop();
+ if(mapTranslationJob||densityPaused||!autoTranslation||!ready||map.isMoving())return;
+ if(!dsKey||!dsModel||!dsModels.includes(dsModel)){setAutoTranslation(false);return}
+ const targets=options.targets;if(!Array.isArray(targets)||!targets.length)return;
+ const job={controller:new AbortController(),key:dsKey,model:dsModel,automatic:true,densityPause:false};mapTranslationJob=job;updateTranslationStop();
  let done=0,translated=0,skipped=0,saved=true,problem='';
- $('mapTranslateStop').disabled=false;$('mapTranslateMenuStop').disabled=false;if(!automatic)setTopOpen(false);
  try{
   for(let i=0;i<targets.length;i+=MAP_TRANSLATION_BATCH){
    if(job.controller.signal.aborted||dsKey!==job.key||dsModel!==job.model)break;
    const chunk=targets.slice(i,i+MAP_TRANSLATION_BATCH),batch=chunk.filter(t=>!chinese(t.p)&&!translatedMapName(t.p));
    skipped+=chunk.length-batch.length;
    if(batch.length){
-    mapTranslationNotice((automatic?'自动更新译名 · ':'正在翻译 ')+(done+1)+'–'+(done+chunk.length)+' / '+targets.length+' 个名称…',done,targets.length,true);
+    mapTranslationNotice('自动更新译名 · '+(done+1)+'–'+(done+chunk.length)+' / '+targets.length+' 个名称…',done,targets.length,true);
 
     await translateMapBatch(batch,job,(items,parsed)=>{
      const cache=getMapTranslationCache();
@@ -197,20 +197,21 @@ async function translateViewport(options={}){
     if(!translationJobActive(job))break;
 
    }
-   done+=chunk.length;mapTranslationNotice((automatic?'自动更新 · ':'已处理 ')+done+' / '+targets.length+'，获得 '+translated+' 个 AI 译名',done,targets.length,true);
+   done+=chunk.length;mapTranslationNotice('自动更新 · '+done+' / '+targets.length+'，获得 '+translated+' 个 AI 译名',done,targets.length,true);
   }
  }catch(e){if(!job.controller.signal.aborted)problem=dsError(e)}
  finally{
   if(mapTranslationJob===job){mapTranslationJob=null;const stopped=job.controller.signal.aborted||dsKey!==job.key||dsModel!==job.model;
-   if(automatic){autoTranslationDone+=translated;if(problem||stopped)setAutoTranslation(false)}
-   mapTranslationNotice((problem?'翻译中断：'+problem:stopped?'已停止翻译':automatic?'自动更新完成，移动地图可继续':'翻译完成')+' · '+translated+' 个译名'+(skipped?'，'+skipped+' 个已有中文名':'')+'，'+Math.max(0,targets.length-translated-skipped)+' 个未翻译'+(!saved?'；本地保存失败，本次页面仍可使用':''),done,targets.length,false);
+   autoTranslationDone+=translated;
+   if(job.densityPause){for(const t of targets)if(!translatedMapName(t.p))autoTranslationAttempted.delete(t.key);$('mapTranslateToast').hidden=true;updateAutoTranslationUI();if(autoTranslation)scheduleAutoTranslation();return}
+   if(problem||stopped)setAutoTranslation(false);
+   mapTranslationNotice((problem?'翻译中断：'+problem:stopped?'已停止翻译':'自动更新完成，移动地图可继续')+' · '+translated+' 个译名'+(skipped?'，'+skipped+' 个已有中文名':'')+'，'+Math.max(0,targets.length-translated-skipped)+' 个未翻译'+(!saved?'；本地保存失败，本次页面仍可使用':''),done,targets.length,false);
    updateAutoTranslationUI();if(autoTranslation)scheduleAutoTranslation();
   }
  }
 }
 function setupMapTranslation(){
- $('mapTranslate').onclick=()=>translateViewport();$('mapTranslateAI').onclick=()=>translateViewport();
- $('mapTranslateFollow').onchange=()=>{if(!$('mapTranslateFollow').checked){stopMapTranslation()}else setAutoTranslation(true)};updateAutoTranslationUI();
- $('mapTranslateTopStop').onclick=stopMapTranslation;$('mapTranslateStop').onclick=stopMapTranslation;$('mapTranslateMenuStop').onclick=stopMapTranslation;$('mapTranslateHide').onclick=hideTranslationNotice;
+ $('mapTranslateToggle').onclick=()=>{if(autoTranslation||mapTranslationJob)stopMapTranslation();else setAutoTranslation(true)};
+ $('mapTranslateHide').onclick=hideTranslationNotice;updateAutoTranslationUI();
  $('mapTranslateClear').onclick=()=>{if(mapTranslationJob)return;setAutoTranslation(false);if(!window.confirm('清除本机保存的全部 AI 地图译名？不会删除官方中文名。'))return;resetTranslationNotice();getMapTranslationCache().clear();storeSet(MAP_TRANSLATION_STORE,'');refreshNameLayers();mapTranslationNotice('已清除 AI 地图译名。',0,0,false)};
 }
