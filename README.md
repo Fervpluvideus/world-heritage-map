@@ -8,7 +8,7 @@
 <p>跨越语言的边界，探索人类文明的共同记忆。</p>
 
 <a href="https://fervpluvideus.github.io/world-heritage-map/"><img alt="打开世界古迹图" src="https://img.shields.io/badge/在线探索-Live%20Map-28594d?style=for-the-badge"></a>
-<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.28" src="https://img.shields.io/badge/Version-0.28-8b704b?style=for-the-badge"></a>
+<a href="https://github.com/Fervpluvideus/world-heritage-map"><img alt="版本 0.29" src="https://img.shields.io/badge/Version-0.29-8b704b?style=for-the-badge"></a>
 <a href="https://github.com/Fervpluvideus/world-heritage-map/issues"><img alt="反馈与建议" src="https://img.shields.io/badge/反馈与建议-Issues-526b63?style=for-the-badge"></a>
 
 <p><strong>全球古迹探索 · 中文统一展示 · 历史地图叠加</strong></p>
@@ -81,7 +81,7 @@
 
 - 图层连接详情和数据说明默认折叠；底部保留简短署名及可展开的完整来源与许可信息。
 
-- V0.29-dev：卫星图源仅保留 ArcGIS World Imagery，标注「仅交流学习使用」。直接使用 Esri 服务，公开网站使用授权尚待核实；说明文字不构成授权。
+- V0.29：卫星图源仅保留 ArcGIS World Imagery，标注「仅交流学习使用」。直接使用 Esri 服务，公开网站使用授权尚待核实；说明文字不构成授权。
 
 - V0.27：中性实时磨砂玻璃，使用浏览器 backdrop-filter 对当前地图画面模糊；支持关闭效果。
 - 古迹显示由地图缩放等级控制，不再按数量限制：等级 8 起显示图标，等级 9 起显示名称；低于等级 8 静默隐藏。
