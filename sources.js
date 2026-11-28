@@ -73,8 +73,8 @@ async function loadExtra(d){
  try{s.rows=await(d.id==='unesco'?loadUNESCO():loadPleiades());s.index=indexExternal(s.rows);s.state='ready'}catch(e){s.state='error';s.error=String(e.message||e).slice(0,80)}
  finally{refreshExtraStatus();queueAggregation()}
 }
-function extraVisibleFeatures(center,size,pad=0){
- const out=[],b=map.getBounds(),dx=(b.getEast()-b.getWest())*pad/Math.max(1,size.clientWidth),dy=(b.getNorth()-b.getSouth())*pad/Math.max(1,size.clientHeight),west=b.getWest()-dx,east=b.getEast()+dx,south=Math.max(-90,b.getSouth()-dy),north=Math.min(90,b.getNorth()+dy);
+function extraVisibleFeatures(center,size,pad=0,collect=null){
+ const out=[],condition=$('conditionFilter').value,designation=$('designationFilter').value,b=map.getBounds(),dx=(b.getEast()-b.getWest())*pad/Math.max(1,size.clientWidth),dy=(b.getNorth()-b.getSouth())*pad/Math.max(1,size.clientHeight),west=b.getWest()-dx,east=b.getEast()+dx,south=Math.max(-90,b.getSouth()-dy),north=Math.min(90,b.getNorth()+dy);
  for(const d of EXTRA_DEFS){
   const s=extraStates.get(d.id);if(!extraEnabled(d)||s?.state!=='ready')continue;
   let candidates=s.rows;
@@ -83,9 +83,9 @@ function extraVisibleFeatures(center,size,pad=0){
    for(let x=Math.floor(west);x<=Math.floor(east);x++)for(let y=Math.floor(south);y<=Math.floor(north);y++){const k=(((x+180)%360+360)%360-180)+'|'+y;if(!used.has(k)){used.add(k);candidates.push(...(s.index.get(k)||[]))}}
   }
   for(const f of candidates){
-   const [lon,y]=f.geometry.coordinates,x=lon+360*Math.round((center.lng-lon)/360);if(y<south||y>north||x<west||x>east||!passesCategory(f.properties))continue;
+   const [lon,y]=f.geometry.coordinates,x=lon+360*Math.round((center.lng-lon)/360);if(y<south||y>north||x<west||x>east||!passesCategory(f.properties,condition,designation))continue;
    const xy=map.project([x,y]);if(xy.x< -pad||xy.y< -pad||xy.x>size.clientWidth+pad||xy.y>size.clientHeight+pad)continue;
-   out.push({...f,xy,geometry:{type:'Point',coordinates:[x,y]}});
+   const item={...f,xy,geometry:{type:'Point',coordinates:[x,y]}};if(collect){if(!collect(item))return null}else out.push(item);
   }
  }
  return out;
@@ -95,7 +95,7 @@ function initExtraSources(){
   const lab=document.createElement('label'),i=document.createElement('input'),dot=document.createElement('span');i.type='checkbox';i.checked=prefEnabled('extraLayers',d.id,d.enabled);dot.className='sw';dot.style.background=d.color;lab.append(i,dot,d.title);$('extraFilters').append(lab);extraControls.set(d.id,i);
   i.onchange=()=>{saveExtraSources();if(i.checked)loadExtra(d);refreshExtraStatus();queueAggregation()};
  }
- for(const d of EXTRA_DEFS)if(extraEnabled(d))loadExtra(d);
+ afterInitialPaint(()=>{for(const d of EXTRA_DEFS)if(extraEnabled(d))loadExtra(d)});
  initHistoryMaps();
 }
 const OHM_LAYERS=[
