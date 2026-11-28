@@ -7,7 +7,7 @@ function resetTranslationNotice(){clearTimeout(translationNoticeTimer);translati
 function hideTranslationNotice(){clearTimeout(translationNoticeTimer);translationNoticeTimer=null;translationNoticeDismissed=true;$('mapTranslateToast').hidden=true}
 const AUTO_TRANSLATION_DELAY=500,AUTO_TRANSLATION_INTERVAL=800;
 function translationZoomAllowed(){return ready&&map.getZoom()>=LABEL_MIN_ZOOM}
-let autoTranslation=false,autoTranslationTimer=null,autoTranslationLast=0,autoTranslationUsed=0,autoTranslationDone=0,autoTranslationAttempted=new Set();
+let autoTranslation=false,autoTranslationTimer=null,autoTranslationLast=0,autoTranslationUsed=0,autoTranslationDone=0,autoTranslationAttempted=new Set(),autoTranslationEmptyRevision=-1;
 function rawMapName(p){return firstName(p,['label_local','name_local','name','label','name:en','name_en','label_en','int_name'])||cachedNames(p).english||''}
 function mapTranslationKey(p){
  const name=rawMapName(p);if(!name)return '';
@@ -86,11 +86,11 @@ function setAutoTranslation(enabled){
 }
 function startAutoTranslation(){
  if(!dsKey||!dsModel||!dsModels.includes(dsModel))return;
- resetTranslationNotice();autoTranslation=true;autoTranslationUsed=0;autoTranslationDone=0;autoTranslationAttempted.clear();autoTranslationLast=0;
+ resetTranslationNotice();autoTranslation=true;autoTranslationUsed=0;autoTranslationDone=0;autoTranslationAttempted.clear();autoTranslationLast=0;autoTranslationEmptyRevision=-1;
  $('mapTranslateStatus').textContent='全图自动翻译已开启';updateAutoTranslationUI();scheduleAutoTranslation();
 }
 function scheduleAutoTranslation(){
- if(scalePaused||!autoTranslation||!ready||mapTranslationJob||aggTimer)return;
+ if(scalePaused||!autoTranslation||!ready||mapTranslationJob||aggTimer||autoTranslationEmptyRevision===visibleRevision)return;
  if(map.isMoving()||!translationZoomAllowed()||autoTranslationTimer!==null)return;
  autoTranslationTimer=setTimeout(()=>{autoTranslationTimer=null;runAutoTranslation()},Math.max(AUTO_TRANSLATION_DELAY,AUTO_TRANSLATION_INTERVAL-(Date.now()-autoTranslationLast)));
 }
@@ -99,7 +99,7 @@ async function runAutoTranslation(){
  if(scalePaused||!autoTranslation||!ready||mapTranslationJob||map.isMoving()||!translationZoomAllowed())return;
  if(!dsKey||!dsModel||!dsModels.includes(dsModel)){setAutoTranslation(false);return}
  if(aggTimer||aggListDirty)return;const targets=mapTranslationTargets(visibleRows,MAP_TRANSLATION_BATCH);
- if(!targets.length)return;
+ if(!targets.length){autoTranslationEmptyRevision=visibleRevision;return}
  for(const t of targets)autoTranslationAttempted.add(t.key);
  autoTranslationLast=Date.now();
  await translateViewport({targets});
