@@ -76,7 +76,7 @@ function setAutoTranslation(enabled){
  $('mapTranslateStop').disabled=false;$('mapTranslateMenuStop').disabled=false;updateAutoTranslationUI();scheduleAutoTranslation();
 }
 function scheduleAutoTranslation(){
- if(!autoTranslation||!ready||mapTranslationJob)return;
+ if(densityPaused||!autoTranslation||!ready||mapTranslationJob)return;
  if(autoTranslationUsed>=AUTO_TRANSLATION_BUDGET){setAutoTranslation(false);mapTranslationNotice('已达到本次自动翻译上限；如需继续，请重新开启。',autoTranslationDone,AUTO_TRANSLATION_BUDGET,false);return}
  if(map.isMoving()||map.getZoom()<AUTO_TRANSLATION_MIN_ZOOM||autoTranslationTimer!==null)return;
  autoTranslationTimer=setTimeout(()=>{autoTranslationTimer=null;runAutoTranslation()},Math.max(AUTO_TRANSLATION_DELAY,AUTO_TRANSLATION_INTERVAL-(Date.now()-autoTranslationLast)));
@@ -84,7 +84,7 @@ function scheduleAutoTranslation(){
 function autoTranslationMoveStart(){clearTimeout(autoTranslationTimer);autoTranslationTimer=null}
 async function runAutoTranslation(){
  if(autoTranslationUsed>=AUTO_TRANSLATION_BUDGET){scheduleAutoTranslation();return}
- if(!autoTranslation||!ready||mapTranslationJob||map.isMoving()||map.getZoom()<AUTO_TRANSLATION_MIN_ZOOM)return;
+ if(densityPaused||!autoTranslation||!ready||mapTranslationJob||map.isMoving()||map.getZoom()<AUTO_TRANSLATION_MIN_ZOOM)return;
  if(!dsKey||!dsModel||!dsModels.includes(dsModel)){setAutoTranslation(false);return}
  const targets=mapTranslationTargets(hwViewFeatures().sort(compareHeritage)).filter(t=>!autoTranslationAttempted.has(t.key)).slice(0,Math.min(MAP_TRANSLATION_BATCH,AUTO_TRANSLATION_BUDGET-autoTranslationUsed));
  if(!targets.length)return;
@@ -174,7 +174,7 @@ async function translateViewport(options={}){
  if(!automatic)resetTranslationNotice();
  if(!ready||map.isMoving()){ $('mapTranslateStatus').textContent='请等地图停止移动并加载后再翻译。';return}
  if(!dsKey||!dsModel||!dsModels.includes(dsModel)){openAISettings();$('mapTranslateStatus').textContent='请配置 DeepSeek API Key 并获取模型。';return}
- const targets=automatic?options.targets:mapTranslationTargets(hwViewFeatures().sort(compareHeritage));
+ if(densityPaused){if(!automatic)mapTranslationNotice('古迹密度超过 2000 条，请放大地图后翻译。',0,0,false);return}const targets=automatic?options.targets:mapTranslationTargets(hwViewFeatures().sort(compareHeritage));
  if(!targets.length){mapTranslationNotice('当前范围没有待翻译的有名遗址（未命名记录不会翻译）。',0,0,false);return}
  if(targets.length>MAP_TRANSLATION_LIMIT){mapTranslationNotice('当前范围有 '+targets.length+' 个待翻译名称，请放大地图至不超过 '+MAP_TRANSLATION_LIMIT+' 个后再翻译。',0,targets.length,false);return}
  if(!automatic&&!window.confirm('翻译当前视野 '+targets.length+' 个尚无中文名的遗址？\n将分 '+Math.ceil(targets.length/MAP_TRANSLATION_BATCH)+' 批调用 '+dsModel+'，可能产生 API 费用。仅翻译名称，不联网搜索。异常最多重试两次（可能产生额外费用）。自动跟随模式开启时，移动地图后会继续翻译。'))return;
