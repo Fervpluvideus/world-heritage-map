@@ -74,7 +74,7 @@ async function searchListAI(){
  finally{if(listSearchJob===job){listSearchJob=null;$('listSearchStop').hidden=true;$('listSearchSubmit').disabled=false;renderList()}}
 }
 function renderList(){
- const el=$('listRows'),query=$('listQuery').value.trim();el.replaceChildren();renderPlaceResults(el,query);if(query)addText(el,'h3','当前范围古迹').className='unifiedSearchHeading';if(densityPaused){$('listTitle').textContent='地点与古迹搜索';$('listSearchStatus').textContent='古迹密度保护已启动，全球地点搜索仍可用。';$('listSearchSubmit').disabled=false;addText(el,'p','当前范围超过 2000 条古迹，请放大地图或减少图层。');return}if(!listSearchJob)$('listSearchSubmit').disabled=false;
+ const el=$('listRows'),query=$('listQuery').value.trim();el.replaceChildren();renderPlaceResults(el,query);if(densityPaused){$('listTitle').textContent='地点与古迹搜索';$('listSearchStatus').textContent='';$('listSearchSubmit').disabled=false;return}if(query)addText(el,'h3','当前范围古迹').className='unifiedSearchHeading';if(!listSearchJob)$('listSearchSubmit').disabled=false;
  let rows=[...listCandidates()];const total=rows.length;
  $('listTitle').textContent=aggListKey===null?'地点与古迹搜索':'同类聚合点 · '+total+' 条记录';
  if(aggListKey===null){const c=map.getContainer();rows.sort((a,b)=>Math.hypot(a.xy.x-c.clientWidth/2,a.xy.y-c.clientHeight/2)-Math.hypot(b.xy.x-c.clientWidth/2,b.xy.y-c.clientHeight/2))}
