@@ -9,7 +9,7 @@ function extraEnabled(d){return extraControls.get(d.id)?.checked===true}
 function openInventory(p){return String(p.licence_class||'').toLowerCase()==='open'&&String(p.id||'').toLowerCase()!=='epsg:4326'}
 function saveExtraSources(){prefs.extraLayers=Object.fromEntries(EXTRA_DEFS.map(d=>[d.id,extraEnabled(d)]));writePrefs()}
 function resetExtraSources(){for(const d of EXTRA_DEFS){const i=extraControls.get(d.id);if(i){i.checked=d.enabled;if(d.enabled)loadExtra(d)}}saveExtraSources();refreshExtraStatus();queueAggregation()}
-function refreshExtraStatus(){$('extraStatus').textContent=EXTRA_DEFS.filter(extraEnabled).map(d=>{const s=extraStates.get(d.id);return d.title+'：'+(s?.state==='ready'?s.rows.length+' 个坐标记录':s?.state==='loading'?'加载中…':s?.state==='error'?'失败（'+s.error+'）':'等待加载')}).join(' · ')}
+function refreshExtraStatus(){$('extraStatus').textContent=EXTRA_DEFS.filter(extraEnabled).map(d=>{const s=extraStates.get(d.id);return d.title+'：'+(s?.state==='ready'?s.rows.length+' 个坐标记录':s?.state==='loading'?'加载中…':s?.state==='error'?'失败（'+s.error+'）':'等待加载')}).join(' · ');refreshLayerDetailsSummary()}
 function plainSourceText(v){return String(v||'').replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim().slice(0,1800)}
 function validCoords(lon,lat){return [lon,lat].every(v=>v!==''&&v!==null&&v!==undefined&&Number.isFinite(Number(v)))&&Math.abs(Number(lon))<=180&&Math.abs(Number(lat))<=90}
 function externalFeature(p,lon,lat){return {geometry:{type:'Point',coordinates:[Number(lon),Number(lat)]},properties:{...p,lat:Number(lat),lon:Number(lon)}}}
